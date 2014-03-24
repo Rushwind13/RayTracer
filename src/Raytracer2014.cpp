@@ -69,4 +69,14 @@ Color trace( Ray ray, World world, int depth, double weight, double refractivein
 {
 	Intersection hit = Intersect( ray, world );
 	Color color = FindColor( ray, world, hit, depth, weight, refractiveindex  );
+
+	return color;
+}
+
+Color FindColor( Ray ray, World world, Intersection hit, int depth, double weight, double refractiveindex )
+{
+	if( !hit.gotHit ) return Color(0,0,0);
+
+	//TODO: For now, just return the object's color, but this is where the lighting magic happens...
+	return hit.object.color;
 }
