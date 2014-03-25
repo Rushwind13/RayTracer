@@ -18,6 +18,8 @@ public:
 
 	vec3 u,v,w;
 
+	double fovy;
+
 	void CreateCoordinateFrame()
 	{
 		vec3 a = eye - lookAt;
