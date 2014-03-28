@@ -7,94 +7,156 @@
 
 #ifndef OBJECT_H_
 #define OBJECT_H_
-#include "Math.h"
+#include "Math.hpp"
 
 class Object
 {
 public:
 	Object( const mat4 o2w ) : objectToWorld(o2w)
 	{
-		worldToObject = objectToWorld.inverse();
+		worldToObject = inverse(objectToWorld);
 		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
 	virtual ~Object() {}
-	virtual bool Intersect( const Ray &r, double &t ) const = 0;
+	virtual bool Intersect( const Ray &r, float &t, vec3 &normal ) const = 0;
 	mat4 objectToWorld, worldToObject;
 	Color color;
+	//Position worldpos;
 };
+
+/**
+ * def Intersect( ray, scene, from_object=None, clip_dist=1000000 ):
+	#print "in intersect"
+	# just hardcode sphere intersection for the moment
+	hit = {'gothit':False, 'distance':clip_dist}
+	#print ("a")
+	self_epsilon = .1
+
+	for o in scene['object']:
+		self_test = False
+		if from_object:
+			#print hit
+			#print ray
+			# No intersecting with yourself
+			if from_object['id'] == scene['object'][o]['id']: self_test = True #continue
+			# No intersecting with light sources ("emissive" objects)
+			# (only when checking for shadow calc)
+			if 'emissive' in scene['object'][o]['material']: continue
+		try:
+			func = getattr( sys.modules[__name__], scene['object'][o]['type'] )
+		except AttributeError:
+			print 'function not found "%s" (%s)' % (scene['object'][o], scene['object'][o]['type'])
+		else:
+			new_hit = func(ray, scene['object'][o])
+			#print "after func"
+			global camera_dist
+			if new_hit['gothit'] and new_hit['distance'] < hit['distance']:
+				if self_test:
+					if abs(new_hit['distance']) < self_epsilon:
+						#print "epsilon hit"
+						continue
+				hit = deepcopy(new_hit)
+				if from_object:
+					#print "shadow hit"
+					break # shadows only need to have one intersection, not just the closest one.
+
+	#if hit['gothit']: print hit
+	#else: print 'no hit'
+	return hit
+ */
 
 class Sphere : public Object
 {
 public:
-	Sphere( const mat4 o2w, double r = 1 ): Object(o2w), radius(r), radius2(r*r) {}
-	bool Intersect( const Ray &r, double &t ) const
+	Sphere( const mat4 o2w, vec3 c, float r = 1 ): Object(o2w), center(c), radius(r), radius2(r*r) {}
+	bool Intersect( const Ray &r, float &t, vec3 &normal ) const
 	{
-	/**
-	 * def sphere( ray, object ):
-	center = object['position']
-	r = object['radius']
-	p0c = subtract( ray[0], center )
+		// basic ray equation = o + dt (origin, direction, length)
+		// basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
+		// sub in ray for p:
+		// (o + dt - c )^2 - r^2 = 0
+		// solve for t:
+		// ( dt + (o-c))^2 - r^2 = 0
+		// d^2t^2 + 2((o-c)dt) + (o-c)^2 - r^2 = 0
+		// but this is of the form At^2 + Bt + C = 0
+		// where
+		// a = dot(d, d) (xd^2 + yd^2 + zd^2)
+		// b = 2( dot( d, (o-c) )
+		// c = dot( o-c, o-c ) - r^2
+		//
+		// Note that a = 1 since d is unit length
+		// Note that b^2 = 4 * (the stuff)^2
+		//
+		// sub into quadtratic eqn:
+		// -b +/- sqrt( b^2 - 4 * a * c ) / 2 * a
+		// => -b +/- sqrt(4) * sqrt( (the stuff) ^2 - c ) / 2 /* pull out factor of 4 and a=1 */
+		//
+		// Note b = 2 * (the stuff)
+		// => -(the stuff) +/- sqrt( (the stuff) ^2 - c)  /* remove factor of 2 */
+		//
+		// So, if dot( d, o-c )^2 < c then the sqrt goes complex and there's no intersection
+		// If they are equal, then the ray is tangent to the sphere
+		// If you have a negative root, then (at least part of) the sphere is behind the ray's origin
+		// Other than that, the intersection point (h) is the smaller positive root.
+		// The normal at that point is normalize(h-c) or, in a nifty trick, since you have
+		// h = o + dt and you have o-c calculated already, (h-c) = o + dt - c = (o-c) + dt
+		// which seems counterintuitive (since vec subtraction is not commutative nor associative), but seems to work.
 
-	# sphere intersection devolves into a quadtratic at^2 + bt + c = 0
-	a = dot(ray[1], ray[1]) # P1 . P1
-	b = 2. * dot( ray[1], p0c )
-	c = dot( p0c, p0c ) - ( r * r )
+		vec3 oc = r.origin - center;
+		float DdotOC = dot( r.direction, oc );
+		float len2 = dot(oc, oc);
 
-	# b^2 - 4ac
-	discriminant = (b*b) - (4. * a * c)
+		float b = DdotOC;
+		float c = len2 - radius2;
 
-	if discriminant <= 0.: return {'gothit':False}
+		float b2 = b * b;
 
-	disc_sqrt = sqrt(discriminant)
+		// No intersect if miss or tangent
+		if( b2 <= c )
+		{
+			t = 0;
+			return false;
+		}
 
-	# TODO: Note there are some efficiencies that can be done here,
-	# because we know that a will not be negative (it's a length squared)
-	# so only the numerator could make the thing negative...
+		// two intersection points; choose smallest positive one
+		float discriminant = std::sqrt( b2 - c );
+		float root1 = -b + discriminant;
+		float root2 = -b - discriminant;
 
-	# You got some kind of hit
-	root1 = (-b + sqrt(discriminant)) / (2. * a)
-	root2 = (-b - sqrt(discriminant)) / (2. * a)
+		t = std::min(root1, root2);
+		if( t < 0. )
+		{
+			// inside the sphere; for now don't intersect
+			// but later could use reversed normals.
+			t = 0;
+			return false;
+		}
 
-	if root1 == root2: return {'gothit':False} #tangent
+		// Note: o + dt - c = (o - c) + dt
+		normal = normalize(oc + r.direction * t);
 
-	# probably a more efficient way to do this too
-	distance = min( root1, root2 )
-	if distance < 0: # you are inside the object, don't intersect with it.
-		return {'gothit':False}
-		#distance = max( root1, root2 )
+		// TODO: texture coordinates
+		/*
+		 * 	u = sqrt( normal[0]*normal[0] + normal[2]*normal[2] ) * 2. # multiply by 2 because X goes 360 where Y goes 180
+			v = arctan2(normal[2],normal[0])
+			texture = array([u,v])
+		 */
 
-	global camera_dist
-	#distance = distance + camera_dist
-	intersection = ray[0] + (ray[1] * distance)
-
-	# for lighting, later.
-	normal = subtract( intersection, center )
-	normal = normal / la.norm(normal)
-	normal = normal # should be +normal
-
-	u = sqrt( normal[0]*normal[0] + normal[2]*normal[2] ) * 2. # multiply by 2 because X goes 360 where Y goes 180
-	v = arctan2(normal[2],normal[0])
-	texture = array([u,v])
-	#print intersection
-	#print center
-	#print normal
-	#print '\n'
-
-	return {'gothit':True, 'object': object, 'distance':distance, 'intersection': intersection, 'normal':normal, 'texture':texture}
-	 *
-	 */
-
+		return true;
 	}
-	double radius, radius2;
+protected:
+	vec3 center;
+	float radius, radius2;
 };
 
 class Box : public Object
 {
 public:
 	Box( const mat4 o2w, const Position c1, const Position c2 ): Object(o2w), corner1(c1), corner2(c2) {}
-		bool Intersect( const Ray &r, double &t ) const
+		bool Intersect( const Ray &r, float &t ) const
 		{
+			return false;
 /**
  * def box( ray, object ):
 	#print "in box"
@@ -202,6 +264,7 @@ public:
  *
  */
 		}
+protected:
 		Position corner1, corner2;
 };
 #endif /* OBJECT_H_ */
