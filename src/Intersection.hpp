@@ -9,7 +9,7 @@
 #define INTERSECTION_HPP_
 #include "Math.hpp"
 
-class JObject;
+class Object;
 
 class Intersection
 {
@@ -17,7 +17,7 @@ public:
 	Intersection() : gothit(false), object(NULL), normal(0), position(0), distance(1e9) {};
 	~Intersection() {};
 	bool gothit;
-	const JObject *object;
+	const Object *object;
 	vec3 normal;
 	Position position;
 	float distance;

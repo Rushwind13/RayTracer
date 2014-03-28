@@ -7,19 +7,22 @@
 
 #ifndef OBJECT_H_
 #define OBJECT_H_
+#include <iostream>
 #include "Math.hpp"
 #include "Intersection.hpp"
 
-class JObject
+#define COLOR_RED Color(255,0,0);
+class Object
 {
 public:
-	JObject( const mat4 o2w ) : objectToWorld(o2w)
+	Object() {};
+	Object( const mat4 o2w ) : objectToWorld(o2w)
 	{
 		worldToObject = inverse(objectToWorld);
 		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
-	virtual ~JObject() {}
+	virtual ~Object() {}
 	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
 	mat4 objectToWorld, worldToObject;
 	Color color;
@@ -67,10 +70,13 @@ public:
 	return hit
  */
 
-class Sphere : public JObject
+class Sphere : public Object
 {
 public:
-	Sphere( const mat4 o2w, vec3 c, float r = 1 ): JObject(o2w), center(c), radius(r), radius2(r*r) {}
+	Sphere( /*const mat4 o2w,*/ vec3 c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
+	{
+			color = COLOR_RED;
+	}
 	bool Intersect( const Ray &r, Intersection &i ) const
 	{
 		// basic ray equation = o + dt (origin, direction, length)
@@ -138,7 +144,7 @@ public:
 		vec3 dt = r.direction * i.distance;
 
 		i.normal = normalize(oc + dt);
-		i.object = reinterpret_cast<const JObject *>(this);
+		i.object = reinterpret_cast<const Object *>(this);
 		i.position = r.origin + dt;
 
 		// TODO: texture coordinates
@@ -155,10 +161,10 @@ protected:
 	float radius, radius2;
 };
 
-class Box : public JObject
+class Box : public Object
 {
 public:
-	Box( const mat4 o2w, const Position c1, const Position c2 ): JObject(o2w), corner1(c1), corner2(c2) {}
+	Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
 		bool Intersect( const Ray &r, Intersection &i ) const
 		{
 			return false;

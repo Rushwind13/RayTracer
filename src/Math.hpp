@@ -7,6 +7,7 @@
 
 #ifndef MATH_H_
 #define MATH_H_
+#include <cmath>
 
 #include "glm/glm.hpp"
 using namespace glm;

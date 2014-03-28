@@ -19,7 +19,7 @@ public:
 	int maxdepth;
 	double minweight;
 
-	JObject *objects;
+	std::list<Object *> objects;
 
 protected:
 private:
@@ -48,11 +48,10 @@ def create_scene( metadata ):
 	{
 		Intersection nearest;
 
-		JObject *object = objects;
-		while( object != NULL )
+		for(std::list<Object *>::iterator it = objects.begin(); it != objects.end(); it++)
 		{
 			Intersection i;
-		    if( object->Intersect( ray, i ) )
+		    if( (*it)->Intersect( ray, i ) )
 		    {
 				if( i.distance < nearest.distance )
 				{
@@ -63,7 +62,6 @@ def create_scene( metadata ):
 					nearest.position	= i.position;
 				}
 		    }
-		    object++;
 		}
 
 		return nearest;
