@@ -8,18 +8,19 @@
 #ifndef OBJECT_H_
 #define OBJECT_H_
 #include "Math.hpp"
+#include "Intersection.hpp"
 
-class Object
+class JObject
 {
 public:
-	Object( const mat4 o2w ) : objectToWorld(o2w)
+	JObject( const mat4 o2w ) : objectToWorld(o2w)
 	{
 		worldToObject = inverse(objectToWorld);
 		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
-	virtual ~Object() {}
-	virtual bool Intersect( const Ray &r, float &t, vec3 &normal ) const = 0;
+	virtual ~JObject() {}
+	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
 	mat4 objectToWorld, worldToObject;
 	Color color;
 	//Position worldpos;
@@ -66,11 +67,11 @@ public:
 	return hit
  */
 
-class Sphere : public Object
+class Sphere : public JObject
 {
 public:
-	Sphere( const mat4 o2w, vec3 c, float r = 1 ): Object(o2w), center(c), radius(r), radius2(r*r) {}
-	bool Intersect( const Ray &r, float &t, vec3 &normal ) const
+	Sphere( const mat4 o2w, vec3 c, float r = 1 ): JObject(o2w), center(c), radius(r), radius2(r*r) {}
+	bool Intersect( const Ray &r, Intersection &i ) const
 	{
 		// basic ray equation = o + dt (origin, direction, length)
 		// basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
@@ -115,7 +116,7 @@ public:
 		// No intersect if miss or tangent
 		if( b2 <= c )
 		{
-			t = 0;
+			i.distance = 0;
 			return false;
 		}
 
@@ -124,17 +125,21 @@ public:
 		float root1 = -b + discriminant;
 		float root2 = -b - discriminant;
 
-		t = std::min(root1, root2);
-		if( t < 0. )
+		i.distance = std::min(root1, root2);
+		if( i.distance <= 0.0f )
 		{
 			// inside the sphere; for now don't intersect
 			// but later could use reversed normals.
-			t = 0;
+			i.distance = 0.0f;
 			return false;
 		}
 
 		// Note: o + dt - c = (o - c) + dt
-		normal = normalize(oc + r.direction * t);
+		vec3 dt = r.direction * i.distance;
+
+		i.normal = normalize(oc + dt);
+		i.object = reinterpret_cast<const JObject *>(this);
+		i.position = r.origin + dt;
 
 		// TODO: texture coordinates
 		/*
@@ -150,11 +155,11 @@ protected:
 	float radius, radius2;
 };
 
-class Box : public Object
+class Box : public JObject
 {
 public:
-	Box( const mat4 o2w, const Position c1, const Position c2 ): Object(o2w), corner1(c1), corner2(c2) {}
-		bool Intersect( const Ray &r, float &t ) const
+	Box( const mat4 o2w, const Position c1, const Position c2 ): JObject(o2w), corner1(c1), corner2(c2) {}
+		bool Intersect( const Ray &r, Intersection &i ) const
 		{
 			return false;
 /**

@@ -44,7 +44,7 @@ all: Raytracer2014
 Raytracer2014: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MacOS X C++ Linker'
-	g++ -L/usr/X11/lib -L/Users/jimbo/Documents/LearningCocoa/Mac/workspace/Raytracer2014/osxlib -o "Raytracer2014" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L"/Users/jiharris/Documents/Personal/code/RayTracer2014/osxlib" -o "Raytracer2014" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

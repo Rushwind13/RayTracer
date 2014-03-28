@@ -24,13 +24,9 @@
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug.599831152" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug.986399909" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug">
 								<option id="macosx.cpp.link.option.paths.1851255789" name="Library search path (-L)" superClass="macosx.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="/usr/X11/lib"/>
-									<listOptionValue builtIn="false" value="/Users/jimbo/Documents/LearningCocoa/Mac/workspace/Raytracer2014/osxlib"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Raytracer2014/osxlib}&quot;"/>
 								</option>
 								<option id="macosx.cpp.link.option.libs.380371875" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="gl"/>
-									<listOptionValue builtIn="false" value="glu"/>
-									<listOptionValue builtIn="false" value="glut"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="freeimage"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.macosx.cpp.linker.input.1112649170" superClass="cdt.managedbuild.tool.macosx.cpp.linker.input">

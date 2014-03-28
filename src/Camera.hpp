@@ -32,7 +32,7 @@ public:
 	float fovy;
 
 	Camera(Position _eye, Position _lookAt, vec3 _up, float _fovy, float _width, float _height):
-		eye(_eye), lookAt(_lookAt), up(_up), fovy(_fovy), width (_width), height(_height)
+		eye(_eye), lookAt(_lookAt), up(_up), width (_width), height(_height), fovy(_fovy)
 	{
 		CreateCoordinateFrame();
 		angle = fovy * deg2rad;

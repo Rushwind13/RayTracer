@@ -74,7 +74,8 @@ src/Raytracer2014.d: ../src/Raytracer2014.cpp ../src/Camera.hpp \
   /Users/jiharris/Documents/Personal/code/RayTracer2014/glm-0.9.5.2/glm/integer.hpp \
   /Users/jiharris/Documents/Personal/code/RayTracer2014/glm-0.9.5.2/glm/detail/func_integer.hpp \
   /Users/jiharris/Documents/Personal/code/RayTracer2014/glm-0.9.5.2/glm/detail/func_integer.inl \
-  ../src/World.hpp ../src/Object.hpp ../src/Raytracer2014.hpp
+  ../src/World.hpp ../src/Object.hpp ../src/Intersection.hpp \
+  ../src/Raytracer2014.hpp
 
 ../src/Camera.hpp:
 
@@ -231,5 +232,7 @@ src/Raytracer2014.d: ../src/Raytracer2014.cpp ../src/Camera.hpp \
 ../src/World.hpp:
 
 ../src/Object.hpp:
+
+../src/Intersection.hpp:
 
 ../src/Raytracer2014.hpp:

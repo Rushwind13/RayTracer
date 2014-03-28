@@ -6,8 +6,8 @@
 // Description : An attempt at a message-based multi-processor Raytracing engine
 //============================================================================
 
-#include <iostream>
-using namespace std;
+//#include <iostream>
+//using namespace std;
 
 #include "Camera.hpp"
 #include "World.hpp"
@@ -121,20 +121,19 @@ if __name__ == "__main__":
 void raytracer( Camera camera, World world )
 {
 	int x, y;
-	Ray ray;
-	Color image[camera.height][camera.width];
+	Color *image = new Color( camera.height * camera.width );
 	Color color;
 
 	for( y = 0; y < camera.height; y++ )
 	{
 		for( x = 0; x < camera.width; x++ )
 		{
-			ray = camera.RayThroughPoint( x, y );
+			Ray ray = camera.RayThroughPoint( x, y );
 			color = Trace( ray, world, 0, 1.0, world.refractiveindex );
-			image[y][x] = color;
+			image[y * camera.width + x] = color;
 		}
 	}
-	SaveImage( image, world.filename, screen.w, screen.h );
+	SaveImage( image, world, camera );
 
 	/**
 	 * def raytracer( camera, scene, screen ):
@@ -174,7 +173,8 @@ void raytracer( Camera camera, World world )
 
 Color Trace( Ray ray, World world, int depth, float weight, float refractiveindex)
 {
-	Intersection hit = Intersect( ray, world );
+	Intersection hit = world.Intersect( ray );
+
 	Color color = FindColor( ray, world, hit, depth, weight, refractiveindex  );
 
 	return color;
@@ -193,10 +193,10 @@ Color Trace( Ray ray, World world, int depth, float weight, float refractiveinde
 
 Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight, float refractiveindex )
 {
-	if( !hit.gotHit ) return Color(0,0,0);
+	if( !hit.gothit ) return Color(0,0,0);
 
 	//TODO: For now, just return the object's color, but this is where the lighting magic happens...
-	return hit.object.color;
+	return hit.object->color;
 
 	/**
 	 *
@@ -209,4 +209,11 @@ def FindColor( ray, depth, weight, n1, hit, scene ):
 	color = Lighting(ray, depth, weight, n1, hit, scene)
 	return color
 	 */
+}
+
+void SaveImage( const Color *image, const World world, const Camera camera )
+{
+	// world.filename
+	// camera.width
+	// camera.height
 }

@@ -8,7 +8,7 @@
 #ifndef WORLD_H_
 #define WORLD_H_
 #include <list>
-using namespace std;
+
 #include "Object.hpp"
 
 class World
@@ -19,13 +19,13 @@ public:
 	int maxdepth;
 	double minweight;
 
-	//list<Object> objects;
+	JObject *objects;
 
 protected:
 private:
 
 public:
-	World(){};
+	World() : refractiveindex(1.0), maxdepth(3), minweight(0.1){};
 	~World(){};
 
 	void setup();
@@ -44,6 +44,30 @@ def create_scene( metadata ):
 	return scene
  *
  */
+	Intersection Intersect( Ray ray )
+	{
+		Intersection nearest;
+
+		JObject *object = objects;
+		while( object != NULL )
+		{
+			Intersection i;
+		    if( object->Intersect( ray, i ) )
+		    {
+				if( i.distance < nearest.distance )
+				{
+					nearest.gothit		= true;
+					nearest.distance	= i.distance;
+					nearest.normal		= i.normal;
+					nearest.object		= i.object;
+					nearest.position	= i.position;
+				}
+		    }
+		    object++;
+		}
+
+		return nearest;
+	};
 protected:
 private:
 };
