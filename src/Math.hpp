@@ -21,6 +21,11 @@ const float deg2rad = tau / 360.0;
 typedef vec3 Color;
 typedef vec3 Position;
 
+void printvec( const std::string label, const vec3 vec )
+{
+	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  ";
+}
+
 vec3 ReflectVector(const vec3 vIncident, const vec3 vNormal) {
 	// vR = vI - [2 * (N . I)]N
 	vec3 vReflected;
@@ -68,12 +73,12 @@ public:
 	Ray(Position o, vec3 d) :
 			direction(d), origin(o) {
 		length = direction.length();
-		normalize(direction);
+		direction = normalize(direction);
 	}
 
 	Ray(Position o, vec3 d, float l) :
 			direction(d), origin(o), length(l) {
-		normalize(direction);
+		direction = normalize(direction);
 	}
 };
 

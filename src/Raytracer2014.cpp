@@ -6,7 +6,7 @@
 // Description : An attempt at a message-based multi-processor Raytracing engine
 //============================================================================
 
-//#include <iostream>
+#include <iostream>
 //using namespace std;
 
 #include "Camera.hpp"
@@ -40,10 +40,31 @@ int main(int argc, char** argv)
 	//TODO: Read Scene file (JSON)
 	//TODO: Setup
 	//		- create world geometry
+	World world;
+	strcpy( world.filename, "./test.png" );
+
+	vec3 center(0.0,0.0,-3.0);
+	float radius=1.0;
+	Sphere sphere(center, radius);
+	world.objects.push_back(&sphere);
+	vec3 center2(3.0,0.0,-2.0);
+	float radius2=1.0;
+	Sphere sphere2(center2, radius2);
+	sphere2.color = Color(2,0,0);
+	world.objects.push_back(&sphere2);
+
 	//		- create camera
+	vec3 eye(0.0,0.0,0.0);
+	vec3 lookAt(0.0,0.0,-1.0);
+	vec3 up(0.0,1.0,0.0);
+	float fovy = 90;
+	float width = 40;
+	float height = 10;
+	Camera camera(eye, lookAt, up, fovy, width, height);
 	//		- startup messaging engine
 	//TODO: Run
 	//		- perform traces
+	raytracer( camera, world );
 
 	/**
 	 *
@@ -121,19 +142,24 @@ if __name__ == "__main__":
 void raytracer( Camera camera, World world )
 {
 	int x, y;
-	Color *image = new Color( camera.height * camera.width );
-	Color color;
+	//Color *image = new Color[ camera.height * camera.width ];
+	std::list<Color> image;
 
 	for( y = 0; y < camera.height; y++ )
 	{
 		for( x = 0; x < camera.width; x++ )
 		{
+			Color color;
 			Ray ray = camera.RayThroughPoint( x, y );
 			color = Trace( ray, world, 0, 1.0, world.refractiveindex );
-			image[y * camera.width + x] = color;
+			//image[y * camera.width + x] = color;
+			image.push_back(color);
+			std::cout << color.x;// << color.y << color.z;
 		}
+		std::cout << std::endl;
 	}
-	SaveImage( image, world, camera );
+	std::cout << "finishing up" << std::endl;
+	//SaveImage( image, world, camera );
 
 	/**
 	 * def raytracer( camera, scene, screen ):
@@ -211,8 +237,16 @@ def FindColor( ray, depth, weight, n1, hit, scene ):
 	 */
 }
 
-void SaveImage( const Color *image, const World world, const Camera camera )
+void SaveImage( const std::list<Color> image, const World world, const Camera camera )
 {
+	for( int j=0; j < camera.height; j++ )
+	{
+		for( int i=0; i < camera.width; i++ )
+		{
+			//printvec(image[j*camera.height+i]);
+		}
+		std::cout << std::endl;
+	}
 	// world.filename
 	// camera.width
 	// camera.height

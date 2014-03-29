@@ -8,6 +8,9 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
+//#define DEBUG
+#define INFO
+
 #include "Math.hpp"
 class Camera
 {
@@ -43,15 +46,38 @@ public:
 
 	}
 
-	Ray RayThroughPoint( float i, float j )
-	{
-		float b = _tan * (half_height - i) / half_height;
-		float a = _tan * aspect_ratio * (j - half_width) / half_width;
+	/*Ray RayThroughPoint( float i, float j )
+		{
+			float b = _tan * (half_height - i) / half_height;
+			float a = _tan * aspect_ratio * (j - half_width) / half_width;
 
-		vec3 origin = eye;
-		vec3 direction = (a*u) - (b*v) - w;
-		return Ray( origin, direction );
-	}
+			vec3 origin = eye;
+			vec3 direction = (a*u) - (b*v) - w;
+			direction = normalize(direction);
+	#ifdef DEBUG
+			printvec("o", origin);
+			printvec("d", direction);
+			std::cout << std::endl;
+	#endif
+
+			return Ray( origin, direction );
+		}/**/
+	Ray RayThroughPoint( float i, float j )
+		{
+			float a = ((2.0 * (i + 0.5) / width) - 1.0) * _tan * aspect_ratio;
+			float b = (1.0 - (2.0 * (j + 0.5 )) / height) * _tan;
+
+			vec3 origin = eye;
+			vec3 direction = (a*u) - (b*v) - w;
+			direction = normalize(direction);
+	#ifdef DEBUG
+			printvec("o", origin);
+			printvec("d", direction);
+			std::cout << std::endl;
+	#endif
+
+			return Ray( origin, direction );
+		}
 
 	Camera(){};
 	~Camera(){};
@@ -84,6 +110,12 @@ protected:
 		// Up vector
 		// v = w x u
 		v = cross(w,u);
+#ifdef INFO
+		printvec("u", u);
+		printvec("v", v);
+		printvec("w", w);
+		std::cout << std::endl;
+#endif
 	}
 };
 

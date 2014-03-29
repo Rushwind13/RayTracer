@@ -11,6 +11,7 @@
 void SaveImage( const Color *image, const World world, const Camera camera );
 Color Trace( Ray ray, World world, int depth, float weight, float refractiveindex);
 Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight, float refractiveindex );
+void raytracer( Camera camera, World world );
 
 #endif /* RAYTRACER2014_H_ */
 /**
