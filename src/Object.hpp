@@ -11,7 +11,7 @@
 #include "Math.hpp"
 #include "Intersection.hpp"
 
-#define COLOR_RED Color(1,0,0);
+#define COLOR_RED Color(255,0,0);
 class Object
 {
 public:

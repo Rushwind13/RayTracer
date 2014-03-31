@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lfreeimage
+LIBS := -lpng -lpngwriter -lfreetype
 

@@ -25,9 +25,13 @@
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug.986399909" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug">
 								<option id="macosx.cpp.link.option.paths.1851255789" name="Library search path (-L)" superClass="macosx.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Raytracer2014/osxlib}&quot;"/>
+									<listOptionValue builtIn="false" value="/opt/X11/lib"/>
+									<listOptionValue builtIn="false" value="/opt/local/lib"/>
 								</option>
 								<option id="macosx.cpp.link.option.libs.380371875" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="freeimage"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="png"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pngwriter"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="freetype"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.macosx.cpp.linker.input.1112649170" superClass="cdt.managedbuild.tool.macosx.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -44,6 +48,9 @@
 								<option id="gnu.cpp.compiler.option.include.paths.308652457" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Raytracer2014/glm-0.9.5.2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Raytracer2014/include}&quot;"/>
+									<listOptionValue builtIn="false" value="/opt/local/include"/>
+									<listOptionValue builtIn="false" value="/opt/X11/include/freetype2"/>
+									<listOptionValue builtIn="false" value="/opt/X11/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1741718758" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -114,7 +121,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.exe.release.1662819335" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.exe.release">
 								<option id="gnu.cpp.compiler.macosx.exe.release.option.optimization.level.158261541" name="Optimization Level" superClass="gnu.cpp.compiler.macosx.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.macosx.exe.release.option.debugging.level.1281619610" name="Debug Level" superClass="gnu.cpp.compiler.macosx.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.option.include.paths.455951322" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.cpp.compiler.option.include.paths.455951322" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Raytracer2014/glm-0.9.5.2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Raytracer2014/include}&quot;"/>
 								</option>
@@ -155,4 +162,5 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

@@ -39,7 +39,8 @@ public:
 	{
 		CreateCoordinateFrame();
 		angle = fovy * deg2rad;
-		aspect_ratio = width / height;
+		aspect_ratio = (float)width / (float)height;
+		//std::cout << (float)width << " " << (float)height << " " << (float)aspect_ratio << std::endl;
 		_tan = std::tan(angle*0.5);
 		half_height = height * 0.5;
 		half_width = width * 0.5;
