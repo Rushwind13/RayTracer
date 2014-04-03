@@ -11,7 +11,7 @@
 #include "Math.hpp"
 #include "Intersection.hpp"
 
-#define COLOR_RED Color(255,0,0);
+#define COLOR_RED Color(1.0,0.0,0.0);
 class Object
 {
 public:
@@ -26,6 +26,7 @@ public:
 	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
 	mat4 objectToWorld, worldToObject;
 	Color color;
+	short oid = -1;
 	//Position worldpos;
 };
 
@@ -69,6 +70,22 @@ public:
 	#else: print 'no hit'
 	return hit
  */
+
+class Light: public Object
+{
+public:
+	Light(Position pos) : position(pos) {}
+	//Light() {}
+	~Light() {}
+
+	bool Intersect( const Ray &r, Intersection &i ) const
+	{
+		// lights don't intersect as geometry
+		return false;
+	}
+
+	Position position;
+};
 
 class Sphere : public Object
 {
@@ -122,7 +139,7 @@ public:
 		// No intersect if miss or tangent
 		if( b2 <= c )
 		{
-			i.distance = 0;
+			i.distance = 1e9;
 			return false;
 		}
 
@@ -136,7 +153,7 @@ public:
 		{
 			// inside the sphere; for now don't intersect
 			// but later could use reversed normals.
-			i.distance = 0.0f;
+			i.distance = 1e9;
 			return false;
 		}
 

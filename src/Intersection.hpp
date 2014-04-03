@@ -14,9 +14,17 @@ class Object;
 class Intersection
 {
 public:
-	Intersection() : gothit(false), object(NULL), normal(0), position(0), distance(1e9) {};
+	Intersection( float _distance = 1e9 ) : gothit(false), anyhit(false), object(NULL), normal(0), position(0), distance(_distance)
+	{
+		// For shadow rays, pass in the distance to the light, and then take any object hit, not just the nearest one.
+		if( distance < 1e9 )
+		{
+			bool anyHit = true;
+		}
+	};
 	~Intersection() {};
 	bool gothit;
+	bool anyhit;
 	const Object *object;
 	vec3 normal;
 	Position position;

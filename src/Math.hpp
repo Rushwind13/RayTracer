@@ -80,6 +80,8 @@ public:
 			direction(d), origin(o), length(l) {
 		direction = normalize(direction);
 	}
+
+	Ray() {};
 };
 
 #endif /* MATH_H_ */

@@ -75,10 +75,10 @@ src/Raytracer2014.d: ../src/Raytracer2014.cpp ../src/Camera.hpp \
   /Users/jiharris/Documents/Personal/code/RayTracer2014/glm-0.9.5.2/glm/detail/func_integer.hpp \
   /Users/jiharris/Documents/Personal/code/RayTracer2014/glm-0.9.5.2/glm/detail/func_integer.inl \
   ../src/World.hpp ../src/Object.hpp ../src/Intersection.hpp \
-  ../src/Raytracer2014.hpp /opt/local/include/pngwriter.h \
-  /opt/local/include/png.h /opt/local/include/zlib.h \
-  /opt/local/include/zconf.h /opt/local/include/pngconf.h \
-  /opt/local/include/ft2build.h \
+  ../src/Lighting.hpp ../src/Raytracer2014.hpp \
+  /opt/local/include/pngwriter.h /opt/local/include/png.h \
+  /opt/local/include/zlib.h /opt/local/include/zconf.h \
+  /opt/local/include/pngconf.h /opt/local/include/ft2build.h \
   /opt/X11/include/freetype2/freetype/config/ftheader.h \
   /opt/X11/include/freetype2/freetype/freetype.h \
   /opt/X11/include/freetype2/freetype/config/ftconfig.h \
@@ -248,6 +248,8 @@ src/Raytracer2014.d: ../src/Raytracer2014.cpp ../src/Camera.hpp \
 ../src/Object.hpp:
 
 ../src/Intersection.hpp:
+
+../src/Lighting.hpp:
 
 ../src/Raytracer2014.hpp:
 

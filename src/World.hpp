@@ -20,6 +20,7 @@ public:
 	double minweight;
 
 	std::list<Object *> objects;
+	std::list<Light *> lights;
 
 protected:
 private:
@@ -44,9 +45,9 @@ def create_scene( metadata ):
 	return scene
  *
  */
-	Intersection Intersect( Ray ray )
+	Intersection Intersect( Ray ray, float max_distance = 1e9 )
 	{
-		Intersection nearest;
+		Intersection nearest( max_distance );
 
 		for(std::list<Object *>::iterator it = objects.begin(); it != objects.end(); it++)
 		{
@@ -60,6 +61,12 @@ def create_scene( metadata ):
 					nearest.normal		= i.normal;
 					nearest.object		= i.object;
 					nearest.position	= i.position;
+				}
+				// For shadow rays, any hit will do (don't need the actual closest one)
+				if( nearest.anyhit && nearest.gothit )
+				{
+					std::cout << nearest.distance << " ";
+					return nearest;
 				}
 		    }
 		}

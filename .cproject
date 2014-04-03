@@ -52,6 +52,13 @@
 									<listOptionValue builtIn="false" value="/opt/X11/include/freetype2"/>
 									<listOptionValue builtIn="false" value="/opt/X11/include"/>
 								</option>
+								<option id="gnu.cpp.compiler.option.other.other.520104936" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wcomment" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.warnings.wconversion.480736233" name="Implicit conversion warnings (-Wconversion)" superClass="gnu.cpp.compiler.option.warnings.wconversion" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.warnings.allwarn.1563632425" name="All warnings (-Wall)" superClass="gnu.cpp.compiler.option.warnings.allwarn" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.warnings.syntax.1892916443" name="Check syntax only (-fsyntax-only)" superClass="gnu.cpp.compiler.option.warnings.syntax" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.warnings.pedantic.error.2046894340" name="Pedantic warnings as errors (-pedantic-errors)" superClass="gnu.cpp.compiler.option.warnings.pedantic.error" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.warnings.extrawarn.1690935052" name="Extra warnings (-Wextra)" superClass="gnu.cpp.compiler.option.warnings.extrawarn" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.warnings.nowarn.1572271643" superClass="gnu.cpp.compiler.option.warnings.nowarn" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1741718758" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.exe.debug.531153939" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.exe.debug">
@@ -147,20 +154,20 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.macosx.exe.debug.969907191;cdt.managedbuild.config.gnu.macosx.exe.debug.969907191.;cdt.managedbuild.tool.gnu.c.compiler.macosx.exe.debug.531153939;cdt.managedbuild.tool.gnu.c.compiler.input.1432645006">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.exe.release.271098239;cdt.managedbuild.config.macosx.exe.release.271098239.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.exe.release.1662819335;cdt.managedbuild.tool.gnu.cpp.compiler.input.1837103207">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.macosx.exe.debug.969907191;cdt.managedbuild.config.gnu.macosx.exe.debug.969907191.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.exe.debug.1742171369;cdt.managedbuild.tool.gnu.cpp.compiler.input.1741718758">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.macosx.exe.debug.969907191;cdt.managedbuild.config.gnu.macosx.exe.debug.969907191.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.exe.debug.1742171369;cdt.managedbuild.tool.gnu.cpp.compiler.input.1741718758">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.exe.release.271098239;cdt.managedbuild.config.macosx.exe.release.271098239.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.exe.release.1662819335;cdt.managedbuild.tool.gnu.cpp.compiler.input.1837103207">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.exe.release.271098239;cdt.managedbuild.config.macosx.exe.release.271098239.;cdt.managedbuild.tool.gnu.c.compiler.macosx.exe.release.1512800698;cdt.managedbuild.tool.gnu.c.compiler.input.128158018">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

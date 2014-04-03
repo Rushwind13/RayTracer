@@ -11,6 +11,7 @@
 
 #include "Camera.hpp"
 #include "World.hpp"
+#include "Lighting.hpp"
 #include "Raytracer2014.hpp"
 #include <pngwriter.h>
 
@@ -47,15 +48,23 @@ int main(int argc, char** argv)
 	World world;
 	strcpy( world.filename, "./test.png" );
 
-	vec3 center(-2.0,0.0,-5.0);
+	vec3 center(-2.5,0.0,-5.0);
 	float radius=2.0;
 	Sphere sphere(center, radius);
+	sphere.oid = 1;
 	world.objects.push_back(&sphere);
-	vec3 center2(5.0,0.0,-10.0);
-	float radius2=1.0;
+	vec3 center2(2.5,0.0,-10.0);
+	float radius2=4.0;
 	Sphere sphere2(center2, radius2);
-	sphere2.color = Color(0,0,255);
+	sphere2.color = Color(0.0,0.0,1.0);
+	sphere2.oid = 2;
 	world.objects.push_back(&sphere2);
+
+	Position lpos0(-2.5, 0.0, -1.0);
+	Light light0(lpos0);
+	light0.color = Color(1.0,1.0,1.0);
+	light0.oid = 0;
+	world.lights.push_back(&light0);
 
 	//		- create camera
 	vec3 eye(0.0,0.0,0.0);
@@ -223,11 +232,62 @@ Color Trace( Ray ray, World world, int depth, float weight, float refractiveinde
 
 Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight, float refractiveindex )
 {
-	if( !hit.gothit ) return Color(0,0,0);
+	Color pixel(0.2,0,0.23);
+	if( !hit.gothit ) return pixel;
 
 	//TODO: For now, just return the object's color, but this is where the lighting magic happens...
-	return hit.object->color;
 
+	// foreach light
+	// call lighting.Shadow(), boolean. true = shadowed, no contrib from this light to this point.
+	// false = more lighting magic... (diffuse, specular, reflect, refract)
+	Lighting lighting;
+
+	for( std::list<Light *>::iterator it = world.lights.begin(); it != world.lights.end(); it++ )
+	{
+		// actually, first create the vector to the light, and take N.L to see if light is below surface
+		// shouldn't it sometimes be below the surface during refraction? hmm.
+		Light *light = *it;
+
+		vec3 vL;
+		float light_dist;
+		lighting.vL(*light, hit, vL, light_dist );
+
+		float NdotL = dot( hit.normal, vL );
+
+		if( NdotL < 0 )
+		{
+			// light comes from below surface
+			pixel =  Color(0.0,0.0,0.0);
+			continue;
+		}
+
+		// Light is above surface. Anything between this point and the light?
+		Ray rShadow;
+		lighting.Shadow( vL, hit, &rShadow );
+		Intersection shadow = world.Intersect( rShadow, light_dist );
+		if( shadow.gothit )
+		{
+			if( shadow.object == hit.object )
+			{
+				std::cout << "self hit ";
+			}
+			else if( shadow.object != hit.object )
+			{
+				int foo =1;
+				//std::cout << hit.object->oid << "x" << shadow.object->oid << " ";
+
+			}
+			pixel = Color(0.1,0.1,0.1);
+			continue;
+		}
+
+		// point is unshadowed, and thus is lit by this light
+		//printvec( "color", hit.object->color * NdotL );
+		return hit.object->color * NdotL;
+	}
+
+	// Show that we actually hit something, shadowy...
+	return pixel;
 	/**
 	 *
 def FindColor( ray, depth, weight, n1, hit, scene ):
