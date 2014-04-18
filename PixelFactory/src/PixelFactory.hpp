@@ -1,0 +1,32 @@
+/*
+ * PixelFactory.hpp
+ *
+ *  Created on: Apr 5, 2014
+ *      Author: jiharris
+ */
+
+#ifndef PIXELFACTORY_HPP_
+#define PIXELFACTORY_HPP_
+#include "Widget.hpp"
+#include "Camera.hpp"
+
+class PixelFactory : public Widget
+{
+public:
+	PixelFactory( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
+		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint )
+	{
+	};
+	~PixelFactory(){};
+
+protected:
+	virtual void local_setup();
+	virtual bool local_work( byte_vector *header, byte_vector *payload ) { return false; };
+	virtual void local_shutdown(){};
+
+private:
+	Camera camera;
+};
+
+
+#endif /* PIXELFACTORY_HPP_ */
