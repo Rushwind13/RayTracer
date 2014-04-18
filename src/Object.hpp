@@ -27,6 +27,7 @@ public:
 	mat4 objectToWorld, worldToObject;
 	Color color;
 	short oid = -1;
+	std::string name;
 	//Position worldpos;
 };
 
@@ -140,6 +141,7 @@ public:
 		if( b2 <= c )
 		{
 			i.distance = 1e9;
+			i.gothit = false;
 			return false;
 		}
 
@@ -154,6 +156,7 @@ public:
 			// inside the sphere; for now don't intersect
 			// but later could use reversed normals.
 			i.distance = 1e9;
+			i.gothit = false;
 			return false;
 		}
 
@@ -162,7 +165,9 @@ public:
 
 		i.normal = normalize(oc + dt);
 		i.object = reinterpret_cast<const Object *>(this);
+		i.oid = oid;
 		i.position = r.origin + dt;
+		i.gothit = true;
 
 		// TODO: texture coordinates
 		/*

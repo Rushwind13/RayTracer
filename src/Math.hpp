@@ -18,8 +18,8 @@ using namespace glm;
 const float tau = 6.283185307179586;
 const float deg2rad = tau / 360.0;
 
-typedef vec3 Color;
-typedef vec3 Position;
+typedef glm::vec3 Color;
+typedef glm::vec3 Position;
 
 void printvec( const std::string label, const vec3 vec )
 {
