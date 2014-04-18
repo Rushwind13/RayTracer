@@ -1,0 +1,36 @@
+# folders
+Archive
+
+# log files
+*.log
+*.log.*
+
+# C/C++
+*.slo
+*.lo
+*.o
+*.so
+*.dylib
+*.lai
+*.la
+*.a
+*.d
+
+# Python
+*.pyc
+
+# autotools
+.deps
+.deps/*
+Makefile
+config.guess
+config.log
+config.status
+
+third_party/ndpi/config.h
+
+third_party/ndpi/libndpi.pc
+
+third_party/ndpi/libtool
+
+third_party/ndpi/stamp-h1

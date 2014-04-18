@@ -38,19 +38,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: libRaytracer2014.a
+all: libRayTracer2014.a
 
 # Tool invocations
-libRaytracer2014.a: $(OBJS) $(USER_OBJS)
+libRayTracer2014.a: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC Archiver'
-	ar -r  "libRaytracer2014.a" $(OBJS) $(USER_OBJS) $(LIBS)
+	ar -r  "libRayTracer2014.a" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(ARCHIVES)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) libRaytracer2014.a
+	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(ARCHIVES)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) libRayTracer2014.a
 	-@echo ' '
 
 .PHONY: all clean dependents

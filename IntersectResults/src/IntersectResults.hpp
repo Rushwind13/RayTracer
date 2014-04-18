@@ -5,8 +5,8 @@
  *      Author: jiharris
  */
 
-#ifndef INTERSECTWITH_HPP_
-#define INTERSECTWITH_HPP_
+#ifndef INTERSECTRESULTS_HPP_
+#define INTERSECTRESULTS_HPP_
 #include "Widget.hpp"
 #include "World.hpp"
 
@@ -29,4 +29,4 @@ private:
 };
 
 
-#endif /* INTERSECTWITH_HPP_ */
+#endif /* INTERSECTRESULTS_HPP_ */
