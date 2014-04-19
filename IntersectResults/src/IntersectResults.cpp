@@ -14,7 +14,6 @@
 using namespace std;
 #include "IntersectResults.hpp"
 #include "Object.hpp"
-#include "Pixel.hpp"
 #include "glm/glm.hpp"
 
 void IntersectResults::local_setup()
@@ -31,19 +30,110 @@ bool IntersectResults::local_work(byte_vector *header, byte_vector *payload)
 	Intersection i;
 	memcpy( payload, &i, sizeof(Intersection) );
 
-	// Shadow tests only require one hit, so don't bother calculating the nearest one.
-	// otherwise, use a hash table to keep the nearest hit and the count of world objects that have reported so far.
-	// Until all objects have reported in (for this test), don't send out a message.
-	// once all objects have reported in, send the nearest hit out.
+	bool testComplete = false;
+	testComplete = storeIntersection( pixel, i );
 
-	//payload->insert(payload->begin(), i, i + sizeof (Intersection) );
+	if( testComplete )
+	{
+		// You got a full set of responses for this test, so
+		// grab the best result...
+		int64_t key = hash( pixel );
+		i = nearest[key];
 
-	return true; // send an outbound message as a result of local_work()
+		// Prepare payload for sending to next stage...
+		payload->clear();
+		unsigned char *buffer = (unsigned char *)malloc(sizeof( Intersection ) );
+		memcpy( &i, buffer, sizeof( Intersection ));
+
+		payload->insert(payload->begin(), buffer, buffer + (sizeof( Intersection )) );
+
+		// and clean up local hash tables.
+		nearest.erase(key);
+		response_count.erase(key);
+	}
+
+	return testComplete; // if true, send an outbound message as a result of local_work()
+}
+
+bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
+{
+	int64_t key = hash( pixel );
+	int16_t count;
+	Intersection curr_nearest;
+	bool testComplete = false;
+
+	if( response_count.find(key) != response_count.end())
+	{
+		// You already have a response for this object; decide what to do with the new hit and bump the response count
+		count = response_count[key];
+		count++;
+
+		// Shadow tests only need the first intersected object, not the nearest
+		if( pixel.type != iShadow && hit.gothit )
+		{
+			curr_nearest = nearest[key];
+			// If the new hit is closer, keep it.
+			if( hit.distance < curr_nearest.distance )
+			{
+				nearest[key] = hit;
+			}
+		}
+	}
+	else
+	{
+		count = 1;
+		nearest[key] = hit;
+	}
+
+	if( count < world.object_count )
+	{
+		response_count[key] = count;
+		testComplete = false;
+	}
+	else
+	{
+		testComplete = true;
+	}
+
+	return testComplete;
+}
+
+void IntersectResults::local_send( byte_vector *header, byte_vector *payload )
+{
+	// Depending on whether it is a hit or a miss, and depending upon the test type,
+	// this function will publish the intersection to one of 4 places.
+	// 			HIT				MISS
+	// SHADOW	BLACK			LIT
+	// other	SHADE			BKG
+
+	Pixel pixel;
+	memcpy( header, &pixel, sizeof(Pixel) );
+
+	Intersection i;
+	memcpy( payload, &i, sizeof(Intersection) );
+
+	char pub[6] = "";
+
+	if( pixel.type == iShadow )
+	{
+		// Shadow rays get "Black" when they hit something, or "Lit" when they miss
+		strcpy(pub, i.gothit ? "BLACK":"LIT");
+	}
+	else
+	{
+		// All other ray types (Primary, Reflection, Refraction)
+		// get "Shade" when they hit something, or "Background" when they miss
+		strcpy( pub, i.gothit ? "SHADE":"BKG");
+	}
+
+	sendMessage( header, payload, pub );
 }
 
 void IntersectResults::local_shutdown()
 {
 	std::cout << "IntersectResults shutting down... ";
+	response_count.clear();
+	nearest.clear();
 }
 
 int main(int argc, char* argv[])
