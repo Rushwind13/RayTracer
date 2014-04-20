@@ -1,24 +1,24 @@
 /*
- * Shader.hpp
+ * Lit.hpp
  *
  *  Created on: Apr 5, 2014
  *      Author: jiharris
  */
 
-#ifndef SHADER_HPP_
-#define SHADER_HPP_
+#ifndef LIT_HPP_
+#define LIT_HPP_
 #include "Widget.hpp"
 #include "World.hpp"
 #include "Pixel.hpp"
 
-class Shader : public Widget
+class Lit : public Widget
 {
 public:
-	Shader( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
+	Lit( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
 		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint )
 	{
 	};
-	~Shader(){};
+	~Lit(){};
 
 protected:
 	virtual void local_setup();
@@ -27,8 +27,7 @@ protected:
 
 private:
 	World world;
-	void prepareShadowTest( Pixel *pixel, const Intersection i );
 };
 
 
-#endif /* SHADER_HPP_ */
+#endif /* LIT_HPP_ */

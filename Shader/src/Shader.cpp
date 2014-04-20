@@ -9,7 +9,6 @@
 #include <iostream>
 using namespace std;
 #include "Shader.hpp"
-#include "Pixel.hpp"
 #include "Lighting.hpp"
 
 void Shader::local_setup()
@@ -24,6 +23,9 @@ bool Shader::local_work(byte_vector *header, byte_vector *payload)
 	std::cout << "doing work... ";
 	Pixel pixel;
 	memcpy( header, &pixel, sizeof(Pixel) );
+
+	// We know we have at least one hit now, so...
+	pixel.gothit = true;
 
 	Intersection i;
 	memcpy( payload, &i, sizeof(Intersection) );
@@ -60,6 +62,7 @@ bool Shader::local_work(byte_vector *header, byte_vector *payload)
 		{
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
+			sendMessage(header, payload, "BLACK");
 			continue;
 		}
 
@@ -70,12 +73,41 @@ bool Shader::local_work(byte_vector *header, byte_vector *payload)
 		// TODO: send off an INTERSECT message with rShadow as the testing ray and iShadow as the test type
 		// Note, need to save off NdotL, any info needed (like vL, this oid, etc that will be needed by the specular and diffuse calcs)
 		// need to save these in the *header*, as INTERSECT does not take a payload.
+		pixel.r = rShadow;
+		pixel.NdotL = NdotL;
+		pixel.lid = light->oid;
+
+		// this will get called a lot -- could probably move it outside of the for loop (especially if needed for the reflection/refraction stuff)
+		// TODO: Should this get done by IntersectionResults?
+		prepareShadowTest( &pixel, i );
+
+		encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
+
+		byte_vector dummy;
+		sendMessage( header, &dummy, "INTERSECT" );
 	}
 
 	// Finally, calculate ambient and emissive colors and send off pixel color message
 	// TODO: figure out ambient (from world) and emissive (from object) colors and prepare header and payload to send off a COLOR message
+	pixel.type = iPrimary;
+	Color ambient(0.1,0.1,0.1);
+	Color emissive(0.0,0.0,0.0); // TODO: this comes from the object
+	pixel.color = ambient + emissive;
+
+	encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
+	payload->clear();
 
 	return true; // send an outbound message as a result of local_work()
+}
+
+// Copy the info out of the Intersection to pass along to further tests
+void Shader::prepareShadowTest( Pixel *pixel, const Intersection i )
+{
+	pixel->type = iShadow;
+	pixel->oid = i.oid;
+	pixel->normal = i.normal;
+	pixel->position = i.position;
+	pixel->distance = i.distance;
 }
 
 void Shader::local_shutdown()

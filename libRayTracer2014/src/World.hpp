@@ -33,6 +33,8 @@ public:
 
 	void setup()
 	{
+		sprintf( filename, "test.png" );
+
 		//	create world object list
 		vec3 center(-2.5,0.0,-5.0);
 		float radius=2.0;
@@ -74,6 +76,44 @@ public:
 				// shouldn't it sometimes be below the surface during refraction? hmm.
 				Object *obj = *it;
 				if( object_name.compare(obj->name) == 0 )
+				{
+					retval = obj;
+					break;
+				}
+		}
+
+		return retval;
+	}
+
+	Object *FindObject( const short oid )
+	{
+		Object *retval = NULL;
+
+		for( std::list<Object *>::iterator it = objects.begin(); it != objects.end(); it++ )
+		{
+				// actually, first create the vector to the light, and take N.L to see if light is below surface
+				// shouldn't it sometimes be below the surface during refraction? hmm.
+				Object *obj = *it;
+				if( oid == obj->oid )
+				{
+					retval = obj;
+					break;
+				}
+		}
+
+		return retval;
+	}
+
+	Light *FindLight( const short lid )
+	{
+		Light *retval = NULL;
+
+		for( std::list<Light *>::iterator it = lights.begin(); it != lights.end(); it++ )
+		{
+				// actually, first create the vector to the light, and take N.L to see if light is below surface
+				// shouldn't it sometimes be below the surface during refraction? hmm.
+				Light *obj = (Light *)*it;
+				if( lid == obj->oid )
 				{
 					retval = obj;
 					break;

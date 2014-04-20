@@ -14,21 +14,7 @@ using namespace std;
 
 void PixelFactory::local_setup()
 {
-	//		- create camera
-	// TODO: Need to implement a scene file
-	glm::vec3 eye(0.0,0.0,0.0);
-	glm::vec3 lookAt(0.0,0.0,-1.0);
-	glm::vec3 up(0.0,1.0,0.0);
-	float fovy = 90.0;
-	float width = 900.0;
-	float height = 600.0;
-
-	camera.eye = eye;
-	camera.lookAt = lookAt;
-	camera.up = up;
-	camera.fovy = fovy;
-	camera.width = width;
-	camera.height = height;
+	camera.setup();
 
 	// In order to make this a "publish only" Widget,
 	// The entire widget "loop" must be done here,
@@ -39,9 +25,9 @@ void PixelFactory::local_setup()
 	byte_vector hdr;
 	byte_vector pay;
 	pay.clear();
-	for( int j = 0; j < width; j++ )
+	for( int j = 0; j < camera.height; j++ )
 	{
-		for( int i = 0; i < width; i++ )
+		for( int i = 0; i < camera.width; i++ )
 		{
 			pixel.x = (float)i;
 			pixel.y = (float)j;

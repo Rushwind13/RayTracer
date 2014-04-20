@@ -34,19 +34,30 @@ class Pixel
 public:
 	// Permanent variables
 	float x,y;	// screen coordinates (act as key index for this pixel)
-	Color color; // The final color as known at this point
 	Ray primaryRay; // This is the original primary ray, to be kept through recursion, etc. for proper specular highlight direction.
 
 	// Transient variables -- all can be considered "the current working set" for this step
 	IntersectType type;
 	Ray r; // ray (primary, shadow, reflection, ...)
-	glm::vec3 vN; // surface normal
+
+	// Added from Intersection object (to hold onto during Shadow tests)
 	short oid; // object ID (all widgets will have same world data)
+	vec3 normal; // Normal at hit point
+	Position position; // intersection point
+	float distance; // distance along primary ray to intersection point.
+
+	// Added by Shader
 	short lid; // light ID (all widgets will have same world data)
-	float depth; // for recursion cutoff
-	float weight; // for recursion cutoff and light attenuation
-	Color deltaColor; // current color for recursive
-	bool isRecursive; // So that the pub/sub engine can decide where to send things next
+	float NdotL; // angle between current light and surface normal (pass instead of recalculating)
+
+	short depth; // for recursion cutoff (0-MAXDEPTH)
+	float weight; // for recursion cutoff and light attenuation 0.0-1.0
+
+
+	Color color; // The final color as known at this point
+	bool gothit; // Gets set to false when the primary ray misses
+	//Color deltaColor; // current color for recursive
+	//bool isRecursive; // So that the pub/sub engine can decide where to send things next
 };
 
 

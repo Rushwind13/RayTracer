@@ -47,6 +47,24 @@ public:
 
 	}
 
+	void setup()
+	{
+		//		- create camera
+		// TODO: Need to implement a scene file
+		glm::vec3 _eye(0.0,0.0,0.0);
+		glm::vec3 _lookAt(0.0,0.0,-1.0);
+		glm::vec3 _up(0.0,1.0,0.0);
+		float _fovy = 90.0;
+		float _width = 900.0;
+		float _height = 600.0;
+
+		eye = _eye;
+		lookAt = _lookAt;
+		up = _up;
+		fovy = _fovy;
+		width = _width;
+		height = _height;
+	}
 	/*Ray RayThroughPoint( float i, float j )
 		{
 			float b = _tan * (half_height - i) / half_height;

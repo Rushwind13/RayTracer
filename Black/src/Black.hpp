@@ -1,24 +1,24 @@
 /*
- * Shader.hpp
+ * Black.hpp
  *
  *  Created on: Apr 5, 2014
  *      Author: jiharris
  */
 
-#ifndef SHADER_HPP_
-#define SHADER_HPP_
+#ifndef BLACK_HPP_
+#define BLACK_HPP_
 #include "Widget.hpp"
 #include "World.hpp"
 #include "Pixel.hpp"
 
-class Shader : public Widget
+class Black : public Widget
 {
 public:
-	Shader( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
+	Black( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
 		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint )
 	{
 	};
-	~Shader(){};
+	~Black(){};
 
 protected:
 	virtual void local_setup();
@@ -26,9 +26,7 @@ protected:
 	virtual void local_shutdown();
 
 private:
-	World world;
-	void prepareShadowTest( Pixel *pixel, const Intersection i );
 };
 
 
-#endif /* SHADER_HPP_ */
+#endif /* BLACK_HPP_ */

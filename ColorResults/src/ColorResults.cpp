@@ -1,5 +1,5 @@
 //============================================================================
-// Name        : IntersectResults.cpp
+// Name        : ColorResults.cpp
 // Author      : VT
 // Version     :
 // Copyright   : Copyright 2014 Jimbo S. Harris. All rights reserved.
@@ -12,80 +12,93 @@
 
 #include <iostream>
 using namespace std;
-#include "IntersectResults.hpp"
+#include "ColorResults.hpp"
 #include "Object.hpp"
 #include "glm/glm.hpp"
 
-void IntersectResults::local_setup()
+void ColorResults::local_setup()
 {
 	std::cout << "IntersectResults starting up... ";
 }
 
-bool IntersectResults::local_work(byte_vector *header, byte_vector *payload)
+bool ColorResults::local_work(byte_vector *header, byte_vector *payload)
 {
 	std::cout << "doing work... ";
 	Pixel pixel;
 	memcpy( header, &pixel, sizeof(Pixel) );
 
-	Intersection i;
-	memcpy( payload, &i, sizeof(Intersection) );
+	bool colorComplete = false;
+	colorComplete = storeColor( pixel );
 
-	bool testComplete = false;
-	testComplete = storeIntersection( pixel, i );
-
-	if( testComplete )
+	if( colorComplete )
 	{
 		// You got a full set of responses for this test, so
-		// grab the best result...
+		// grab the result...
 		int64_t key = hash( pixel );
-		i = nearest[key];
+		pixel.color = accumulator[key];
 
 		// Prepare payload for sending to next stage...
 		payload->clear();
-		unsigned char *buffer = (unsigned char *)malloc(sizeof( Intersection ) );
-		memcpy( &i, buffer, sizeof( Intersection ));
 
-		payload->insert(payload->begin(), buffer, buffer + (sizeof( Intersection )) );
+		encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
 
 		// and clean up local hash tables.
-		nearest.erase(key);
-		response_count.erase(key);
+		accumulator.erase(key);
+		response_count.erase(key);/**/
 	}
 
-	return testComplete; // if true, send an outbound message as a result of local_work()
+	return colorComplete; // if true, send an outbound message as a result of local_work()
 }
 
-bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
+bool ColorResults::storeColor( Pixel pixel )
 {
 	int64_t key = hash( pixel );
 	int16_t count;
-	Intersection curr_nearest;
+	Color curr_accumulator;
 	bool testComplete = false;
 
+	// The states you could be in:
+	// Primary miss - you get only one response from "bkg"
+	// Primary hit - you get one response from Shader and one per light from Shadow
+	// Shadow miss - this should be coming from "lit"
+	// Shadow hit - this should be coming from "black"
+	// TODO: add reflection and refraction states (will likely have to deal with depth in addition to the rest)
+
+	if( pixel.gothit == false )
+	{
+		// you know that this is the only one you're getting (at least for this depth).
+		accumulator[key] = pixel.color;
+		testComplete = true;
+
+		return testComplete; // TODO: don't know if you can easy-out like this when recursive...
+	}
+
+	// otherwise, you are expecting 1 + light_count responses, so accumulate until you have them all
 	if( response_count.find(key) != response_count.end())
 	{
-		// You already have a response for this object; decide what to do with the new hit and bump the response count
+		// You already have a response for this object; accumulate the new color and bump the response count
 		count = response_count[key];
 		count++;
 
 		// Shadow tests only need the first intersected object, not the nearest
-		if( pixel.type != iShadow && hit.gothit )
-		{
-			curr_nearest = nearest[key];
-			// If the new hit is closer, keep it.
-			if( hit.distance < curr_nearest.distance )
-			{
-				nearest[key] = hit;
-			}
-		}
+		curr_accumulator = accumulator[key];
+		// If the new hit is closer, keep it.
+		Color outcolor;
+		outcolor = pixel.color + curr_accumulator;
+		if( outcolor.r > 1.0 ) outcolor.r = 1.0;
+		if( outcolor.g > 1.0 ) outcolor.g = 1.0;
+		if( outcolor.b > 1.0 ) outcolor.b = 1.0;
+
+		accumulator[key] = outcolor;
 	}
 	else
 	{
 		count = 1;
-		nearest[key] = hit;
+		accumulator[key] = pixel.color;
 	}
 
-	if( count < world.object_count )
+	// want one more than the number of lights (one from the basic hit and one per light, or just one total if it's a miss)
+	if( count < world.light_count + 1 )
 	{
 		response_count[key] = count;
 		testComplete = false;
@@ -98,7 +111,7 @@ bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
 	return testComplete;
 }
 
-void IntersectResults::local_send( byte_vector *header, byte_vector *payload )
+void ColorResults::local_send( byte_vector *header, byte_vector *payload )
 {
 	// Depending on whether it is a hit or a miss, and depending upon the test type,
 	// this function will publish the intersection to one of 4 places.
@@ -129,17 +142,17 @@ void IntersectResults::local_send( byte_vector *header, byte_vector *payload )
 	sendMessage( header, payload, pub );
 }
 
-void IntersectResults::local_shutdown()
+void ColorResults::local_shutdown()
 {
 	std::cout << "IntersectResults shutting down... ";
 	response_count.clear();
-	nearest.clear();
+	accumulator.clear();
 }
 
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	IntersectResults iw("IntersectWith", "RESULT", "ipc:///tmp/feeds/broadcast", "SHADE", "ipc:///tmp/feeds/control");
+	ColorResults cr("IntersectWith", "COLOR", "ipc:///tmp/feeds/broadcast", "PNG", "ipc:///tmp/feeds/control");
 
 	if( argc > 1 )
 	{
@@ -147,7 +160,7 @@ int main(int argc, char* argv[])
 		//iw.world_object = argv[1];
 	}
 	cout << "running" << endl;
-	iw.run();
+	cr.run();
 
 	cout << "shutting down" << endl;
 	return 0;

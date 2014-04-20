@@ -43,7 +43,17 @@ bool IntersectWith::local_work(byte_vector *header, byte_vector *payload)
 	Pixel pixel;
 	memcpy( header, &pixel, sizeof(Pixel) );
 
+	// Primary rays don't have a payload,
+	// but Shadow rays will.
+	// TODO: Reflection and Refraction ones might, too.
 	Intersection i;
+	if( pixel.type == iShadow )
+	{
+		//memcpy( payload, &i, sizeof( Intersection ));
+		i.distance = pixel.distance;
+		i.anyhit = true;
+	}
+
 	bool gothit;
 	i.gothit = object->Intersect( pixel.r, i );
 
