@@ -48,13 +48,13 @@ int main(int argc, char** argv)
 	World world;
 	strcpy( world.filename, "./test.png" );
 
-	vec3 center(-2.5,0.0,-5.0);
+	glm::vec3 center(-2.5,0.0,-5.0);
 	float radius=2.0;
 	Sphere sphere(center, radius);
 	sphere.oid = 1;
 	sphere.name = "sphere1";
 	world.objects.push_back(&sphere);
-	vec3 center2(2.5,0.0,-10.0);
+	glm::vec3 center2(2.5,0.0,-10.0);
 	float radius2=4.0;
 	Sphere sphere2(center2, radius2);
 	sphere2.color = Color(0.0,0.0,1.0);
@@ -70,9 +70,9 @@ int main(int argc, char** argv)
 	world.lights.push_back(&light0);
 
 	//		- create camera
-	vec3 eye(0.0,0.0,0.0);
-	vec3 lookAt(0.0,0.0,-1.0);
-	vec3 up(0.0,1.0,0.0);
+	glm::vec3 eye(0.0,0.0,0.0);
+	glm::vec3 lookAt(0.0,0.0,-1.0);
+	glm::vec3 up(0.0,1.0,0.0);
 	float fovy = 90.0;
 	float width = 900.0;
 	float height = 600.0;
@@ -253,11 +253,11 @@ Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight
 		// shouldn't it sometimes be below the surface during refraction? hmm.
 		Light *light = *it;
 
-		vec3 vL;
+		glm::vec3 vL;
 		float light_dist;
 		lighting.vL(*light, hit, vL, light_dist );
 
-		float NdotL = dot( hit.normal, vL );
+		float NdotL = glm::dot( hit.normal, vL );
 
 		if( NdotL < 0 )
 		{
@@ -272,7 +272,7 @@ Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight
 		Intersection shadow = world.Intersect( rShadow, light_dist );
 		if( shadow.gothit )
 		{
-			if( shadow.object == hit.object )
+			/*if( shadow.object == hit.object )
 			{
 				std::cout << "self hit ";
 			}
@@ -281,14 +281,14 @@ Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight
 				int foo =1;
 				//std::cout << hit.object->oid << "x" << shadow.object->oid << " ";
 
-			}
+			}/**/
 			pixel = Color(0.1,0.1,0.1);
 			continue;
 		}
 
 		// point is unshadowed, and thus is lit by this light
 		//printvec( "color", hit.object->color * NdotL );
-		return hit.object->color * NdotL;
+		return Color(0.1,0.1,0.1);//hit.object->color * NdotL;
 	}
 
 	// Show that we actually hit something, shadowy...

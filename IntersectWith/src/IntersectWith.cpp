@@ -17,50 +17,48 @@ using namespace std;
 void IntersectWith::local_setup()
 {
 	object = world.FindObject( world_object );
-	/*//	create world object
-	if( world_object.compare("sphere1") == 0 )
-	{
-		vec3 center(-2.5,0.0,-5.0);
-		float radius=2.0;
-		object = new Sphere(center, radius);
-		object->oid = 1;
-		object->name = "sphere1";
-	}
-	else if( world_object.compare("sphere2") == 0 )
-	{
-		vec3 center2(2.5,0.0,-10.0);
-		float radius2=4.0;
-		object = new Sphere(center2, radius2);
-		object->color = Color(0.0,0.0,1.0);
-		object->oid = 2;
-		object->name = "sphere2";
-	}/**/
+	assert( object );
 }
 
-bool IntersectWith::local_work(byte_vector *header, byte_vector *payload)
+bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	std::cout << "doing work... ";
+	assert(object);
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object obj;
+	unPackPart( header, &obj );
+	obj.convert( &pixel );
+	//std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
+	assert(object);
 
 	// Primary rays don't have a payload,
 	// but Shadow rays will.
 	// TODO: Reflection and Refraction ones might, too.
 	Intersection i;
+	assert(object);
 	if( pixel.type == iShadow )
 	{
-		//memcpy( payload, &i, sizeof( Intersection ));
+		//std::cout << " shadow ";
 		i.distance = pixel.distance;
 		i.anyhit = true;
 	}
+	assert(object);
 
 	bool gothit;
-	i.gothit = object->Intersect( pixel.r, i );
+	assert( object );
 
-	unsigned char *buffer = (unsigned char *)malloc(sizeof( Intersection ) );
-	memcpy( &i, buffer, sizeof( Intersection ));
+	//std::cout << "(" << pixel.x << "," << pixel.y << ") " << pixel.type << " ";
+	//printvec( "sent o", pixel.r.origin );
+	//printvec( "sent d", pixel.r.direction );
+	gothit = object->Intersect( pixel.r, i );
+	i.gothit = gothit;
+	std::string test = "Intersect ";
+	if( pixel.type == iShadow )
+	{
+		test =  "Shadowed ";
+	}
+	if( gothit ) std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ")" << std::endl;
 
-	payload->insert(payload->begin(), buffer, buffer + (sizeof( Intersection )) );
+	msgpack::pack( payload, i );
 
 	return true; // send an outbound message as a result of local_work()
 }
@@ -68,7 +66,7 @@ bool IntersectWith::local_work(byte_vector *header, byte_vector *payload)
 void IntersectWith::local_shutdown()
 {
 	std::cout << "shutting down... ";
-	delete( object );
+	//delete( object );
 }
 
 int main(int argc, char* argv[])

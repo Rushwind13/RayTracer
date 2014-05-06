@@ -23,9 +23,9 @@ public:
 
 protected:
 	virtual void local_setup();
-	virtual bool local_work( byte_vector *header, byte_vector *payload );
+	virtual bool local_work( msgpack::sbuffer *header, msgpack::sbuffer *payload );
 	virtual void local_shutdown();
-	virtual void local_send( byte_vector *header, byte_vector *payload );
+	virtual void local_send( msgpack::sbuffer *header, msgpack::sbuffer *payload );
 
 private:
 	World world;

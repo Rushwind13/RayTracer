@@ -23,7 +23,7 @@ public:
 
 protected:
 	virtual void local_setup();
-	virtual bool local_work( byte_vector *header, byte_vector *payload );
+	virtual bool local_work( msgpack::sbuffer *header, msgpack::sbuffer *payload );
 	virtual void local_shutdown();
 
 private:

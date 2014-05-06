@@ -7,15 +7,13 @@
 
 #ifndef PIXEL_HPP_
 #define PIXEL_HPP_
+#include <msgpack.hpp>
 #include "Math.hpp"
 
-enum IntersectType
-{
-	iPrimary = 0,
-	iShadow,
-	iReflection,
-	iRefraction
-};
+#define iPrimary	0
+#define	iShadow		1
+#define	iReflection	2
+#define	iRefraction	3
 
 enum ColorType
 {
@@ -32,17 +30,20 @@ enum ColorType
 class Pixel
 {
 public:
+	MSGPACK_DEFINE( x, y, primaryRay, r, MPACK(normal), MPACK(position), distance, lid, NdotL, depth, weight, MPACK(color), oid, gothit, type )
+
 	// Permanent variables
-	float x,y;	// screen coordinates (act as key index for this pixel)
+	float x;
+	float y;	// screen coordinates (act as key index for this pixel)
 	Ray primaryRay; // This is the original primary ray, to be kept through recursion, etc. for proper specular highlight direction.
 
 	// Transient variables -- all can be considered "the current working set" for this step
-	IntersectType type;
+	int64_t type;
 	Ray r; // ray (primary, shadow, reflection, ...)
 
 	// Added from Intersection object (to hold onto during Shadow tests)
 	short oid; // object ID (all widgets will have same world data)
-	vec3 normal; // Normal at hit point
+	glm::vec3 normal; // Normal at hit point
 	Position position; // intersection point
 	float distance; // distance along primary ray to intersection point.
 
@@ -58,7 +59,7 @@ public:
 	bool gothit; // Gets set to false when the primary ray misses
 	//Color deltaColor; // current color for recursive
 	//bool isRecursive; // So that the pub/sub engine can decide where to send things next
-};
+}__attribute__((packed));
 
 
 

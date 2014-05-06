@@ -16,15 +16,15 @@ class Object
 {
 public:
 	Object() {};
-	Object( const mat4 o2w ) : objectToWorld(o2w)
+	Object( const glm::mat4 o2w ) : objectToWorld(o2w)
 	{
-		worldToObject = inverse(objectToWorld);
+		worldToObject = glm::inverse(objectToWorld);
 		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
 	virtual ~Object() {}
 	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
-	mat4 objectToWorld, worldToObject;
+	glm::mat4 objectToWorld, worldToObject;
 	Color color;
 	short oid = -1;
 	std::string name;
@@ -91,12 +91,13 @@ public:
 class Sphere : public Object
 {
 public:
-	Sphere( /*const mat4 o2w,*/ vec3 c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
+	Sphere( /*const mat4 o2w,*/ glm::vec3 c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
 	{
 			color = COLOR_RED;
 	}
 	bool Intersect( const Ray &r, Intersection &i ) const
 	{
+		//std::cout << "Intersect" << std::endl;
 		// basic ray equation = o + dt (origin, direction, length)
 		// basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
 		// sub in ray for p:
@@ -128,9 +129,13 @@ public:
 		// h = o + dt and you have o-c calculated already, (h-c) = o + dt - c = (o-c) + dt
 		// which seems counterintuitive (since vec subtraction is not commutative nor associative), but seems to work.
 
-		vec3 oc = r.origin - center;
-		float DdotOC = dot( r.direction, oc );
-		float len2 = dot(oc, oc);
+		//printvec( "o", r.origin );
+		//printvec( "d", r.direction );
+		glm::vec3 oc = r.origin - center;
+		float DdotOC = glm::dot( r.direction, oc );
+		float len2 = glm::dot(oc, oc);
+
+		//std::cout << DdotOC << std::endl;
 
 		float b = DdotOC;
 		float c = len2 - radius2;
@@ -161,10 +166,10 @@ public:
 		}
 
 		// Note: o + dt - c = (o - c) + dt
-		vec3 dt = r.direction * i.distance;
+		glm::vec3 dt = r.direction * i.distance;
 
-		i.normal = normalize(oc + dt);
-		i.object = reinterpret_cast<const Object *>(this);
+		i.normal = glm::normalize(oc + dt);
+		//i.object = reinterpret_cast<const Object *>(this);
 		i.oid = oid;
 		i.position = r.origin + dt;
 		i.gothit = true;
@@ -176,10 +181,11 @@ public:
 			texture = array([u,v])
 		 */
 
+		//std::cout << "done with Intersect" << std::endl;
 		return true;
 	}
 protected:
-	vec3 center;
+	glm::vec3 center;
 	float radius, radius2;
 };
 

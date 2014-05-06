@@ -18,28 +18,32 @@ void Lit::local_setup()
 
 // You will get here if a Shadow test registers a miss with an object between the intersection and a particular light
 // so this point is lit by this light.
-bool Lit::local_work(byte_vector *header, byte_vector *payload)
+bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	std::cout << "doing work... ";
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object mpobj;
+	unPackPart( header, &mpobj );
+	mpobj.convert( &pixel );
+	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 
 	Object *obj = world.FindObject(pixel.oid);
 	Light *light = world.FindLight(pixel.lid);
+	assert(obj);
+	assert(light);
 
 	// Diffuse
 	Color diffuse;
 	diffuse = obj->color * pixel.NdotL;
 
 	// Specular (Phong-Blinn)
-	vec3 vL = normalize(light->position - pixel.position);
-	vec3 vH = vL + pixel.primaryRay.direction;
+	glm::vec3 vL = glm::normalize(light->position - pixel.position);
+	glm::vec3 vH = vL + pixel.primaryRay.direction;
 	float len = vH.length();
 	float cosTheta = 0.0;
 	if( len != 0.0 )
 	{
 		vH = vH / len;
-		cosTheta = dot( pixel.normal, vH );
+		cosTheta = glm::dot( pixel.normal, vH );
 		if( cosTheta < 0.0 ) cosTheta = 0.0;
 	}
 
@@ -49,9 +53,12 @@ bool Lit::local_work(byte_vector *header, byte_vector *payload)
 
 	pixel.color = light->color * ( diffuse + specular );
 
-	encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
+	printvec("c", pixel.color);
+	header->clear();
+	msgpack::pack( header, pixel );
 	payload->clear();
 
+	std::cout << std::endl;
 	return true; // send an outbound message as a result of local_work()
 }
 

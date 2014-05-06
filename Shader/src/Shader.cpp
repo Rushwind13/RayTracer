@@ -18,17 +18,22 @@ void Shader::local_setup()
 
 // You will get here after a successful intersection with some object
 // payload will contain the nearest intersection
-bool Shader::local_work(byte_vector *header, byte_vector *payload)
+bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	std::cout << "doing work... ";
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object obj;
+	unPackPart( header, &obj );
+	obj.convert( &pixel );
+	std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
 
 	// We know we have at least one hit now, so...
 	pixel.gothit = true;
 
 	Intersection i;
-	memcpy( payload, &i, sizeof(Intersection) );
+	msgpack::object obj2;
+	unPackPart( payload, &obj2 );
+	obj2.convert( &i );
+	payload->clear();
 
 	// Move necessary info out of the payload and into the header.
 	// all the below tests can possibly spawn several new INTERSECT messages, which will drop the payload.
@@ -51,15 +56,16 @@ bool Shader::local_work(byte_vector *header, byte_vector *payload)
 		// shouldn't it sometimes be below the surface during refraction? hmm.
 		Light *light = *it;
 
-		vec3 vL;
+		glm::vec3 vL;
 		float light_dist;
 		lighting.vL(*light, i, vL, light_dist );
 
-		float NdotL = dot( i.normal, vL );
+		float NdotL = glm::dot( i.normal, vL );
 
 		//   N.L < 0 = send off background color message
 		if( NdotL < 0 )
 		{
+			std::cout << " N.L < 0 for lid: " << light->oid;
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
 			sendMessage(header, payload, "BLACK");
@@ -69,24 +75,44 @@ bool Shader::local_work(byte_vector *header, byte_vector *payload)
 		// Light is above surface. Anything between this point and the light?
 		Ray rShadow;
 		lighting.Shadow( vL, i, &rShadow );
+		Pixel pShadow;
+
+		pShadow.x = pixel.x;
+		pShadow.y = pixel.y;
+		pShadow.primaryRay = pixel.primaryRay;
+		pShadow.color = pixel.color;
+		pShadow.gothit = pixel.gothit;
 
 		// TODO: send off an INTERSECT message with rShadow as the testing ray and iShadow as the test type
 		// Note, need to save off NdotL, any info needed (like vL, this oid, etc that will be needed by the specular and diffuse calcs)
 		// need to save these in the *header*, as INTERSECT does not take a payload.
-		pixel.r = rShadow;
-		pixel.NdotL = NdotL;
-		pixel.lid = light->oid;
+		pShadow.r = rShadow;
+		pShadow.NdotL = NdotL;
+		pShadow.lid = light->oid;
 
 		// this will get called a lot -- could probably move it outside of the for loop (especially if needed for the reflection/refraction stuff)
 		// TODO: Should this get done by IntersectionResults?
-		prepareShadowTest( &pixel, i );
+		prepareShadowTest( &pShadow, i );
 
-		encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
+		header->clear();
 
-		byte_vector dummy;
-		sendMessage( header, &dummy, "INTERSECT" );
+		msgpack::pack( header, pShadow );
+
+		sendMessage( header, payload, "INTERSECT" );
+
+		Pixel px2;
+
+		msgpack::object obj3;
+		unPackPart( header, &obj3 );
+		obj3.convert( &px2 );
+
+		//std::cout << " shadow test for oid: " << px2.oid << " lid: " << px2.lid << " " << px2.type << " ";
+		//printvec( "rS.o", px2.r.origin );
+		//printvec( "rS.d", px2.r.direction );
+		//std::cout << std::endl;
 	}
 
+	header->clear();
 	// Finally, calculate ambient and emissive colors and send off pixel color message
 	// TODO: figure out ambient (from world) and emissive (from object) colors and prepare header and payload to send off a COLOR message
 	pixel.type = iPrimary;
@@ -94,8 +120,11 @@ bool Shader::local_work(byte_vector *header, byte_vector *payload)
 	Color emissive(0.0,0.0,0.0); // TODO: this comes from the object
 	pixel.color = ambient + emissive;
 
-	encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
+	msgpack::pack( header, pixel );
 	payload->clear();
+	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+	//printvec("ambient", pixel.color);
+	std::cout << std::endl;
 
 	return true; // send an outbound message as a result of local_work()
 }

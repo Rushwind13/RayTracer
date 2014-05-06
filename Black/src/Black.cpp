@@ -18,18 +18,22 @@ void Black::local_setup()
 
 // You will get here if a Shadow test registers a hit with an object between the intersection and a particular light
 // So this point is shadowed by this light.
-bool Black::local_work(byte_vector *header, byte_vector *payload)
+bool Black::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	std::cout << "doing work... ";
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object obj;
+	unPackPart( header, &obj );
+	obj.convert( &pixel );
+	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 
-	pixel.color = Color(0,0,0);
+	pixel.color = Color(0.0f,0.0f,0.0f);
+	printvec("c", pixel.color);
 
-
-	encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
+	header->clear();
+	msgpack::pack( header, pixel );
 	payload->clear();
 
+	std::cout << std::endl;
 	return true; // send an outbound message as a result of local_work()
 }
 

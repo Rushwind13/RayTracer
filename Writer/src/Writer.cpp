@@ -25,14 +25,18 @@ void Writer::local_setup()
 	image = new Color[pixel_count];
 }
 
-bool Writer::local_work(byte_vector *header, byte_vector *payload)
+bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	std::cout << "doing work... ";
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object obj;
+	unPackPart( header, &obj );
+	obj.convert( &pixel );
+	std::cout << "(" << pixel.x << "," << pixel.y << ")";
+	printvec("c", pixel.color);
 
 	bool fileComplete = false;
 	fileComplete = storePixel( pixel );
+	std::cout << " " << pixel_count;
 
 	if( fileComplete )
 	{
@@ -41,6 +45,7 @@ bool Writer::local_work(byte_vector *header, byte_vector *payload)
 		SaveImage();
 	}
 
+	std::cout << std::endl;
 	return false; // no more messages; we're done.
 }
 
@@ -62,6 +67,7 @@ bool Writer::storePixel( Pixel pixel )
 
 void Writer::SaveImage()
 {
+	std::cout << "Writing file " << world.filename << "...";
 	pngwriter png(camera.width,camera.height,0,world.filename);
 	Color *curr_pixel = image;
 	for( int y = 1; y < camera.height; y++ )
@@ -73,9 +79,10 @@ void Writer::SaveImage()
 		}
 	}
 	png.close();
+	std::cout << "done." << std::endl;
 }
 
-void Writer::local_send( byte_vector *header, byte_vector *payload )
+/*void Writer::local_send( msgpack::sbuffer *header, msgpack::sbuffer *payload )
 {
 	// Depending on whether it is a hit or a miss, and depending upon the test type,
 	// this function will publish the intersection to one of 4 places.
@@ -104,19 +111,20 @@ void Writer::local_send( byte_vector *header, byte_vector *payload )
 	}
 
 	sendMessage( header, payload, pub );
-}
+}/**/
 
 void Writer::local_shutdown()
 {
 	std::cout << "IntersectResults shutting down... ";
 	response_count.clear();
 	accumulator.clear();
+	delete image;
 }
 
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	Writer wr("IntersectWith", "PNG", "ipc:///tmp/feeds/broadcast", "", "");
+	Writer wr("Writer", "PNG", "ipc:///tmp/feeds/broadcast", "", "");
 
 	if( argc > 1 )
 	{

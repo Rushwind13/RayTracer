@@ -52,6 +52,7 @@
 								<option id="gnu.cpp.compiler.macosx.exe.debug.option.debugging.level.2078938413" name="Debug Level" superClass="gnu.cpp.compiler.macosx.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.842594069" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Raytracer2014/glm-0.9.5.2}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/local/include"/>
 									<listOptionValue builtIn="false" value="/opt/local/include/freetype2"/>
 									<listOptionValue builtIn="false" value="/opt/local/include"/>
 								</option>

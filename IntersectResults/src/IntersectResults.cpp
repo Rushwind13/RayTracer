@@ -21,14 +21,19 @@ void IntersectResults::local_setup()
 	std::cout << "IntersectResults starting up... ";
 }
 
-bool IntersectResults::local_work(byte_vector *header, byte_vector *payload)
+bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	std::cout << "doing work... ";
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object obj;
+	unPackPart( header, &obj );
+	obj.convert( &pixel );
+	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 
 	Intersection i;
-	memcpy( payload, &i, sizeof(Intersection) );
+	msgpack::object obj2;
+	unPackPart( payload, &obj2 );
+	obj2.convert( &i );
+	//std::cout << i.oid << " " << i.gothit;
 
 	bool testComplete = false;
 	testComplete = storeIntersection( pixel, i );
@@ -42,15 +47,14 @@ bool IntersectResults::local_work(byte_vector *header, byte_vector *payload)
 
 		// Prepare payload for sending to next stage...
 		payload->clear();
-		unsigned char *buffer = (unsigned char *)malloc(sizeof( Intersection ) );
-		memcpy( &i, buffer, sizeof( Intersection ));
-
-		payload->insert(payload->begin(), buffer, buffer + (sizeof( Intersection )) );
+		msgpack::pack( payload, i );
 
 		// and clean up local hash tables.
 		nearest.erase(key);
 		response_count.erase(key);
 	}
+
+	//std::cout << " " << testComplete << std::endl;
 
 	return testComplete; // if true, send an outbound message as a result of local_work()
 }
@@ -98,7 +102,7 @@ bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
 	return testComplete;
 }
 
-void IntersectResults::local_send( byte_vector *header, byte_vector *payload )
+void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *payload )
 {
 	// Depending on whether it is a hit or a miss, and depending upon the test type,
 	// this function will publish the intersection to one of 4 places.
@@ -107,23 +111,33 @@ void IntersectResults::local_send( byte_vector *header, byte_vector *payload )
 	// other	SHADE			BKG
 
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object obj;
+	unPackPart( header, &obj );
+	obj.convert( &pixel );
 
 	Intersection i;
-	memcpy( payload, &i, sizeof(Intersection) );
+	unPackPart( payload, &obj );
+	obj.convert( &i );
 
 	char pub[6] = "";
 
 	if( pixel.type == iShadow )
 	{
+		//std::cout << " shadow test ";
 		// Shadow rays get "Black" when they hit something, or "Lit" when they miss
 		strcpy(pub, (i.gothit && (i.distance < pixel.distance)) ? "BLACK":"LIT");
+		pixel.gothit = true;
 	}
 	else
 	{
 		// All other ray types (Primary, Reflection, Refraction)
 		// get "Shade" when they hit something, or "Background" when they miss
 		strcpy( pub, i.gothit ? "SHADE":"BKG");
+	}
+
+	if(strcmp(pub, "BKG") != 0 )
+	{
+		std::cout << "(" << pixel.x << "," << pixel.y << ")" << pub << std::endl;
 	}
 
 	sendMessage( header, payload, pub );

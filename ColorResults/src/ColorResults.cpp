@@ -21,11 +21,13 @@ void ColorResults::local_setup()
 	std::cout << "IntersectResults starting up... ";
 }
 
-bool ColorResults::local_work(byte_vector *header, byte_vector *payload)
+bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	std::cout << "doing work... ";
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object obj;
+	unPackPart( header, &obj );
+	obj.convert( &pixel );
+	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 
 	bool colorComplete = false;
 	colorComplete = storeColor( pixel );
@@ -34,19 +36,23 @@ bool ColorResults::local_work(byte_vector *header, byte_vector *payload)
 	{
 		// You got a full set of responses for this test, so
 		// grab the result...
+		// TODO: This is a bug -- need to aggregate all depths and all types at this point.
 		int64_t key = hash( pixel );
 		pixel.color = accumulator[key];
 
 		// Prepare payload for sending to next stage...
 		payload->clear();
+		header->clear();
 
-		encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
+		msgpack::pack( header, pixel );
+		printvec("c", pixel.color);
 
 		// and clean up local hash tables.
 		accumulator.erase(key);
 		response_count.erase(key);/**/
 	}
 
+	std::cout << std::endl;
 	return colorComplete; // if true, send an outbound message as a result of local_work()
 }
 
@@ -66,6 +72,7 @@ bool ColorResults::storeColor( Pixel pixel )
 
 	if( pixel.gothit == false )
 	{
+		std::cout << "no hit " << pixel.type;
 		// you know that this is the only one you're getting (at least for this depth).
 		accumulator[key] = pixel.color;
 		testComplete = true;
@@ -76,12 +83,14 @@ bool ColorResults::storeColor( Pixel pixel )
 	// otherwise, you are expecting 1 + light_count responses, so accumulate until you have them all
 	if( response_count.find(key) != response_count.end())
 	{
+		std::cout << "already had this one ";
 		// You already have a response for this object; accumulate the new color and bump the response count
 		count = response_count[key];
 		count++;
 
 		// Shadow tests only need the first intersected object, not the nearest
 		curr_accumulator = accumulator[key];
+		printvec("a", curr_accumulator);
 		// If the new hit is closer, keep it.
 		Color outcolor;
 		outcolor = pixel.color + curr_accumulator;
@@ -90,11 +99,15 @@ bool ColorResults::storeColor( Pixel pixel )
 		if( outcolor.b > 1.0 ) outcolor.b = 1.0;
 
 		accumulator[key] = outcolor;
+		printvec("p", pixel.color);
+		printvec("o", outcolor);
 	}
 	else
 	{
+		std::cout << "new one ";
 		count = 1;
 		accumulator[key] = pixel.color;
+		printvec("p", pixel.color);
 	}
 
 	// want one more than the number of lights (one from the basic hit and one per light, or just one total if it's a miss)
@@ -111,7 +124,7 @@ bool ColorResults::storeColor( Pixel pixel )
 	return testComplete;
 }
 
-void ColorResults::local_send( byte_vector *header, byte_vector *payload )
+/*void ColorResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *payload )
 {
 	// Depending on whether it is a hit or a miss, and depending upon the test type,
 	// this function will publish the intersection to one of 4 places.
@@ -140,7 +153,7 @@ void ColorResults::local_send( byte_vector *header, byte_vector *payload )
 	}
 
 	sendMessage( header, payload, pub );
-}
+}/**/
 
 void ColorResults::local_shutdown()
 {

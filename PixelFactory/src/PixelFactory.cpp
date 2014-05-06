@@ -11,6 +11,7 @@ using namespace std;
 #include "PixelFactory.hpp"
 #include "Pixel.hpp"
 #include "glm/glm.hpp"
+#include <unistd.h>
 
 void PixelFactory::local_setup()
 {
@@ -21,26 +22,29 @@ void PixelFactory::local_setup()
 	// and then "running" must be set to false
 	// so that loop() will be skipped but shutdown() called properly.
 	Pixel pixel;
-	unsigned char *buffer;
-	byte_vector hdr;
-	byte_vector pay;
-	pay.clear();
+	Pixel outpx;
+	msgpack::sbuffer header;
+	msgpack::sbuffer pay(0);
 	for( int j = 0; j < camera.height; j++ )
 	{
 		for( int i = 0; i < camera.width; i++ )
 		{
-			pixel.x = (float)i;
-			pixel.y = (float)j;
+			std::cout << "Pixel (" << i << "," << j << "): ";
+			pixel.x = (float)i * 1.0f;
+			pixel.y = (float)j * 1.0f;
 			pixel.r = camera.RayThroughPoint(pixel.x, pixel.y);
 			pixel.primaryRay = pixel.r;
 			pixel.type = iPrimary;
 
-			buffer = (unsigned char *)malloc( sizeof( Pixel ) + 1 );
-			memset( buffer, 0, sizeof( Pixel ) + 1 );
-			memcpy(&pixel, buffer, sizeof( Pixel ));
-			hdr.insert( hdr.begin(), buffer, buffer + sizeof( Pixel ) + 1 );
-			sendMessage(&hdr, &pay);
-			free(buffer);
+			printvec( "o", pixel.r.origin);
+			printvec( "d", pixel.r.direction);
+
+			msgpack::pack( header, pixel );
+
+			sendMessage(&header, &pay);
+			std::cout << std::endl;
+			header.clear();
+			usleep(100*1000);
 		}
 	}
 

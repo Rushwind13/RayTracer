@@ -17,24 +17,37 @@ void Background::local_setup()
 }
 
 // You will get here if a Shadow test registers a hit with an object between the intersection and a particular light
-bool Background::local_work(byte_vector *header, byte_vector *payload)
+bool Background::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	std::cout << "doing work... ";
 	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
+	msgpack::object obj;
+	unPackPart( header, &obj );
+	obj.convert( &pixel );
 
 	// TODO: get this from the World configuration
-	pixel.color = Color(0.2,0,0.23);
+	//pixel.color = Color(0.2,0,0.23);
+	pixel.color = Color(0.8,0,0.73);
 
-	// TODO: use altitude of original ray to fade the background color.
-	float fade = dot( vec3(0,0,-1), pixel.primaryRay.direction );
+	float fade = glm::dot( glm::vec3(0,0,-1), pixel.primaryRay.direction );
 	// multiply pixel.color by this (you get full color at the horizon, fading to black at zenith)
+	// TODO: only do this if "above" horizon (if ray.direction.y > 0?)
 	pixel.color *= fade;
 
 	pixel.gothit = false;
 
-	encodeBuffer( header, (void *)&pixel, sizeof(Pixel));
+	header->clear();
+
+	msgpack::pack( header, pixel );
 	payload->clear();
+
+	Pixel pix2;
+	msgpack::object obj2;
+	unPackPart( header, &obj2 );
+	obj2.convert( &pix2 );
+
+	std::cout << "(" << pix2.x << "," << pix2.y << ") ";
+	printvec("c", pix2.color);
+	std::cout << std::endl;
 
 	return true; // send an outbound message as a result of local_work()
 }

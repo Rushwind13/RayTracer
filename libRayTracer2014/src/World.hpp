@@ -36,32 +36,33 @@ public:
 		sprintf( filename, "test.png" );
 
 		//	create world object list
-		vec3 center(-2.5,0.0,-5.0);
+		glm::vec3 center(-2.5,0.0,-5.0);
 		float radius=2.0;
-		Sphere sphere(center, radius);
-		sphere.oid = 1;
-		sphere.name = "sphere1";
+		Sphere *sphere = new Sphere(center, radius);
+		sphere->oid = 1;
+		sphere->name = "sphere1";
 
-		objects.push_back(&sphere);
+		objects.push_back(sphere);
 
-		vec3 center2(2.5,0.0,-10.0);
+		glm::vec3 center2(2.5,0.0,-10.0);
 		float radius2=4.0;
-		Sphere sphere2(center2, radius2);
-		sphere2.color = Color(0.0,0.0,1.0);
-		sphere2.oid = 2;
-		sphere2.name = "sphere2";
+		Sphere *sphere2 = new Sphere(center2, radius2);
+		sphere2->color = Color(0.0,0.0,1.0);
+		sphere2->oid = 2;
+		sphere2->name = "sphere2";
 
-		objects.push_back(&sphere2);
+		objects.push_back(sphere2);
 
 		object_count = objects.size();
 
 		// create world light list
 		Position lpos0(-2.5, 0.0, -1.0);
-		Light light0(lpos0);
-		light0.color = Color(1.0,1.0,1.0);
-		light0.oid = 0;
-		light0.name = "light0";
-		lights.push_back(&light0);
+		Light *light0 = new Light(lpos0);
+		light0->color = Color(1.0,1.0,1.0);
+		light0->oid = 0;
+		light0->name = "light0";
+
+		lights.push_back(light0);
 
 		light_count = lights.size();
 	}
@@ -72,9 +73,8 @@ public:
 
 		for( std::list<Object *>::iterator it = objects.begin(); it != objects.end(); it++ )
 		{
-				// actually, first create the vector to the light, and take N.L to see if light is below surface
-				// shouldn't it sometimes be below the surface during refraction? hmm.
 				Object *obj = *it;
+				std::cout << object_name << ":" << obj->name << std::endl;
 				if( object_name.compare(obj->name) == 0 )
 				{
 					retval = obj;
@@ -151,7 +151,7 @@ def create_scene( metadata ):
 					nearest.gothit		= true;
 					nearest.distance	= i.distance;
 					nearest.normal		= i.normal;
-					nearest.object		= i.object;
+					nearest.oid			= i.oid;
 					nearest.position	= i.position;
 				}
 				// For shadow rays, any hit will do (don't need the actual closest one)

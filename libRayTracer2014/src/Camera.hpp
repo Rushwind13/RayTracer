@@ -27,16 +27,22 @@ public:
 	 */
 	Position eye;
 	Position lookAt;
-	vec3 up;
+	glm::vec3 up;
 
 	// I'm torn about whether the viewport size should be here or somewhere else.
 	unsigned int width, height;
 
 	float fovy;
 
-	Camera(Position _eye, Position _lookAt, vec3 _up, float _fovy, float _width, float _height):
+	Camera(Position _eye, Position _lookAt, glm::vec3 _up, float _fovy, float _width, float _height):
 		eye(_eye), lookAt(_lookAt), up(_up), width (_width), height(_height), fovy(_fovy)
 	{
+		init();
+	}
+
+	void init()
+	{
+
 		CreateCoordinateFrame();
 		angle = fovy * deg2rad;
 		aspect_ratio = (float)width / (float)height;
@@ -44,7 +50,6 @@ public:
 		_tan = std::tan(angle*0.5);
 		half_height = height * 0.5;
 		half_width = width * 0.5;
-
 	}
 
 	void setup()
@@ -55,8 +60,8 @@ public:
 		glm::vec3 _lookAt(0.0,0.0,-1.0);
 		glm::vec3 _up(0.0,1.0,0.0);
 		float _fovy = 90.0;
-		float _width = 900.0;
-		float _height = 600.0;
+		float _width = 20.0;
+		float _height = 20.0;
 
 		eye = _eye;
 		lookAt = _lookAt;
@@ -64,6 +69,8 @@ public:
 		fovy = _fovy;
 		width = _width;
 		height = _height;
+
+		init();
 	}
 	/*Ray RayThroughPoint( float i, float j )
 		{
@@ -86,10 +93,11 @@ public:
 			float a = ((2.0 * (i + 0.5) / width) - 1.0) * _tan * aspect_ratio;
 			float b = (1.0 - (2.0 * (j + 0.5 )) / height) * _tan;
 
-			vec3 origin = eye;
-			vec3 direction = (a*u) - (b*v) - w;
-			direction = normalize(direction);
+			glm::vec3 origin = eye;
+			glm::vec3 direction = (a*u) - (b*v) - w;
+			direction = glm::normalize(direction);
 	#ifdef DEBUG
+			std::cout << "(" << i << "," << j << ") ";
 			printvec("o", origin);
 			printvec("d", direction);
 			std::cout << std::endl;
@@ -110,25 +118,25 @@ protected:
 	float half_width;
 
 	// Camera local coordinates
-	vec3 u,v,w;
+	glm::vec3 u,v,w;
 
 	void CreateCoordinateFrame()
 	{
 		// Forward vector
-		vec3 a = eye - lookAt;
-		vec3 b = up;
+		glm::vec3 a = eye - lookAt;
+		glm::vec3 b = up;
 
 		// w = a/|a|
-		w = normalize(a);
+		w = glm::normalize(a);
 
 		// Right vector (orthogonal to fwd and up)
 		// u = b x w / |b x w|
-		u = cross(b,w);
-		u = normalize(u);
+		u = glm::cross(b,w);
+		u = glm::normalize(u);
 
 		// Up vector
 		// v = w x u
-		v = cross(w,u);
+		v = glm::cross(w,u);
 #ifdef INFO
 		printvec("u", u);
 		printvec("v", v);

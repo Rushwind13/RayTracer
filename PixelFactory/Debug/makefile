@@ -38,19 +38,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: PixelFactory
+all: ../../bin/PixelFactory
 
 # Tool invocations
-PixelFactory: $(OBJS) $(USER_OBJS)
+../../bin/PixelFactory: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MacOS X C++ Linker'
-	g++ -L"/Users/jiharris/Documents/Personal/code/workspace/zmq_widgets/Widget/Debug" -L/usr/local/lib -o "PixelFactory" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L"/Users/jiharris/Documents/Personal/code/workspace/zmq_widgets/Widget/Debug" -L/usr/local/lib -o "../../bin/PixelFactory" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) PixelFactory
+	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) ../../bin/PixelFactory
 	-@echo ' '
 
 .PHONY: all clean dependents
