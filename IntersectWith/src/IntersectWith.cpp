@@ -27,7 +27,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( &pixel );
-	//std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
+	if( pixel.x == 1.0f && pixel.y == 1.0f ) std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " " << std::endl;
 	assert(object);
 
 	// Primary rays don't have a payload,

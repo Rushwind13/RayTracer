@@ -43,6 +43,9 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		// You got a full set of responses for this file, so
 		// time to write a PNG...
 		SaveImage();
+
+		// and get ready to run again
+		pixel_count = camera.width * camera.height;
 	}
 
 	std::cout << std::endl;
@@ -70,9 +73,9 @@ void Writer::SaveImage()
 	std::cout << "Writing file " << world.filename << "...";
 	pngwriter png(camera.width,camera.height,0,world.filename);
 	Color *curr_pixel = image;
-	for( int y = 1; y < camera.height; y++ )
+	for( int y = 1; y <= camera.height; y++ )
 	{
-		for(int x = 1; x < camera.width; x++ )
+		for(int x = 1; x <= camera.width; x++ )
 		{
 			png.plot(x,y, curr_pixel->x, curr_pixel->y, curr_pixel->z);
 			curr_pixel++;

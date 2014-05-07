@@ -137,7 +137,11 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 
 	if(strcmp(pub, "BKG") != 0 )
 	{
-		std::cout << "(" << pixel.x << "," << pixel.y << ")" << pub << std::endl;
+		std::cout << "(" << pixel.x << "," << pixel.y << ") " << pub << " " << response_count.size() << std::endl;
+	}
+	if( pixel.x == 0.0f && pixel.y == 0.0f)
+	{
+		std::cout << "got 0,0 " << pub << std::endl;
 	}
 
 	sendMessage( header, payload, pub );

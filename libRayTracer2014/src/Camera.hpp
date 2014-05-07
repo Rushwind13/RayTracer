@@ -60,8 +60,8 @@ public:
 		glm::vec3 _lookAt(0.0,0.0,-1.0);
 		glm::vec3 _up(0.0,1.0,0.0);
 		float _fovy = 90.0;
-		float _width = 20.0;
-		float _height = 20.0;
+		float _width = 300.0;
+		float _height = 200.0;
 
 		eye = _eye;
 		lookAt = _lookAt;

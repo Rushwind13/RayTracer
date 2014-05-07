@@ -64,8 +64,8 @@ bool ColorResults::storeColor( Pixel pixel )
 	bool testComplete = false;
 
 	// The states you could be in:
-	// Primary miss - you get only one response from "bkg"
-	// Primary hit - you get one response from Shader and one per light from Shadow
+	// Primary miss - you get only one response from "bkg" (gothit = F)
+	// Primary hit - you get one response from Shader and one per light from Shadow (gothit = T, sum all these)
 	// Shadow miss - this should be coming from "lit"
 	// Shadow hit - this should be coming from "black"
 	// TODO: add reflection and refraction states (will likely have to deal with depth in addition to the rest)
@@ -104,7 +104,7 @@ bool ColorResults::storeColor( Pixel pixel )
 	}
 	else
 	{
-		std::cout << "new one ";
+		std::cout << "new one " << key << " " << pixel.x << " " << pixel.y << " " << pixel.depth << " ";
 		count = 1;
 		accumulator[key] = pixel.color;
 		printvec("p", pixel.color);
@@ -124,40 +124,9 @@ bool ColorResults::storeColor( Pixel pixel )
 	return testComplete;
 }
 
-/*void ColorResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *payload )
-{
-	// Depending on whether it is a hit or a miss, and depending upon the test type,
-	// this function will publish the intersection to one of 4 places.
-	// 			HIT				MISS
-	// SHADOW	BLACK			LIT
-	// other	SHADE			BKG
-
-	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
-
-	Intersection i;
-	memcpy( payload, &i, sizeof(Intersection) );
-
-	char pub[6] = "";
-
-	if( pixel.type == iShadow )
-	{
-		// Shadow rays get "Black" when they hit something, or "Lit" when they miss
-		strcpy(pub, (i.gothit && (i.distance < pixel.distance)) ? "BLACK":"LIT");
-	}
-	else
-	{
-		// All other ray types (Primary, Reflection, Refraction)
-		// get "Shade" when they hit something, or "Background" when they miss
-		strcpy( pub, i.gothit ? "SHADE":"BKG");
-	}
-
-	sendMessage( header, payload, pub );
-}/**/
-
 void ColorResults::local_shutdown()
 {
-	std::cout << "IntersectResults shutting down... ";
+	std::cout << "ColorResults shutting down... ";
 	response_count.clear();
 	accumulator.clear();
 }
@@ -165,7 +134,7 @@ void ColorResults::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	ColorResults cr("IntersectWith", "COLOR", "ipc:///tmp/feeds/broadcast", "PNG", "ipc:///tmp/feeds/control");
+	ColorResults cr("ColorResults", "COLOR", "ipc:///tmp/feeds/broadcast", "PNG", "ipc:///tmp/feeds/control");
 
 	if( argc > 1 )
 	{

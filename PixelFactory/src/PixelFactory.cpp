@@ -15,6 +15,9 @@ using namespace std;
 
 void PixelFactory::local_setup()
 {
+	// Slow joiner problem
+	usleep(100*1000);
+
 	camera.setup();
 
 	// In order to make this a "publish only" Widget,
@@ -23,8 +26,9 @@ void PixelFactory::local_setup()
 	// so that loop() will be skipped but shutdown() called properly.
 	Pixel pixel;
 	Pixel outpx;
-	msgpack::sbuffer header;
+	msgpack::sbuffer header(0);
 	msgpack::sbuffer pay(0);
+
 	for( int j = 0; j < camera.height; j++ )
 	{
 		for( int i = 0; i < camera.width; i++ )
@@ -39,12 +43,12 @@ void PixelFactory::local_setup()
 			printvec( "o", pixel.r.origin);
 			printvec( "d", pixel.r.direction);
 
+			header.clear();
 			msgpack::pack( header, pixel );
 
 			sendMessage(&header, &pay);
 			std::cout << std::endl;
-			header.clear();
-			usleep(100*1000);
+			usleep(1*1000);
 		}
 	}
 

@@ -40,8 +40,8 @@ private:
 		hash += (int64_t)pixel.x * 10000 * 100 * 100;
 		hash += (int64_t)pixel.y * 100 * 100;
 		hash += (int64_t)pixel.depth * 100;
-		hash += (int64_t)pixel.type;
-
+		// 2014.05.06 ColorResults does not key on type, because shadow and primary need to be summed.
+		//hash += (int64_t)pixel.type;
 		return hash;
 	}
 

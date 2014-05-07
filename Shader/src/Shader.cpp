@@ -82,6 +82,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		pShadow.primaryRay = pixel.primaryRay;
 		pShadow.color = pixel.color;
 		pShadow.gothit = pixel.gothit;
+		pShadow.depth = pixel.depth;
 
 		// TODO: send off an INTERSECT message with rShadow as the testing ray and iShadow as the test type
 		// Note, need to save off NdotL, any info needed (like vL, this oid, etc that will be needed by the specular and diffuse calcs)

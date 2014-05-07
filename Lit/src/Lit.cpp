@@ -44,11 +44,12 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	{
 		vH = vH / len;
 		cosTheta = glm::dot( pixel.normal, vH );
+		std::cout << "cT:" << cosTheta << "  ";
 		if( cosTheta < 0.0 ) cosTheta = 0.0;
 	}
 
 	Color specular;
-	float s = 10; // TODO: shininess should come from the object definition
+	float s = 1000; // TODO: shininess should come from the object definition
 	specular = obj->color * pow(cosTheta, s); // TODO: different colors for specular vs diffuse?
 
 	pixel.color = light->color * ( diffuse + specular );
