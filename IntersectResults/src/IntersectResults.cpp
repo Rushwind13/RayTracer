@@ -135,6 +135,7 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 		strcpy( pub, i.gothit ? "SHADE":"BKG");
 	}
 
+#ifdef DEBUG
 	if(strcmp(pub, "BKG") != 0 )
 	{
 		std::cout << "(" << pixel.x << "," << pixel.y << ") " << pub << " " << response_count.size() << std::endl;
@@ -143,6 +144,7 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 	{
 		std::cout << "got 0,0 " << pub << std::endl;
 	}
+#endif /* DEBUG */
 
 	sendMessage( header, payload, pub );
 }

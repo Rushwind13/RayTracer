@@ -24,16 +24,17 @@ bool Black::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( &pixel );
-	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 
 	pixel.color = Color(0.0f,0.0f,0.0f);
+#ifdef DEBUG
+	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 	printvec("c", pixel.color);
+	std::cout << std::endl;
+#endif /* DEBUG */
 
 	header->clear();
 	msgpack::pack( header, pixel );
 	payload->clear();
-
-	std::cout << std::endl;
 	return true; // send an outbound message as a result of local_work()
 }
 

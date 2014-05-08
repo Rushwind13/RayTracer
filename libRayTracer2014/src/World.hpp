@@ -47,7 +47,7 @@ public:
 		glm::vec3 center2(2.5,0.0,-10.0);
 		float radius2=4.0;
 		Sphere *sphere2 = new Sphere(center2, radius2);
-		sphere2->color = Color(0.0,0.0,1.0);
+		sphere2->color = Color(0.1,0.1,1.0);
 		sphere2->oid = 2;
 		sphere2->name = "sphere2";
 

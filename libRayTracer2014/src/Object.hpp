@@ -11,7 +11,7 @@
 #include "Math.hpp"
 #include "Intersection.hpp"
 
-#define COLOR_RED Color(1.0,0.0,0.0);
+#define COLOR_RED Color(1.0,0.1,0.1);
 class Object
 {
 public:
@@ -165,13 +165,14 @@ public:
 			return false;
 		}
 
-		// Note: o + dt - c = (o - c) + dt
 		glm::vec3 dt = r.direction * i.distance;
 
-		i.normal = glm::normalize(oc + dt);
 		//i.object = reinterpret_cast<const Object *>(this);
 		i.oid = oid;
 		i.position = r.origin + dt;
+		// Note: o + dt - c = (o - c) + dt
+		//i.normal = glm::normalize(oc + dt);
+		i.normal = glm::normalize(i.position - center);
 		i.gothit = true;
 
 		// TODO: texture coordinates

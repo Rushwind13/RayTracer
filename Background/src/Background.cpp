@@ -45,9 +45,11 @@ bool Background::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &obj2 );
 	obj2.convert( &pix2 );
 
+#ifdef DEBUG
 	std::cout << "(" << pix2.x << "," << pix2.y << ") ";
 	printvec("c", pix2.color);
 	std::cout << std::endl;
+#endif /* DEBUG */
 
 	return true; // send an outbound message as a result of local_work()
 }

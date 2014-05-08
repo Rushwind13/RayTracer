@@ -24,7 +24,9 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( &pixel );
+#ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
+#endif /* DEBUG */
 
 	// We know we have at least one hit now, so...
 	pixel.gothit = true;
@@ -65,7 +67,9 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		//   N.L < 0 = send off background color message
 		if( NdotL < 0 )
 		{
+#ifdef DEBUG
 			std::cout << " N.L < 0 for lid: " << light->oid;
+#endif /* DEBUG */
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
 			sendMessage(header, payload, "BLACK");
@@ -123,9 +127,11 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	msgpack::pack( header, pixel );
 	payload->clear();
+#ifdef DEBUG
 	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 	//printvec("ambient", pixel.color);
 	std::cout << std::endl;
+#endif /* DEBUG */
 
 	return true; // send an outbound message as a result of local_work()
 }
