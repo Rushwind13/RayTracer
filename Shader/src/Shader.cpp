@@ -68,17 +68,19 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		if( NdotL < 0 )
 		{
 #ifdef DEBUG
-			std::cout << " N.L < 0 for lid: " << light->oid;
+			std::cout << "(" << pixel.x << "," << pixel.y << ")" << " N.L < 0 for lid: " << light->oid << std::endl;
 #endif /* DEBUG */
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
 			sendMessage(header, payload, "BLACK");
+			//sendMessage(header, payload, "BKG");
 			continue;
 		}
 
 		// Light is above surface. Anything between this point and the light?
 		Ray rShadow;
 		lighting.Shadow( vL, i, &rShadow );
+#ifdef NOTDEFINED
 		Pixel pShadow;
 
 		pShadow.x = pixel.x;
@@ -98,13 +100,19 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		// this will get called a lot -- could probably move it outside of the for loop (especially if needed for the reflection/refraction stuff)
 		// TODO: Should this get done by IntersectionResults?
 		prepareShadowTest( &pShadow, i );
+#endif /* 0 */
+		pixel.r = rShadow;
+		pixel.distance = light_dist;
+		pixel.NdotL = NdotL;
+		pixel.lid = light->oid;
+		prepareShadowTest( &pixel, i );
 
 		header->clear();
 
-		msgpack::pack( header, pShadow );
+		msgpack::pack( header, pixel );
 
 		sendMessage( header, payload, "INTERSECT" );
-
+#ifdef DEBUG
 		Pixel px2;
 
 		msgpack::object obj3;
@@ -115,13 +123,14 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		//printvec( "rS.o", px2.r.origin );
 		//printvec( "rS.d", px2.r.direction );
 		//std::cout << std::endl;
+#endif /* DEBUG */
 	}
 
 	header->clear();
 	// Finally, calculate ambient and emissive colors and send off pixel color message
 	// TODO: figure out ambient (from world) and emissive (from object) colors and prepare header and payload to send off a COLOR message
 	pixel.type = iPrimary;
-	Color ambient(0.1,0.1,0.1);
+	Color ambient(0.1,0.1,0.1);// TODO: this comes from the world
 	Color emissive(0.0,0.0,0.0); // TODO: this comes from the object
 	pixel.color = ambient + emissive;
 
@@ -143,7 +152,7 @@ void Shader::prepareShadowTest( Pixel *pixel, const Intersection i )
 	pixel->oid = i.oid;
 	pixel->normal = i.normal;
 	pixel->position = i.position;
-	pixel->distance = i.distance;
+	//pixel->distance = i.distance;
 }
 
 void Shader::local_shutdown()

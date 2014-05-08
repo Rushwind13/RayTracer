@@ -27,7 +27,9 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( &pixel );
-	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+#ifdef DEBUG
+	std::cout << "(" << pixel.x << "," << pixel.y << ") " << pixel.type << " ";
+#endif /* DEBUG */
 
 	Intersection i;
 	msgpack::object obj2;
@@ -54,7 +56,7 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 		response_count.erase(key);
 	}
 
-	//std::cout << " " << testComplete << std::endl;
+	//std::cout << std::endl;
 
 	return testComplete; // if true, send an outbound message as a result of local_work()
 }
@@ -66,25 +68,40 @@ bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
 	Intersection curr_nearest;
 	bool testComplete = false;
 
+	//std::cout << " k:" << key;
+
 	if( response_count.find(key) != response_count.end())
 	{
 		// You already have a response for this object; decide what to do with the new hit and bump the response count
 		count = response_count[key];
 		count++;
 
-		// Shadow tests only need the first intersected object, not the nearest
-		if( pixel.type != iShadow && hit.gothit )
+		if( hit.gothit )
 		{
 			curr_nearest = nearest[key];
-			// If the new hit is closer, keep it.
-			if( hit.distance < curr_nearest.distance )
+			//std::cout << " had " << curr_nearest.gothit;
+
+			if( pixel.type == iShadow )
 			{
-				nearest[key] = hit;
+				// Shadow tests only need the first intersected object, not the nearest
+				if( !curr_nearest.gothit )
+				{
+					nearest[key] = hit;
+				}
+			}
+			else
+			{
+				// If the new hit is closer, keep it.
+				if( hit.distance < curr_nearest.distance )
+				{
+					nearest[key] = hit;
+				}
 			}
 		}
 	}
 	else
 	{
+		//std::cout << " new " << hit.gothit;
 		count = 1;
 		nearest[key] = hit;
 	}
@@ -136,7 +153,7 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 	}
 
 #ifdef DEBUG
-	if(strcmp(pub, "BKG") != 0 )
+	if(pixel.type == iShadow)//strcmp(pub, "BLACK") == 0 )
 	{
 		std::cout << "(" << pixel.x << "," << pixel.y << ") " << pub << " " << response_count.size() << std::endl;
 	}

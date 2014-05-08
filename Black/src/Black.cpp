@@ -25,7 +25,10 @@ bool Black::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &obj );
 	obj.convert( &pixel );
 
-	pixel.color = Color(0.0f,0.0f,0.0f);
+	Color ambient(0.1,0.1,0.1);// TODO: this comes from the world
+	Color emissive(0.0,0.0,0.0); // TODO: this comes from the object
+	pixel.color = ambient + emissive;
+
 #ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 	printvec("c", pixel.color);

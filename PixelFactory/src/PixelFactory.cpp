@@ -29,6 +29,10 @@ void PixelFactory::local_setup()
 	msgpack::sbuffer header(0);
 	msgpack::sbuffer pay(0);
 
+	/*for( int j = 0; j < camera.height; j++ )
+	{
+		for( int i = 0; i < camera.width; i++ )
+		{/**/
 	for( int j = 0; j < camera.height; j++ )
 	{
 		for( int i = 0; i < camera.width; i++ )
@@ -39,6 +43,7 @@ void PixelFactory::local_setup()
 			pixel.r = camera.RayThroughPoint(pixel.x, pixel.y);
 			pixel.primaryRay = pixel.r;
 			pixel.type = iPrimary;
+			pixel.depth = 0;
 
 			printvec( "o", pixel.r.origin);
 			printvec( "d", pixel.r.direction);
@@ -47,10 +52,11 @@ void PixelFactory::local_setup()
 			msgpack::pack( header, pixel );
 
 			sendMessage(&header, &pay);
-			std::cout << std::endl;
+			std::cout << "\r";
 			usleep(1*1000);
 		}
 	}
+	std::cout << std::endl;
 
 	std::cout << "finished... ";
 	running = false;

@@ -27,7 +27,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( &pixel );
-	//if( pixel.x == 1.0f && pixel.y == 1.0f ) std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " " << std::endl;
+	//if(pixel.type == iShadow) std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
 	assert(object);
 
 	// Primary rays don't have a payload,
@@ -40,26 +40,41 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 		//std::cout << " shadow ";
 		i.distance = pixel.distance;
 		i.anyhit = true;
+
+		//std::cout << "d: " << i.distance;
 	}
 	assert(object);
 
 	bool gothit;
 	assert( object );
 
-	//std::cout << "(" << pixel.x << "," << pixel.y << ") " << pixel.type << " ";
-	//printvec( "sent o", pixel.r.origin );
-	//printvec( "sent d", pixel.r.direction );
-	gothit = object->Intersect( pixel.r, i );
-	i.gothit = gothit;
-	std::string test = "Intersect ";
-	if( pixel.type == iShadow )
+	// Shadow tests do not allow self-intersection
+	if( pixel.type == iShadow && pixel.oid == object->oid )
 	{
-		test =  "Shadowed ";
+		//std::cout << " no self-shadow ";
+		i.gothit = false;
 	}
-	if( gothit ) std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ")" << std::endl;
+	else
+	{
+		//std::cout << "(" << pixel.x << "," << pixel.y << ") " << pixel.type << " ";
+		//printvec( "sent o", pixel.r.origin );
+		//printvec( "sent d", pixel.r.direction );
+		gothit = object->Intersect( pixel.r, i );
+		i.gothit = gothit;
+		std::string test = "Intersect ";
+		if( pixel.type == iShadow )
+		{
+			test =  "Shadowed ";
+		}
+		if( gothit )
+		{
+			//std::cout << " h: " << i.distance;
+			std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ")" << std::endl;
+		}
+	}
 
 	msgpack::pack( payload, i );
-
+	//if( pixel.type == iShadow )std::cout << std::endl;
 	return true; // send an outbound message as a result of local_work()
 }
 

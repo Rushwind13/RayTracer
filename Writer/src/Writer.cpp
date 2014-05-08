@@ -40,6 +40,7 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	if( fileComplete )
 	{
+		std::cout << std::endl;
 		// You got a full set of responses for this file, so
 		// time to write a PNG...
 		SaveImage();
@@ -48,7 +49,7 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		pixel_count = camera.width * camera.height;
 	}
 
-	std::cout << std::endl;
+	std::cout << "\r";
 	return false; // no more messages; we're done.
 }
 

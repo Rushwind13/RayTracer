@@ -27,7 +27,7 @@ bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payloa
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( &pixel );
-	std::cout << "(" << pixel.x << "," << pixel.y << ")";
+	if( pixel.gothit ) std::cout << "(" << pixel.x << "," << pixel.y << ")";
 
 	bool colorComplete = false;
 	colorComplete = storeColor( pixel );
@@ -45,14 +45,16 @@ bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payloa
 		header->clear();
 
 		msgpack::pack( header, pixel );
+#ifdef DEBUG
 		printvec("c", pixel.color);
+#endif /* DEBUG */
 
 		// and clean up local hash tables.
 		accumulator.erase(key);
 		response_count.erase(key);/**/
 	}
 
-	std::cout << std::endl;
+	if( pixel.gothit ) std::cout << std::endl;
 	return colorComplete; // if true, send an outbound message as a result of local_work()
 }
 
@@ -72,7 +74,9 @@ bool ColorResults::storeColor( Pixel pixel )
 
 	if( pixel.gothit == false )
 	{
+#ifdef DEBUG
 		std::cout << "no hit " << pixel.type;
+#endif /* DEBUG */
 		// you know that this is the only one you're getting (at least for this depth).
 		accumulator[key] = pixel.color;
 		testComplete = true;
