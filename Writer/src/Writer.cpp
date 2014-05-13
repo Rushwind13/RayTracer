@@ -19,10 +19,12 @@ using namespace std;
 
 void Writer::local_setup()
 {
-	std::cout << "IntersectResults starting up... ";
+	std::cout << name << " starting up... ";
 	camera.setup();
+	//pixel_count = 100;
 	pixel_count = camera.width * camera.height;
 	image = new Color[pixel_count];
+	std::cout << pixel_count << " pixels.";
 }
 
 bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
@@ -46,10 +48,11 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		SaveImage();
 
 		// and get ready to run again
+		//pixel_count = 100;
 		pixel_count = camera.width * camera.height;
 	}
 
-	std::cout << "\r";
+	std::cout << std::endl;
 	return false; // no more messages; we're done.
 }
 

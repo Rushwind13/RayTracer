@@ -69,7 +69,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 		if( gothit )
 		{
 			//std::cout << " h: " << i.distance;
-			std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ")" << std::endl;
+			std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ") depth:" << pixel.depth << std::endl;
 		}
 	}
 

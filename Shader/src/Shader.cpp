@@ -40,6 +40,9 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	// Move necessary info out of the payload and into the header.
 	// all the below tests can possibly spawn several new INTERSECT messages, which will drop the payload.
 
+	Color ambient(0.02,0.02,0.02);// TODO: this comes from the world
+	Color emissive(0.0,0.0,0.0); // TODO: this comes from the object
+
 	// Reflection - if surface is reflective, send off a reflection test
 	// Note: should do the reflection calc here and fill the header with any needed info (depth, weight, current oid?)
 	// This will be an INTERSECT message (header only, blank payload) with the reflected ray as the "new" primary ray
@@ -65,11 +68,11 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		float NdotL = glm::dot( i.normal, vL );
 
 		//   N.L < 0 = send off background color message
-		if( NdotL < 0 )
+		if( NdotL < (ambient.r + emissive.r) )
 		{
-#ifdef DEBUG
+//#ifdef DEBUG
 			std::cout << "(" << pixel.x << "," << pixel.y << ")" << " N.L < 0 for lid: " << light->oid << std::endl;
-#endif /* DEBUG */
+//#endif /* DEBUG */
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
 			sendMessage(header, payload, "BLACK");
@@ -130,17 +133,15 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	// Finally, calculate ambient and emissive colors and send off pixel color message
 	// TODO: figure out ambient (from world) and emissive (from object) colors and prepare header and payload to send off a COLOR message
 	pixel.type = iPrimary;
-	Color ambient(0.1,0.1,0.1);// TODO: this comes from the world
-	Color emissive(0.0,0.0,0.0); // TODO: this comes from the object
 	pixel.color = ambient + emissive;
 
 	msgpack::pack( header, pixel );
 	payload->clear();
-#ifdef DEBUG
-	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
-	//printvec("ambient", pixel.color);
+//#ifdef DEBUG
+	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+	printvec("ambient", pixel.color);
 	std::cout << std::endl;
-#endif /* DEBUG */
+//#endif /* DEBUG */
 
 	return true; // send an outbound message as a result of local_work()
 }

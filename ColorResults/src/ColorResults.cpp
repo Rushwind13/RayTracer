@@ -138,7 +138,7 @@ void ColorResults::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	ColorResults cr("ColorResults", "COLOR", "ipc:///tmp/feeds/broadcast", "PNG", "ipc:///tmp/feeds/control");
+	ColorResults cr("ColorResults", "COLOR", "ipc:///tmp/feeds/broadcast", "DEPTH", "ipc:///tmp/feeds/control");
 
 	if( argc > 1 )
 	{

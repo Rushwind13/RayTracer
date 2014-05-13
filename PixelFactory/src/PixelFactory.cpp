@@ -29,20 +29,21 @@ void PixelFactory::local_setup()
 	msgpack::sbuffer header(0);
 	msgpack::sbuffer pay(0);
 
-	/*for( int j = 0; j < camera.height; j++ )
+	/*for( int j = 130; j < 140; j++ )
 	{
-		for( int i = 0; i < camera.width; i++ )
+		for( int i = 205; i < 215; i++ )
 		{/**/
 	for( int j = 0; j < camera.height; j++ )
 	{
 		for( int i = 0; i < camera.width; i++ )
-		{
+		{/**/
 			std::cout << "Pixel (" << i << "," << j << "): ";
 			pixel.x = (float)i * 1.0f;
 			pixel.y = (float)j * 1.0f;
 			pixel.r = camera.RayThroughPoint(pixel.x, pixel.y);
 			pixel.primaryRay = pixel.r;
 			pixel.type = iPrimary;
+			pixel.weight = 1.0f;
 			pixel.depth = 0;
 
 			printvec( "o", pixel.r.origin);

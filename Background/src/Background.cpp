@@ -27,6 +27,7 @@ bool Background::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	// TODO: get this from the World configuration
 	//pixel.color = Color(0.2,0,0.23);
 	pixel.color = Color(0.8,0,0.73);
+	//pixel.color = Color(0.25,0.25,0.25);
 	//pixel.color = Color(0.0,0.8,0.0);
 
 	float fade = glm::dot( glm::vec3(0,0,-1), pixel.primaryRay.direction );
