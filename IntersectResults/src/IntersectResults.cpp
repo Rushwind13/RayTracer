@@ -26,7 +26,7 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 	Pixel pixel;
 	msgpack::object obj;
 	unPackPart( header, &obj );
-	obj.convert( &pixel );
+	obj.convert( pixel );
 #ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ") " << pixel.type << " ";
 #endif /* DEBUG */
@@ -34,7 +34,7 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 	Intersection i;
 	msgpack::object obj2;
 	unPackPart( payload, &obj2 );
-	obj2.convert( &i );
+	obj2.convert( i );
 	//std::cout << i.oid << " " << i.gothit;
 
 	bool testComplete = false;
@@ -130,11 +130,11 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 	Pixel pixel;
 	msgpack::object obj;
 	unPackPart( header, &obj );
-	obj.convert( &pixel );
+	obj.convert( pixel );
 
 	Intersection i;
 	unPackPart( payload, &obj );
-	obj.convert( &i );
+	obj.convert( i );
 
 	char pub[6] = "";
 

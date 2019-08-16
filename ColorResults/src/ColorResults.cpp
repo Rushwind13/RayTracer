@@ -26,7 +26,7 @@ bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payloa
 	Pixel pixel;
 	msgpack::object obj;
 	unPackPart( header, &obj );
-	obj.convert( &pixel );
+	obj.convert( pixel );
 	if( pixel.gothit ) std::cout << "(" << pixel.x << "," << pixel.y << ")";
 
 	bool colorComplete = false;

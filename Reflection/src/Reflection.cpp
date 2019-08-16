@@ -23,7 +23,7 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Pixel pixel;
 	msgpack::object obj;
 	unPackPart( header, &obj );
-	obj.convert( &pixel );
+	obj.convert( pixel );
 #ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 #endif /* DEBUG */
@@ -34,7 +34,7 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Intersection i;
 	msgpack::object obj2;
 	unPackPart( payload, &obj2 );
-	obj2.convert( &i );
+	obj2.convert( i );
 	payload->clear();
 
 	// Move necessary info out of the payload and into the header.

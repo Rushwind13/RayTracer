@@ -26,7 +26,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	Pixel pixel;
 	msgpack::object obj;
 	unPackPart( header, &obj );
-	obj.convert( &pixel );
+	obj.convert( pixel );
 	//if(pixel.type == iShadow) std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
 	assert(object);
 

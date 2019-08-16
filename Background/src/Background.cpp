@@ -22,7 +22,7 @@ bool Background::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Pixel pixel;
 	msgpack::object obj;
 	unPackPart( header, &obj );
-	obj.convert( &pixel );
+	obj.convert( pixel );
 
 	// TODO: get this from the World configuration
 	//pixel.color = Color(0.2,0,0.23);
@@ -45,7 +45,7 @@ bool Background::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Pixel pix2;
 	msgpack::object obj2;
 	unPackPart( header, &obj2 );
-	obj2.convert( &pix2 );
+	obj2.convert( pix2 );
 
 #ifdef DEBUG
 	std::cout << "(" << pix2.x << "," << pix2.y << ") ";

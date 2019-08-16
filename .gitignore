@@ -1,10 +1,20 @@
 # folders
+.DS_Store
 Archive
 bin
+
+# output files
+*.png
+
+# misc files
+*.csv
 
 # log files
 *.log
 *.log.*
+
+# Editor files
+*.swp
 
 # C/C++
 *.slo
@@ -23,7 +33,6 @@ bin
 # autotools
 .deps
 .deps/*
-Makefile
 config.guess
 config.log
 config.status

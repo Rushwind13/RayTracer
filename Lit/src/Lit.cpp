@@ -23,7 +23,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Pixel pixel;
 	msgpack::object mpobj;
 	unPackPart( header, &mpobj );
-	mpobj.convert( &pixel );
+	mpobj.convert( pixel );
 #ifdef DEBUG
 	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 #endif /* DEBUG */

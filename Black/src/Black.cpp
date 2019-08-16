@@ -23,7 +23,7 @@ bool Black::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Pixel pixel;
 	msgpack::object obj;
 	unPackPart( header, &obj );
-	obj.convert( &pixel );
+	obj.convert( pixel );
 
 	pixel.gothit = true;
 

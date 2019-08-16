@@ -23,7 +23,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Pixel pixel;
 	msgpack::object obj;
 	unPackPart( header, &obj );
-	obj.convert( &pixel );
+	obj.convert( pixel );
 #ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
 #endif /* DEBUG */
@@ -34,7 +34,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Intersection i;
 	msgpack::object obj2;
 	unPackPart( payload, &obj2 );
-	obj2.convert( &i );
+	obj2.convert( i );
 	payload->clear();
 
 	// Move necessary info out of the payload and into the header.
@@ -120,7 +120,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 		msgpack::object obj3;
 		unPackPart( header, &obj3 );
-		obj3.convert( &px2 );
+		obj3.convert( px2 );
 
 		//std::cout << " shadow test for oid: " << px2.oid << " lid: " << px2.lid << " " << px2.type << " ";
 		//printvec( "rS.o", px2.r.origin );
