@@ -5,8 +5,8 @@ HOMEDIR = /Users/jimbo
 BASEDIR = $(HOMEDIR)/Documents/code
 OUTPUTDIR = ../bin
 CC = g++
-CC_FLAGS = -w -I$(BASEDIR)/zmq_widgets/Widget -I$(BASEDIR)/RayTracer2014/libRayTracer2014/src -I/usr/local/include/freetype2
-LD_FLAGS = -lzmq -lPNGwriter -lpng -lfreetype $(BASEDIR)/zmq_widgets/Widget/Widget.o
+CC_FLAGS = -w -I$(BASEDIR)/zmq_widgets/Widget/src -I$(BASEDIR)/RayTracer2014/libRayTracer2014/src -I/usr/local/include/freetype2
+LD_FLAGS = -lzmq -lPNGwriter -lpng -lfreetype -L$(BASEDIR)/zmq_widgets/bin -lWidget
 #LD_FLAGS = -lSDL2 -lSDL2_image -framework OpenGL
 
 EXEC = $(OUTPUTDIR)/$(notdir $(CURDIR:%/=%))
