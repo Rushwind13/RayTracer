@@ -28,7 +28,7 @@ protected:
 private:
 
 public:
-	World() : refractiveindex(1.0), maxdepth(3), minweight(0.1){ setup(); };
+	World() : refractiveindex(1.0), maxdepth(4), minweight(0.1){ setup(); };
 	~World(){objects.clear(); lights.clear();};
 
 	void setup()
@@ -53,6 +53,15 @@ public:
 
 		objects.push_back(sphere2);
 
+		glm::vec3 center3(0.0,8.0,-20.0);
+		float radius3=4.0;
+		Sphere *sphere3 = new Sphere(center3, radius3);
+		sphere3->color = Color(0.1,1.0,0.1);
+		sphere3->oid = 3;
+		sphere3->name = "sphere3";
+
+		objects.push_back(sphere3);
+
 		object_count = objects.size();
 
 		// create world light list
@@ -63,6 +72,14 @@ public:
 		light0->name = "light0";
 
 		lights.push_back(light0);
+
+		Position lpos1(2.5, 8.0, -10.0);
+		Light *light1 = new Light(lpos1);
+		light1->color = Color(1.0,1.0,1.0);
+		light1->oid = 1;
+		light1->name = "light1";
+
+		lights.push_back(light1);
 
 		light_count = lights.size();
 	}
