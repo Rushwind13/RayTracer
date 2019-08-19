@@ -307,4 +307,39 @@ public:
 protected:
 		Position corner1, corner2;
 };
+
+// TODO: Comments about parametric equations
+enum eFunction
+{
+	FUNCTION_INVALID=-1,
+	FUNCTION_IDENTITY=0,
+	FUNCTION_SIN=1,
+	FUNCTION_COS=2,
+	FUNCTION_X2=3,
+	FUNCTION_LN=4,
+	FUNCTION_MAX
+};
+class ParametricEquation: public Object
+{
+public:
+        ParametricEquation(
+		Position pos,
+		eFunction xFunction = FUNCTION_IDENTITY,
+		eFunction yFunction = FUNCTION_IDENTITY,
+		eFunction zFunction = FUNCTION_IDENTITY )
+	: position(pos), x(xFunction), y(yFunction), z(zFunction)
+	{
+		color = COLOR_RED;
+	}
+        ~ParametricEquation() {}
+
+        bool Intersect( const Ray &r, Intersection &i ) const
+        {
+// TODO: write Intersect function
+                return false;
+        }
+
+        Position position;
+	eFunction x, y, z;
+};
 #endif /* OBJECT_H_ */
