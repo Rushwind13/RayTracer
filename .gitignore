@@ -21,6 +21,7 @@ bin
 *.lo
 *.o
 *.so
+*.swo
 *.dylib
 *.lai
 *.la
