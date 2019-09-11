@@ -353,4 +353,56 @@ public:
         Position position;
 	eFunction x, y, z;
 };
+
+class Cylinder: public Object
+{
+public:
+        Cylinder(Position pos) : position(pos) {}
+        //Cylinder() {}
+        ~Cylinder() {}
+
+        bool Intersect( const Ray &r, Intersection &i ) const
+        {
+                // TODO: Implement cylinder intersection
+                return false;
+        }
+
+        Position position;
+};
+
+class Cone: public Object
+{
+public:
+        Cone(Position pos) : position(pos) {}
+        //Cone() {}
+        ~Cone() {}
+
+        bool Intersect( const Ray &r, Intersection &i ) const
+        {
+                // TODO: Implement Cone intersection
+                return false;
+        }
+
+        Position position;
+};
+
+
+class Torus: public Object
+{
+public:
+        Torus(Position pos) : position(pos) {}
+        //Torus() {}
+        ~Torus() {}
+
+        bool Intersect( const Ray &r, Intersection &i ) const
+        {
+                // TODO: Implement Torus intersection
+                return false;
+        }
+
+        Position position;
+};
+
+
+// TODO: Deal with rotation / scaling / translation of primitives (instead of only axis-aligned and centered at origin)
 #endif /* OBJECT_H_ */
