@@ -336,6 +336,17 @@ public:
         bool Intersect( const Ray &r, Intersection &i ) const
         {
 // TODO: write Intersect function
+		// To intersect a ray with a function, need to solve the following:
+		// ray = o + dt , where o (vector) is the ray's origin, d (vector) is the direction, and t is the length(scalar)
+		// function = (e.g.) cos x
+		// so we need o + dt = cos x, solve for t
+		// dt = cos x - o
+		// t = ( cos x - o ) / d
+// NOTE: After further research, I have found out that thsi can't be directly computed, and Newton's method
+//       should be used. There was a nice paper presented at SIGGRAPH 1985 by Daniel Toth on the algorithm,
+//       and it devolves to iteratively finding bounding boxes (axis aligned and defined as the inverse Jacobian)
+//       that are closer and closer to the accuracy desired. For now (9/9/2019), I am giving up on parametric equations,
+//       because both axis-aligned box intersection needs to be done, and then the algorithm needs to be implemented.
                 return false;
         }
 
