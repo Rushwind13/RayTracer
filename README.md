@@ -3,7 +3,7 @@
 * First) Widget.o is required to link (this is my implementation of ZeroMQ over IPC, using a "setup/loop" methodology)
 * Second) ControlChannel is required (this links the "broadcast" and "control" channels together -- note, this is by far the biggest performance bottleneck of the build -- should probably use separate channels for each function)
 * Third) start Black, Background, ColorResults, DepthChart, IntersectResults, Lit, Reflection, Shader, and Writer
-* Fourth) start IntersectWith sphere1 and IntersectWith sphere2 (one instance per World object in libRayTracer2014/src/World.hpp)
+* Fourth) start IntersectWith sphere1 and IntersectWith sphere2 and ... (one instance per World object in libRayTracer2014/src/World.hpp)
 * Finally) start PixelFactory (which creates the rays and starts running them through the channels)
 
 PixelFactory will log lots of output
@@ -14,4 +14,4 @@ once all the pixels have run through, a file called test.png will appear in the 
 
 Change world objects by changing World.hpp (requires rebuild of most of the code)
 
-All functions share a Makefile (symlinked into place)
+Use build.sh to build all objects and put the executables in bin/
