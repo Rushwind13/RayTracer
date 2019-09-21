@@ -14,4 +14,4 @@ once all the pixels have run through, a file called test.png will appear in the 
 
 Change world objects by changing World.hpp (requires rebuild of most of the code)
 
-Use build.sh to build all objects and put the executables in bin/
+Use build.sh to build all objects and put the executables in bin/ (you will have to create this folder the first time)
