@@ -72,5 +72,5 @@ int main()
 	pf.run();
 
 	cout << "shutting down" << endl;
-	return 0;
+	return (int)0;
 }

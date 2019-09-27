@@ -25,6 +25,7 @@ public:
 	virtual ~Object() {}
 	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
 	glm::mat4 objectToWorld, worldToObject;
+    glm::mat3 worldToNormal, normalToWorld;
 	Color color;
 	short oid = -1;
 	std::string name;
@@ -93,10 +94,30 @@ class Sphere : public Object
 public:
 	Sphere( /*const mat4 o2w,*/ glm::vec3 c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
 	{
+            // r = radius = 4.0;
+            // radius2 = r * r;
 			color = COLOR_RED;
+            objectToWorld = glm::mat4(r);
+            objectToWorld[3] = glm::vec4(c, 1.0);
+            worldToObject = glm::inverse(objectToWorld);
+
+            normalToWorld = glm::mat3(r);
+            worldToNormal = glm::inverse(normalToWorld);
+            center = glm::vec3(0.0, 0.0, 0.0);
 	}
-	bool Intersect( const Ray &r, Intersection &i ) const
+	bool Intersect( const Ray &_r, Intersection &_i ) const
 	{
+        Ray r;
+        r.origin = worldToObject * glm::vec4(_r.origin, 1.0); // position, w = 1
+        r.direction = worldToNormal * _r.direction; // dir, w = 0
+        // printvec( "o", r.origin );
+        // printvec( "d", r.direction );
+        // printvec( "_o", _r.origin );
+		// printvec( "_d", _r.direction );
+        // std::cout << std::endl;
+        Intersection i;
+        i.normal = glm::normalize(worldToNormal * _i.normal); // dir, w = 0
+        i.position = worldToObject * glm::vec4(_i.position, 1.0); // position, w = 1
 		//std::cout << "Intersect" << std::endl;
 		// basic ray equation = o + dt (origin, direction, length)
 		// basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
@@ -131,49 +152,60 @@ public:
 
 		//printvec( "o", r.origin );
 		//printvec( "d", r.direction );
-		glm::vec3 oc = r.origin - center;
-		float DdotOC = glm::dot( r.direction, oc );
-		float len2 = glm::dot(oc, oc);
+
+        // UPDATE 2019-9-24: When doing this with matrix transformations,
+        // simply treat center as the origin.
+		// glm::vec3 oc = r.origin;
+		// float DdotOC = glm::dot( r.direction, oc );
+		// float len2 = glm::dot(oc, oc);
 
 		//std::cout << DdotOC << std::endl;
 
-		float b = DdotOC;
-		float c = len2 - radius2;
+        float DdotD = glm::dot( r.direction, r.direction );
+        float DdotO = glm::dot( r.direction, r.origin );
+        float OdotO = glm::dot( r.origin, r.origin );
+        float a = DdotD;
+		float b = DdotO * 2.0;
+		float c = OdotO - radius2;
 
 		float b2 = b * b;
+        float ac4 = 4.0 * a * c;
+        float twoa = 2.0 * a;
 
 		// No intersect if miss or tangent
-		if( b2 <= c )
+		if( b2 <= ac4 )
 		{
-			i.distance = 1e9;
-			i.gothit = false;
+			_i.distance = 1e9;
+			_i.gothit = false;
 			return false;
 		}
 
 		// two intersection points; choose smallest positive one
-		float discriminant = std::sqrt( b2 - c );
-		float root1 = -b + discriminant;
-		float root2 = -b - discriminant;
+		float discriminant = std::sqrt( b2 - ac4 );
+		float root1 = (-b + discriminant) / twoa;
+		float root2 = (-b - discriminant) / twoa;
 
-		i.distance = std::min(root1, root2);
+		i.distance = std::max(root1, root2);
 		if( i.distance <= 0.0f )
 		{
 			// inside the sphere; for now don't intersect
 			// but later could use reversed normals.
-			i.distance = 1e9;
-			i.gothit = false;
+			_i.distance = 1e9;
+			_i.gothit = false;
 			return false;
 		}
 
-		glm::vec3 dt = r.direction * i.distance;
+		glm::vec3 dt = _r.direction * i.distance; // is distance invariant?
+
+        i.position = r.origin + (r.direction * i.distance); // gah do I have to calc this twice?!
 
 		//i.object = reinterpret_cast<const Object *>(this);
-		i.oid = oid;
-		i.position = r.origin + dt;
+		_i.oid = oid;
+		_i.position = _r.origin + dt;
 		// Note: o + dt - c = (o - c) + dt
 		//i.normal = glm::normalize(oc + dt);
-		i.normal = glm::normalize(i.position - center);
-		i.gothit = true;
+		_i.normal = glm::normalize(i.position);
+		_i.gothit = true;
 
 		// TODO: texture coordinates
 		/*
@@ -182,7 +214,7 @@ public:
 			texture = array([u,v])
 		 */
 
-		//std::cout << "done with Intersect" << std::endl;
+		// std::cout << "done with Intersect" << std::endl;
 		return true;
 	}
 protected:
