@@ -207,6 +207,11 @@ public:
 		_i.normal = glm::normalize(i.position);
 		_i.gothit = true;
 
+        printvec( "_p", _i.position );
+        printvec( "p", i.position );
+		printvec( "_n", _i.normal );
+
+
 		// TODO: texture coordinates
 		/*
 		 * 	u = sqrt( normal[0]*normal[0] + normal[2]*normal[2] ) * 2. # multiply by 2 because X goes 360 where Y goes 180
@@ -214,7 +219,7 @@ public:
 			texture = array([u,v])
 		 */
 
-		// std::cout << "done with Intersect" << std::endl;
+		std::cout << "done with Intersect" << std::endl;
 		return true;
 	}
 protected:
