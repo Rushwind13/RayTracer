@@ -30,7 +30,7 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &obj );
 	obj.convert( pixel );
 #ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ")";
+	std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ")";
 #endif /* DEBUG */
 
 	bool colorComplete = false;
@@ -52,7 +52,7 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		accumulator.erase(key);
 		layer_count.erase(key);
 
-		std::cout << key << " done. sending: " << pixel.color.r << "  ";
+		std::cout << std::setw(10) << key << " done. sending: " << pixel.color.r << "  ";
 
 		// Prepare payload for sending to next stage...
 		payload->clear();
@@ -83,7 +83,7 @@ bool DepthChart::storeColor( Pixel pixel )
 		// There won't be any more layers after this one.
 		// you know that this is the only one you're getting (at least for this depth).
 		maxlayers[key] = pixel.depth + 1;
-		std::cout << " BKG hit at layer " << pixel.depth << ". set layers to " << maxlayers[key] << " ";
+		//std::cout << " BKG hit at layer " << pixel.depth << ". set layers to " << maxlayers[key] << " ";
 	}
 	// ...otherwise, first time in, expect to get hits on each layer
 	else if( layer_count.find(key) == layer_count.end() )

@@ -25,7 +25,7 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &obj );
 	obj.convert( pixel );
 #ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+	std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ") ";
 #endif /* DEBUG */
 
 	// We know we have at least one hit now, so...
@@ -54,7 +54,7 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	pixel.depth++;
 	pixel.weight *= 0.5f;
 
-	std::cout << pixel.depth << " " << pixel.weight << " ";
+	std::cout << std::setw(5) << pixel.depth << " " << pixel.weight << " ";
 	// depth ++
 	// weight / 2
 	// type = iReflect ... or just iPrimary?
@@ -71,7 +71,7 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	msgpack::pack( header, pixel );
 	payload->clear();
 #ifdef DEBUG
-	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+	//std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ") ";
 	//printvec("ambient", pixel.color);
 	std::cout << std::endl;
 #endif /* DEBUG */

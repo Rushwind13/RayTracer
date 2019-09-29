@@ -10,7 +10,6 @@
 #include <iostream>
 using namespace std;
 #include "IntersectWith.hpp"
-#include "Object.hpp"
 #include "Pixel.hpp"
 #include "glm/glm.hpp"
 
@@ -70,6 +69,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 		{
 			//std::cout << " h: " << i.distance;
 			std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ") depth:" << pixel.depth << std::endl;
+			std::cout <<  test << object->name << " at (" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ") depth:" << pixel.depth << std::endl;
 		}
 	}
 

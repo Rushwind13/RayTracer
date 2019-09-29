@@ -37,7 +37,7 @@ void PixelFactory::local_setup()
 	{
 		for( int i = 0; i < camera.width; i++ )
 		{/**/
-			std::cout << "Pixel (" << i << "," << j << "): ";
+			std::cout << "Pixel (" << std::setw(3) << i << "," << std::setw(3) << j << "): ";
 			pixel.x = (float)i * 1.0f;
 			pixel.y = (float)j * 1.0f;
 			pixel.r = camera.RayThroughPoint(pixel.x, pixel.y);

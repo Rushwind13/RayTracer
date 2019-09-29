@@ -25,7 +25,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &obj );
 	obj.convert( pixel );
 #ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
+	std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ")" << pixel.type << " ";
 #endif /* DEBUG */
 
 	// We know we have at least one hit now, so...
@@ -71,7 +71,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		if( NdotL < (ambient.r + emissive.r) )
 		{
 //#ifdef DEBUG
-			std::cout << "(" << pixel.x << "," << pixel.y << ")" << " N.L < 0 for lid: " << light->oid << std::endl;
+			// std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ")" << " N.L < 0 for lid: " << light->oid << std::endl;
 //#endif /* DEBUG */
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
@@ -79,6 +79,10 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 			//sendMessage(header, payload, "BKG");
 			continue;
 		}
+        else
+        {
+            std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ")" << " N.L " << NdotL << " > 0 for lid: " << light->oid << std::endl;
+        }
 
 		// Light is above surface. Anything between this point and the light?
 		Ray rShadow;
@@ -137,11 +141,11 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	msgpack::pack( header, pixel );
 	payload->clear();
-//#ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+#ifdef DEBUG
+	std::cout  << "(" << std::setw(3)<< pixel.x << "," << std::setw(3) << pixel.y << ") ";
 	printvec("ambient", pixel.color);
 	std::cout << std::endl;
-//#endif /* DEBUG */
+#endif /* DEBUG */
 
 	return true; // send an outbound message as a result of local_work()
 }

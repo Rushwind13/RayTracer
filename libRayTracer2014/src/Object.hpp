@@ -32,47 +32,6 @@ public:
 	//Position worldpos;
 };
 
-/**
- * def Intersect( ray, scene, from_object=None, clip_dist=1000000 ):
-	#print "in intersect"
-	# just hardcode sphere intersection for the moment
-	hit = {'gothit':False, 'distance':clip_dist}
-	#print ("a")
-	self_epsilon = .1
-
-	for o in scene['object']:
-		self_test = False
-		if from_object:
-			#print hit
-			#print ray
-			# No intersecting with yourself
-			if from_object['id'] == scene['object'][o]['id']: self_test = True #continue
-			# No intersecting with light sources ("emissive" objects)
-			# (only when checking for shadow calc)
-			if 'emissive' in scene['object'][o]['material']: continue
-		try:
-			func = getattr( sys.modules[__name__], scene['object'][o]['type'] )
-		except AttributeError:
-			print 'function not found "%s" (%s)' % (scene['object'][o], scene['object'][o]['type'])
-		else:
-			new_hit = func(ray, scene['object'][o])
-			#print "after func"
-			global camera_dist
-			if new_hit['gothit'] and new_hit['distance'] < hit['distance']:
-				if self_test:
-					if abs(new_hit['distance']) < self_epsilon:
-						#print "epsilon hit"
-						continue
-				hit = deepcopy(new_hit)
-				if from_object:
-					#print "shadow hit"
-					break # shadows only need to have one intersection, not just the closest one.
-
-	#if hit['gothit']: print hit
-	#else: print 'no hit'
-	return hit
- */
-
 class Light: public Object
 {
 public:

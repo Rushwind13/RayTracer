@@ -25,7 +25,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &mpobj );
 	mpobj.convert( pixel );
 #ifdef DEBUG
-	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+	//std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ") ";
 #endif /* DEBUG */
 
 	Object *obj = world.FindObject(pixel.oid);

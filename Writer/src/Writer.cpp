@@ -33,7 +33,7 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
-	std::cout << "(" << pixel.x << "," << pixel.y << ")";
+	std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ")";
 	printvec("c", pixel.color);
 
 	bool fileComplete = false;

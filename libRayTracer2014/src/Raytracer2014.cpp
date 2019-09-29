@@ -81,78 +81,6 @@ int main(int argc, char** argv)
 	//TODO: Run
 	//		- perform traces
 	raytracer( camera, world );
-
-	/**
-	 *
-#####
-#
-#  MAIN ROUTINES
-#
-#####
-import sys
-import getopt
-
-def process(arg):
-	return
-
-class Usage(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-
-prefs = {'verbose':0, 'rotate':False}
-def main(argv=None):
-	if argv is None:
-		argv = sys.argv
-	try:
-		try:
-			opts, args = getopt.getopt(argv[1:], "hvr", ["help", "verbose", "rotation"])
-		except getopt.error, msg:
-			raise Usage(msg)
-
-		# process options
-		for o, a in opts:
-			if o in ("-h", "--help"):
-				print """ bridge.py <file1> <file2> ... <filen> """
-				return 0
-			elif o in ("-v", "--verbose"):
-				prefs['verbose'] += 1
-			elif o in ("-r", "--rotation"):
-				prefs['rotate'] = True
-		# process arguments
-		for arg in args:
-			scenefile = arg
-			process(arg) # process() is defined elsewhere
-	except Usage, err:
-		print >>sys.stderr, err.msg
-		print >>sys.stderr, "for help use --help"
-		return 2
-
-	#scenefile = argv[1]
-	if not scenefile: scenefile = "scenes/jimbo_scene1.txt"
- 	# parse input file
-	print('reading input file\n')
- 	metadata = readjson.parse( scenefile )
- 	print('done\n')
- 	camera = create_camera(metadata)
- 	screen = create_screen(metadata)
- 	scene = create_scene(metadata)
- 	if prefs['rotate']:
-		radius = la.norm(camera['eye'])#*2.
-		theta = 0.
-		while theta < 360.:
-			scene['filename'] = 'rotation_'+str(int(theta))+'.png'
-			th = deg2rad(theta)
-			camera['eye'] = array([radius * cos(th), radius, radius * sin(th)])
-			scene['eye'] = camera['eye'] - camera['center']
-			print 'Using origin: ' + array_str(camera['eye'], suppress_small = True) + ", saving to " + scene['filename']
-			raytracer( camera, scene, screen ) # TODO: multithreading for parallel processing?
-			theta = theta + 45#90.
-	else:
-		raytracer( camera, scene, screen )
-
-if __name__ == "__main__":
-	sys.exit(main())
-	 */
 }
 
 void raytracer( Camera camera, World world )
@@ -178,41 +106,6 @@ void raytracer( Camera camera, World world )
 	}
 	std::cout  << std::endl << "finishing up" << std::endl;
 	SaveImage( image, world, camera );
-
-	/**
-	 * def raytracer( camera, scene, screen ):
-	# First, create an Image
-	w = screen['width']
-	h = screen['height']
- 	image = CreateImage( h, w, 3 )
-
- 	uvw = CreateCoordinateFrame( camera )
-
- 	# Then, trace the scene pixel-by-pixel
- 	i = 0.5
- 	count = 0
- 	while i < h:
- 	#for i in xrange(0, h):
- 		if count % 50 == 0: print 'row: ' + str(count)
- 		j = 0.5
- 		while j < w:
- 		#for j in xrange(0, w):
- 			#print str(i) + " " + str(j) + ' begin\n'
- 			# Create a ray from the camera through this pixel
- 			ray = RayThroughPoint( camera, uvw, w, h, i, j )
-
- 			color = Trace( 0, 1., scene['refractiveindex'], ray, scene )
- 			image[i][j] = color
- 			#r,g,b = FindColor(hit)
- 			#image[i][j][0] = r
- 			#image[i][j][1] = g
- 			#image[i][j][2] = b
- 			j = j + 1.
- 		count = count + 1
- 		i = i + 1.
- 	# Finally, save the Image
- 	SaveImage( image, scene['filename'], w,h )
-	 */
 }
 
 Color Trace( Ray ray, World world, int depth, float weight, float refractiveindex)
@@ -222,17 +115,6 @@ Color Trace( Ray ray, World world, int depth, float weight, float refractiveinde
 	Color color = FindColor( ray, world, hit, depth, weight, refractiveindex  );
 
 	return color;
-
-	/**
-	 * def Trace( depth, weight, n1, ray, scene ):
-	# Determine what the ray hits in the world
-	hit = Intersect( ray, scene )
-
-	# Determine how to color the pixel
-	color = FindColor(ray, depth, weight, n1, hit, scene)
-
-	return color
-	 */
 }
 
 Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight, float refractiveindex )
@@ -293,17 +175,6 @@ Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight
 
 	// Show that we actually hit something, shadowy...
 	return pixel;
-	/**
-	 *
-def FindColor( ray, depth, weight, n1, hit, scene ):
-	if not hit['gothit']:
-		if depth == 0: colorval = 128.
-		else: colorval = 0.1#depth / 1000.
-		return array([colorval, colorval, colorval])
-
-	color = Lighting(ray, depth, weight, n1, hit, scene)
-	return color
-	 */
 }
 void SaveImage( std::list<Color> image, const World world, const Camera camera )
 {
