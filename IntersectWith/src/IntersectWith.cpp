@@ -49,7 +49,8 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
     if(pixel.depth >= world.maxdepth*2)
     {
         std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ")" << pixel.type << " exceeds maxdepth; no further intersection allowed." << std::endl;
-        return false;
+				pixel.color = glm::vec3(0.1, 1.0, 1.0);
+        return true;
     }
 
 
