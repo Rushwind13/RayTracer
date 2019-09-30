@@ -40,7 +40,7 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	{
 		int64_t key = hash( pixel );
 		float primary_weight = 0.67;
-		float reflected_weight = 0.33;
+		float reflected_weight = 0.033;
 		float refracted_weight = 0.0;
 		pixel.color = (primary[key] * primary_weight) + (accumulator[key] * reflected_weight);
 
@@ -60,7 +60,7 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 		msgpack::pack( header, pixel );
 #ifdef DEBUG
-		//printvec("c", pixel.color);
+		printvec("c", pixel.color);
 #endif /* DEBUG *//**/
 	}
 
@@ -104,11 +104,15 @@ bool DepthChart::storeColor( Pixel pixel )
 		if( curr_accumulator.g > 1.0 ) curr_accumulator.g = 1.0;
 		if( curr_accumulator.b > 1.0 ) curr_accumulator.b = 1.0;
 
+		if( curr_accumulator.r < 0.0 ) curr_accumulator.r = 0.0;
+		if( curr_accumulator.g < 0.0 ) curr_accumulator.g = 0.0;
+		if( curr_accumulator.b < 0.0 ) curr_accumulator.b = 0.0;
+
 		accumulator[key] += curr_accumulator;
 	}
 	layer_count[key]++;
 
-	return (layer_count[key] == maxlayers[key]);
+	return (layer_count[key] >= maxlayers[key]);
 }
 
 void DepthChart::local_shutdown()

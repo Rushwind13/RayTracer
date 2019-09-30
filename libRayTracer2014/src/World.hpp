@@ -28,7 +28,7 @@ protected:
 private:
 
 public:
-	World() : refractiveindex(1.0), maxdepth(4), minweight(0.1){ setup(); };
+	World() : refractiveindex(1.0), maxdepth(20), minweight(0.1){ setup(); };
 	~World(){objects.clear(); lights.clear();};
 
 	void setup()
@@ -36,15 +36,15 @@ public:
 		sprintf( filename, "test.png" );
 
 		//	create world object list
-		glm::vec3 center(-2.5,0.0,-5.0);
+		glm::vec3 center(0.0,0.0,-10.0);
 		float radius=2.0;
 		Sphere *sphere = new Sphere(center, radius);
 		sphere->oid = 1;
 		sphere->name = "sphere1";
 
 		objects.push_back(sphere);
-
-		glm::vec3 center2(2.5,0.0,-10.0);
+/*
+        glm::vec3 center2(2.5,0.0,-10.0);
 		float radius2=4.0;
 		Sphere *sphere2 = new Sphere(center2, radius2);
 		sphere2->color = Color(0.1,0.1,1.0);
@@ -61,18 +61,18 @@ public:
 		sphere3->name = "sphere3";
 
 		objects.push_back(sphere3);
-
+/**/
 		object_count = objects.size();
 
 		// create world light list
-		Position lpos0(-2.5, 0.0, -1.0);
+		Position lpos0(0.0, 5.0, -5.0);
 		Light *light0 = new Light(lpos0);
 		light0->color = Color(1.0,1.0,1.0);
 		light0->oid = 0;
 		light0->name = "light0";
 
 		lights.push_back(light0);
-
+/*
 		Position lpos1(2.5, 8.0, -10.0);
 		Light *light1 = new Light(lpos1);
 		light1->color = Color(1.0,1.0,1.0);
@@ -80,7 +80,7 @@ public:
 		light1->name = "light1";
 
 		lights.push_back(light1);
-
+/**/
 		light_count = lights.size();
 	}
 

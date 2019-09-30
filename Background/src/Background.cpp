@@ -30,9 +30,15 @@ bool Background::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	//pixel.color = Color(0.25,0.25,0.25);
 	//pixel.color = Color(0.0,0.8,0.0);
 
-	float fade = glm::dot( glm::vec3(0,0,-1), pixel.primaryRay.direction );
-	// multiply pixel.color by this (you get full color at the horizon, fading to black at zenith)
-	// TODO: only do this if "above" horizon (if ray.direction.y > 0?)
+    // Below horizon, full background color.
+	float fade = 1.0;
+
+    // Above horizon, fade from background color to black from horizon to zenith
+    if( pixel.primaryRay.direction.y > 0.0 )
+    // multiply pixel.color by this (you get full color at the horizon, fading to black at zenith)
+        fade = glm::dot( glm::vec3(0,0,-1), pixel.primaryRay.direction );
+
+
 	pixel.color *= fade;
 
 	pixel.gothit = false;
@@ -47,8 +53,9 @@ bool Background::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &obj2 );
 	obj2.convert( pix2 );
 
+#define DEBUG // 2019 09 29 Happy birthday, Melissa :)
 #ifdef DEBUG
-	std::cout << "(" << pix2.x << "," << pix2.y << ") ";
+	std::cout << "(" << std::setw(3) << pix2.x << "," << std::setw(3) << pix2.y << ") ";
 	printvec("c", pix2.color);
 	std::cout << std::endl;
 #endif /* DEBUG */

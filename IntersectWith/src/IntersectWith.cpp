@@ -45,7 +45,13 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	assert(object);
 
 	bool gothit;
-	assert( object );
+
+    if(pixel.depth >= world.maxdepth*2)
+    {
+        std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ")" << pixel.type << " exceeds maxdepth; no further intersection allowed." << std::endl;
+        return false;
+    }
+
 
 	// Shadow tests do not allow self-intersection
 	if( pixel.type == iShadow && pixel.oid == object->oid )
@@ -68,7 +74,6 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 		if( gothit )
 		{
 			//std::cout << " h: " << i.distance;
-			std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ") depth:" << pixel.depth << std::endl;
 			std::cout <<  test << object->name << " at (" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ") depth:" << pixel.depth << std::endl;
 		}
 	}

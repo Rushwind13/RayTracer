@@ -87,28 +87,33 @@ bool ColorResults::storeColor( Pixel pixel )
 	// otherwise, you are expecting 1 + light_count responses, so accumulate until you have them all
 	if( response_count.find(key) != response_count.end())
 	{
-		std::cout << "already had this one ";
+		// std::cout << "already had this one ";
 		// You already have a response for this object; accumulate the new color and bump the response count
 		count = response_count[key];
 		count++;
 
 		// Shadow tests only need the first intersected object, not the nearest
 		curr_accumulator = accumulator[key];
-		printvec("a", curr_accumulator);
+		// printvec("a", curr_accumulator);
 		// If the new hit is closer, keep it.
 		Color outcolor;
 		outcolor = pixel.color + curr_accumulator;
+        // Floor and ceiling
 		if( outcolor.r > 1.0 ) outcolor.r = 1.0;
 		if( outcolor.g > 1.0 ) outcolor.g = 1.0;
 		if( outcolor.b > 1.0 ) outcolor.b = 1.0;
 
+		if( outcolor.r < 0.0 ) outcolor.r = 0.0;
+		if( outcolor.g < 0.0 ) outcolor.g = 0.0;
+		if( outcolor.b < 0.0 ) outcolor.b = 0.0;
+
 		accumulator[key] = outcolor;
-		printvec("p", pixel.color);
+		// printvec("p", pixel.color);
 		printvec("o", outcolor);
 	}
 	else
 	{
-		std::cout << "new one " << key << " " << pixel.x << " " << pixel.y << " " << pixel.depth << " ";
+		std::cout << "new one " << key << " " << std::setw(3) << pixel.x << " " << std::setw(3) << pixel.y << " " << pixel.depth << " ";
 		count = 1;
 		accumulator[key] = pixel.color;
 		printvec("p", pixel.color);

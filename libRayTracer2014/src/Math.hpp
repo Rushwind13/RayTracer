@@ -24,7 +24,7 @@ typedef glm::vec3 Position;
 
 void printvec( const std::string label, const glm::vec3 vec )
 {
-	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  ";
+	std::cout << label << ": " << std::setw(9) << std::setprecision(3) << vec.x << " " << std::setw(9) << std::setprecision(3) << vec.y << " " << std::setw(9) << std::setprecision(3) << vec.z << "  ";
 }
 
 glm::vec3 ReflectVector(const glm::vec3 vIncident, const glm::vec3 vNormal) {

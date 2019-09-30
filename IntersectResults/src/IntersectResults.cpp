@@ -106,7 +106,7 @@ bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
 		nearest[key] = hit;
 	}
 
-	if( count < world.object_count )
+	if( count < world.object_count -1 ) // Don't hit self?
 	{
 		response_count[key] = count;
 		testComplete = false;

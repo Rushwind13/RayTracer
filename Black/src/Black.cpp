@@ -32,7 +32,7 @@ bool Black::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	pixel.color = ambient + emissive;
 #define DEBUG
 #ifdef DEBUG
-	std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ")";
+	std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ") ";
 	printvec("c", pixel.color);
 	std::cout << std::endl;
 #endif /* DEBUG */
