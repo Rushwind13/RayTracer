@@ -140,8 +140,8 @@ public:
 
 		// two intersection points; choose smallest positive one
 		float discriminant = std::sqrt( b2 - c );
-		float root1 = (-b + discriminant);
-		float root2 = (-b - discriminant);
+		float root1 = -b + discriminant;
+		float root2 = -b - discriminant;
 
 		i.distance = std::min(root1, root2);
 		if( i.distance <= 0.0f )
