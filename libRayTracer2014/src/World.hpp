@@ -36,8 +36,8 @@ public:
 		sprintf( filename, "test.png" );
 
 		//	create world object list
-		glm::vec3 center(0.0,0.0,-10.0);
-		float radius=2.0;
+		glm::vec3 center(0.0,0.0,-5.0);
+		float radius=1.0;
 		Sphere *sphere = new Sphere(center, radius);
 		sphere->oid = 1;
 		sphere->name = "sphere1";

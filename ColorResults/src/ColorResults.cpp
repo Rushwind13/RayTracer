@@ -99,13 +99,13 @@ bool ColorResults::storeColor( Pixel pixel )
 		Color outcolor;
 		outcolor = pixel.color + curr_accumulator;
         // Floor and ceiling
-		if( outcolor.r > 1.0 ) outcolor.r = 1.0;
-		if( outcolor.g > 1.0 ) outcolor.g = 1.0;
-		if( outcolor.b > 1.0 ) outcolor.b = 1.0;
+		if( outcolor.r > 0.95 ) outcolor.r = 1.0;
+		if( outcolor.g > 0.95 ) outcolor.g = 1.0;
+		if( outcolor.b > 0.95 ) outcolor.b = 1.0;
 
-		if( outcolor.r < 0.0 ) outcolor.r = 0.0;
-		if( outcolor.g < 0.0 ) outcolor.g = 0.0;
-		if( outcolor.b < 0.0 ) outcolor.b = 0.0;
+		if( outcolor.r < 0.005 ) outcolor.r = 0.0;
+		if( outcolor.g < 0.005 ) outcolor.g = 0.0;
+		if( outcolor.b < 0.005 ) outcolor.b = 0.0;
 
 		accumulator[key] = outcolor;
 		// printvec("p", pixel.color);

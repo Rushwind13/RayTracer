@@ -166,9 +166,10 @@ public:
 		_i.normal = glm::normalize(glm::vec3(i.position));
 		_i.gothit = true;
 
-        printvec( "_p", _i.position );
-        printvec( "p", i.position );
+    printvec( "_p", _i.position );
+    printvec( "p", i.position );
 		printvec( "_n", _i.normal );
+		std::cout << " " << i.distance << " ";
 
 
 		// TODO: texture coordinates
