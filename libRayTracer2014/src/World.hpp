@@ -37,8 +37,9 @@ public:
 
 		//	create world object list
 		glm::vec3 center(0.0,0.0,-5.0);
-		float radius=1.0;
+		float radius=2.0;
 		Sphere *sphere = new Sphere(center, radius);
+        sphere->color = Color(0.1,0.75,0.75);
 		sphere->oid = 1;
 		sphere->name = "sphere1";
 
@@ -65,7 +66,7 @@ public:
 		object_count = objects.size();
 
 		// create world light list
-		Position lpos0(0.0, 5.0, -5.0);
+		Position lpos0(0.0, 5.0, -0.5);
 		Light *light0 = new Light(lpos0);
 		light0->color = Color(1.0,1.0,1.0);
 		light0->oid = 0;
