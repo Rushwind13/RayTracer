@@ -163,6 +163,11 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 	}
 #endif /* DEBUG */
 
+	if( pixel.depth >= world.maxdepth )
+	{
+		std::cout << "(" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ") depth limit reached" << std::endl;
+		strcpy( pub, "DEPTH" ); // this one is done, send to the output of SHADE instead of looping back through
+	}
 	sendMessage( header, payload, pub );
 }
 

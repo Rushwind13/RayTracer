@@ -40,7 +40,7 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	{
 		int64_t key = hash( pixel );
 		float primary_weight = 0.67;
-		float reflected_weight = 0.033;
+		float reflected_weight = 0.33;
 		float refracted_weight = 0.0;
 		pixel.color = (primary[key] * primary_weight) + (accumulator[key] * reflected_weight);
 
@@ -104,11 +104,11 @@ bool DepthChart::storeColor( Pixel pixel )
 		if( curr_accumulator.g > 1.0 ) curr_accumulator.g = 1.0;
 		if( curr_accumulator.b > 1.0 ) curr_accumulator.b = 1.0;
 
-		if( curr_accumulator.r < 0.0 ) curr_accumulator.r = 0.0;
-		if( curr_accumulator.g < 0.0 ) curr_accumulator.g = 0.0;
-		if( curr_accumulator.b < 0.0 ) curr_accumulator.b = 0.0;
+		if( curr_accumulator.r < 0.1 ) curr_accumulator.r = 0.1;
+		if( curr_accumulator.g < 0.1 ) curr_accumulator.g = 0.1;
+		if( curr_accumulator.b < 0.1 ) curr_accumulator.b = 0.1;
 
-		accumulator[key] += curr_accumulator;
+		accumulator[key] = curr_accumulator;
 	}
 	layer_count[key]++;
 

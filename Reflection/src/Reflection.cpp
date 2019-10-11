@@ -53,6 +53,7 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	pixel.r = rReflect;
 	pixel.depth++;
 	pixel.weight *= 0.5f;
+	if( pixel.weight < 0.001 ) pixel.weight = 0.001;
 
 	std::cout << std::setw(5) << pixel.depth << " " << pixel.weight << " ";
 	// depth ++

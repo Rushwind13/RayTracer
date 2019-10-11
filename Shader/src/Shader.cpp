@@ -113,7 +113,6 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		pixel.NdotL = NdotL;
 		pixel.lid = light->oid;
 		prepareShadowTest( &pixel, i );
-        pixel.depth++;
 
 		header->clear();
 
