@@ -61,13 +61,17 @@ public:
             worldToObject = glm::inverse(objectToWorld);
 
             normalToWorld = glm::mat3(r);
+            // TODO: simple inverse works under scaling only, but not when rotation is added
+            // Nobj = S^-1 * R * Nworld (invert scale but not rotation)
             worldToNormal = glm::inverse(normalToWorld);
             center = glm::vec3(0.0, 0.0, 0.0);
 	}
 	bool Intersect( const Ray &_r, Intersection &_i ) const
 	{
+        // the incoming Ray and Intersection are in World coordinates
+        // Create local ones in Object coordinates
         Ray r;
-        r.origin = worldToObject * glm::vec4(_r.origin, 1.0); // position, w = 1
+        r.origin = worldToObject * glm::vec4(_r.origin, radius); // position, w = 1
         r.direction = glm::normalize(worldToNormal * _r.direction); // dir, w = 0
         // printvec( "o", r.origin );
         // printvec( "d", r.direction );
@@ -75,8 +79,7 @@ public:
 		// printvec( "_d", _r.direction );
         // std::cout << std::endl;
         Intersection i;
-        i.normal = glm::normalize(worldToNormal * _i.normal); // dir, w = 0
-        i.position = worldToObject * glm::vec4(_i.position, 1.0); // position, w = 1
+
 		//std::cout << "Intersect" << std::endl;
 		// basic ray equation = o + dt (origin, direction, length)
 		// basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
@@ -144,7 +147,7 @@ public:
 		float root1 = (-b + discriminant) / twoa;
 		float root2 = (-b - discriminant) / twoa;
 
-		i.distance = std::max(root1, root2);
+		i.distance = std::min(root1, root2);
 		if( i.distance <= 0.0f )
 		{
 			// inside the sphere; for now don't intersect
@@ -154,9 +157,8 @@ public:
 			return false;
 		}
 
-		glm::vec3 dt = _r.direction * i.distance; // is distance invariant?
-
-        i.position = r.origin + (r.direction * i.distance); // gah do I have to calc this twice?!
+		glm::vec3 dt = r.direction * i.distance;
+        i.position = r.origin + dt;
 
 		//i.object = reinterpret_cast<const Object *>(this);
 		_i.oid = oid;
@@ -166,11 +168,10 @@ public:
 		_i.normal = glm::normalize(glm::vec3(i.position));
 		_i.gothit = true;
 
-    printvec( "_p", _i.position );
-    printvec( "p", i.position );
+        printvec( "_p", _i.position );
+        printvec( "p", i.position );
 		printvec( "_n", _i.normal );
-		std::cout << " " << i.distance << " ";
-
+        std::cout << " " << i.distance << " ";
 
 		// TODO: texture coordinates
 		/*
