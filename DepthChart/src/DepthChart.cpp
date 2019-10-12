@@ -52,7 +52,7 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		accumulator.erase(key);
 		layer_count.erase(key);
 
-		std::cout << std::setw(10) << key << " done. sending: " << pixel.color.r << "  ";
+		std::cout << std::setw(11) << key << " done. sending: " << pixel.color.r << "  ";
 
 		// Prepare payload for sending to next stage...
 		payload->clear();

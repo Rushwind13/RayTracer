@@ -60,11 +60,15 @@ public:
             objectToWorld[3] = glm::vec4(c, 1.0);
             worldToObject = glm::inverse(objectToWorld);
 
+            printvec( "Sphere() c", c);
+            printvec( "wto", worldToObject[2]);
             normalToWorld = glm::mat3(r);
             // TODO: simple inverse works under scaling only, but not when rotation is added
             // Nobj = S^-1 * R * Nworld (invert scale but not rotation)
             worldToNormal = glm::inverse(normalToWorld);
             center = glm::vec3(0.0, 0.0, 0.0);
+            printvec( "wtn", worldToNormal[2]);
+            std::cout << std::endl;
 	}
 	bool Intersect( const Ray &_r, Intersection &_i ) const
 	{
@@ -164,10 +168,13 @@ public:
 		_i.normal = glm::normalize(glm::vec3(i.position));
 		_i.gothit = true;
 
+        if( _r.origin.x != 0.0 )
+        {
         printvec( "_p", _i.position );
         printvec( "p", i.position );
 		printvec( "_n", _i.normal );
         std::cout << " " << i.distance << " ";
+        }
 
 		// TODO: texture coordinates
 		/*
@@ -176,7 +183,10 @@ public:
 			texture = array([u,v])
 		 */
 
+        if( _r.origin.x != 0.0 )
+        {
 		std::cout << "done with Intersect" << std::endl;
+        }
 		return true;
 	}
 protected:

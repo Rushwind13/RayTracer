@@ -71,7 +71,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 		{
 			test =  "Shadowed ";
 		}
-		if( gothit )
+		if( gothit && pixel.depth > 0 )
 		{
 			//std::cout << " h: " << i.distance;
 			std::cout <<  test << object->name << " at (" << std::setw(3) << pixel.x << "," << std::setw(3) << pixel.y << ") depth:" << pixel.depth << std::endl;
