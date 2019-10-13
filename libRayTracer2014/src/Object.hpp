@@ -56,6 +56,8 @@ public:
             // r = radius = 1.0;
             // radius2 = r * r;
 			color = COLOR_RED;
+#define MATRIX
+#ifdef MATRIX
             objectToWorld = glm::mat4(r);
             objectToWorld[3] = glm::vec4(c, 1.0);
             worldToObject = glm::inverse(objectToWorld);
@@ -69,7 +71,9 @@ public:
             center = glm::vec3(0.0, 0.0, 0.0);
             printvec( "wtn", worldToNormal[2]);
             std::cout << std::endl;
+#endif // MATRIX
 	}
+#ifdef MATRIX
 	bool Intersect( const Ray &_r, Intersection &_i ) const
 	{
         // the incoming Ray and Intersection are in World coordinates
@@ -189,6 +193,98 @@ public:
         }
 		return true;
 	}
+#else // !MATRIX, use vector intersection
+    bool Intersect( const Ray &r, Intersection &i ) const
+    {
+        //std::cout << "Intersect" << std::endl;
+        // basic ray equation = o + dt (origin, direction, length)
+        // basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
+        // sub in ray for p:
+        // (o + dt - c )^2 - r^2 = 0
+        // solve for t:
+        // ( dt + (o-c))^2 - r^2 = 0
+        // d^2t^2 + 2((o-c)dt) + (o-c)^2 - r^2 = 0
+        // but this is of the form At^2 + Bt + C = 0
+        // where
+        // a = dot(d, d) (xd^2 + yd^2 + zd^2)
+        // b = 2( dot( d, (o-c) )
+        // c = dot( o-c, o-c ) - r^2
+        //
+        // Note that a = 1 since d is unit length
+        // Note that b^2 = 4 * (the stuff)^2
+        //
+        // sub into quadtratic eqn:
+        // -b +/- sqrt( b^2 - 4 * a * c ) / 2 * a
+        // => -b +/- sqrt(4) * sqrt( (the stuff) ^2 - c ) / 2 /* pull out factor of 4 and a=1 */
+        //
+        // Note b = 2 * (the stuff)
+        // => -(the stuff) +/- sqrt( (the stuff) ^2 - c)  /* remove factor of 2 */
+        //
+        // So, if dot( d, o-c )^2 < c then the sqrt goes complex and there's no intersection
+        // If they are equal, then the ray is tangent to the sphere
+        // If you have a negative root, then (at least part of) the sphere is behind the ray's origin
+        // Other than that, the intersection point (h) is the smaller positive root.
+        // The normal at that point is normalize(h-c) or, in a nifty trick, since you have
+        // h = o + dt and you have o-c calculated already, (h-c) = o + dt - c = (o-c) + dt
+        // which seems counterintuitive (since vec subtraction is not commutative nor associative), but seems to work.
+
+        //printvec( "o", r.origin );
+        //printvec( "d", r.direction );
+        glm::vec3 oc = r.origin - center;
+        float DdotOC = glm::dot( r.direction, oc );
+        float len2 = glm::dot(oc, oc);
+
+        //std::cout << DdotOC << std::endl;
+
+        float b = DdotOC;
+        float c = len2 - radius2;
+
+        float b2 = b * b;
+
+        // No intersect if miss or tangent
+        if( b2 <= c )
+        {
+            i.distance = 1e9;
+            i.gothit = false;
+            return false;
+        }
+
+        // two intersection points; choose smallest positive one
+        float discriminant = std::sqrt( b2 - c );
+        float root1 = -b + discriminant;
+        float root2 = -b - discriminant;
+
+        i.distance = std::min(root1, root2);
+        if( i.distance <= 0.0f )
+        {
+            // inside the sphere; for now don't intersect
+            // but later could use reversed normals.
+            i.distance = 1e9;
+            i.gothit = false;
+            return false;
+        }
+
+        glm::vec3 dt = r.direction * i.distance;
+
+        //i.object = reinterpret_cast<const Object *>(this);
+        i.oid = oid;
+        i.position = r.origin + dt;
+        // Note: o + dt - c = (o - c) + dt
+        //i.normal = glm::normalize(oc + dt);
+        i.normal = glm::normalize(i.position - center);
+        i.gothit = true;
+
+        // TODO: texture coordinates
+        /*
+         * 	u = sqrt( normal[0]*normal[0] + normal[2]*normal[2] ) * 2. # multiply by 2 because X goes 360 where Y goes 180
+            v = arctan2(normal[2],normal[0])
+            texture = array([u,v])
+         */
+
+        //std::cout << "done with Intersect" << std::endl;
+        return true;
+    }
+#endif // MATRIX
 protected:
 	glm::vec3 center;
 	float radius, radius2;
