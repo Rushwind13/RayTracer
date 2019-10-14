@@ -27,6 +27,29 @@ void printvec( const std::string label, const glm::vec3 vec )
 	std::cout << label << ": " << std::setw(9) << std::setprecision(3) << vec.x << " " << std::setw(9) << std::setprecision(3) << vec.y << " " << std::setw(9) << std::setprecision(3) << vec.z << "  ";
 }
 
+void printvec( const std::string label, const glm::vec4 vec )
+{
+	std::cout << label << ": " << std::setw(9) << std::setprecision(3) << vec.x << " " << std::setw(9) << std::setprecision(3) << vec.y << " " << std::setw(9) << std::setprecision(3) << vec.z << "  " << std::setw(9) << std::setprecision(3) << vec.w << "  ";
+}
+
+void printmat( const std::string label, const glm::mat4 mat )
+{
+    for( int col = 0; col < 4; col++ )
+    {
+        printvec( label, mat[col] );
+        std::cout << std::endl;
+    }
+}
+
+void printmat( const std::string label, const glm::mat3 mat )
+{
+    for( int col = 0; col < 3; col++ )
+    {
+        printvec( label, mat[col] );
+        std::cout << std::endl;
+    }
+}
+
 glm::vec3 ReflectVector(const glm::vec3 vIncident, const glm::vec3 vNormal) {
 	// vR = vI - [2 * (N . I)]N
 	glm::vec3 vReflected;

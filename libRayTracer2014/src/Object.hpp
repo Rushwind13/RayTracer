@@ -18,7 +18,7 @@ public:
 	Object() {};
 	Object( const glm::mat4 o2w ) : objectToWorld(o2w)
 	{
-		worldToObject = glm::inverse(objectToWorld);
+		//TODO: worldToObject = glm::inverse(objectToWorld);
 		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
@@ -63,14 +63,16 @@ public:
             worldToObject = glm::inverse(objectToWorld);
 
             printvec( "Sphere() c", c);
-            printvec( "wto", worldToObject[2]);
+            std::cout << std::endl;
+            printmat( "wto", worldToObject);
+            std::cout << std::endl;
+
             normalToWorld = glm::mat3(r);
             // TODO: simple inverse works under scaling only, but not when rotation is added
             // Nobj = S^-1 * R * Nworld (invert scale but not rotation)
             worldToNormal = glm::inverse(normalToWorld);
             center = glm::vec3(0.0, 0.0, 0.0);
-            printvec( "wtn", worldToNormal[2]);
-            std::cout << std::endl;
+            printmat( "wtn", worldToNormal);
 #endif // MATRIX
 	}
 #ifdef MATRIX
@@ -79,13 +81,14 @@ public:
         // the incoming Ray and Intersection are in World coordinates
         // Create local ones in Object coordinates
         Ray r;
-        r.origin = worldToObject * glm::vec4(_r.origin, radius); // position, w = 1
-        r.direction = glm::normalize(worldToNormal * _r.direction); // dir, w = 0
-        // printvec( "o", r.origin );
-        // printvec( "d", r.direction );
-        // printvec( "_o", _r.origin );
-		// printvec( "_d", _r.direction );
-        // std::cout << std::endl;
+        r.origin = worldToObject * glm::vec4(_r.origin, 1.0); // position, w = 1
+        r.direction = worldToNormal * _r.direction; // dir, w = 0, scaled, so don't normalize?
+        printvec( "o", r.origin );
+        printvec( "d", r.direction );
+        std::cout << std::endl;
+        printvec( "_o", _r.origin );
+		printvec( "_d", _r.direction );
+        std::cout << std::endl;
         Intersection i;
 
 		//std::cout << "Intersect" << std::endl;
@@ -131,15 +134,17 @@ public:
 
 		//std::cout << DdotOC << std::endl;
 
+        float DdotD = glm::dot( r.direction, r.direction );
         float DdotO = glm::dot( r.direction, r.origin );
         float OdotO = glm::dot( r.origin, r.origin );
+        float a = DdotD;
 		float b = DdotO;
-		float c = OdotO - radius2;
+		float c = (OdotO - radius2)*a;
 
 		float b2 = b * b;
 
 		// No intersect if miss or tangent
-		if( b2 <= c )
+		if( b2 <= c || a == 0.0 )
 		{
 			_i.distance = 1e9;
 			_i.gothit = false;
@@ -148,8 +153,8 @@ public:
 
 		// two intersection points; choose smallest positive one
 		float discriminant = std::sqrt( b2 - c );
-		float root1 = -b + discriminant;
-		float root2 = -b - discriminant;
+		float root1 = (-b + discriminant) / a;
+		float root2 = (-b - discriminant) / a;
 
 		i.distance = std::min(root1, root2);
 		if( i.distance <= 0.0f )
