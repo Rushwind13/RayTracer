@@ -25,7 +25,7 @@ public:
 	virtual ~Object() {}
 	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
 	glm::mat4 objectToWorld, worldToObject;
-    glm::mat3 worldToNormal, normalToWorld;
+    glm::mat3 normalToObject, normalToWorld;
 	Color color;
 	short oid = -1;
 	std::string name;
@@ -58,11 +58,16 @@ public:
 			color = COLOR_RED;
 #define MATRIX
 #ifdef MATRIX
+						glm::vec4 world_center = glm::vec4(c, 1.0);
             objectToWorld = glm::mat4(r);
             objectToWorld[3] = glm::vec4(c, 1.0);
             worldToObject = glm::inverse(objectToWorld);
 
+						glm::vec4 object_center = worldToObject * world_center;
+
             printvec( "Sphere() c", c);
+            std::cout << std::endl;
+						printvec( "oc", object_center);
             std::cout << std::endl;
             printmat( "wto", worldToObject);
             std::cout << std::endl;
@@ -70,9 +75,51 @@ public:
             normalToWorld = glm::mat3(r);
             // TODO: simple inverse works under scaling only, but not when rotation is added
             // Nobj = S^-1 * R * Nworld (invert scale but not rotation)
-            worldToNormal = glm::inverse(normalToWorld);
+            normalToObject = glm::inverse(normalToWorld);
             center = glm::vec3(0.0, 0.0, 0.0);
-            printmat( "wtn", worldToNormal);
+            printmat( "nto", normalToObject);
+						glm::vec3 world_normal = glm::vec3(0.0,0.0,1.0);
+						glm::vec3 object_normal = normalToObject * world_normal;
+						printvec( "on", object_normal);
+            std::cout << std::endl;
+            std::cout << glm::dot( object_normal, object_normal ) << std::endl;
+
+						glm::vec3 world_origin = c;
+						glm::vec3 world_direction = glm::vec3(0.0, 0.0, -1.0);
+
+						glm::vec3 object_origin = glm::vec3(worldToObject * glm::vec4(world_origin, 1.0));
+						glm::vec3 object_direction = normalToObject * world_direction;
+
+						float DdotD = glm::dot( object_direction, object_direction );
+						float DdotO = glm::dot( object_direction, object_origin );
+						float OdotO = glm::dot( object_origin, object_origin );
+						float a1 = DdotD;
+						float b1 = DdotO;
+						float c1 = (OdotO - radius2)*a1;
+
+						float b2 = b1 * b1;
+						float discriminant = std::sqrt( b2 - c1 );
+						float root1 = (-b1 + discriminant) / a1;
+						float root2 = (-b1 - discriminant) / a1;
+
+						float distance = std::min(root1, root2);
+						printvec("io", object_origin);
+            std::cout << std::endl;
+						printvec("id", object_direction);
+            std::cout << std::endl;
+						std::cout << "a " << a1 << " b " << b1 << " c " << c1 << std::endl;
+						std::cout << "b2 " << b2 << " disc " << discriminant << std::endl;
+						std::cout << "r1 " << root1 << " r2 " << root2 << " d " << distance << std::endl;
+
+						glm::vec3 dt = object_direction * distance;
+						glm::vec3 object_position = object_origin + dt;
+						glm::vec3 out_position = glm::vec3( objectToWorld * glm::vec4(object_position, 1.0));
+						glm::vec3 out_normal = object_position;
+
+						printvec( "outpos", out_position );
+						std::cout << std::endl;
+						printvec( "outnormal", out_normal );
+						std::cout << std::endl;
 #endif // MATRIX
 	}
 #ifdef MATRIX
@@ -82,7 +129,7 @@ public:
         // Create local ones in Object coordinates
         Ray r;
         r.origin = worldToObject * glm::vec4(_r.origin, 1.0); // position, w = 1
-        r.direction = worldToNormal * _r.direction; // dir, w = 0, scaled, so don't normalize?
+        r.direction = normalToObject * _r.direction; // dir, w = 0, scaled, so don't normalize?
         printvec( "o", r.origin );
         printvec( "d", r.direction );
         std::cout << std::endl;
