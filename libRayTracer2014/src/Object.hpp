@@ -91,7 +91,7 @@ public:
             glm::vec3 world_direction = glm::vec3(0.0, 0.0, -1.0);
 
             glm::vec3 object_origin = glm::vec3(worldToObject * glm::vec4(world_origin, 1.0));
-            glm::vec3 object_direction = normalToWorld * world_direction;
+            glm::vec3 object_direction = normalToObject * world_direction;
 
             float DdotD = glm::dot( object_direction, object_direction );
             float DdotO = glm::dot( object_direction, object_origin );
@@ -117,12 +117,12 @@ public:
             glm::vec3 dt = object_direction * distance;
             glm::vec3 object_position = object_origin + dt;
             glm::vec3 out_position = glm::vec3( objectToWorld * glm::vec4(object_position, 1.0));
-            glm::vec3 out_normal = object_position;
+            glm::vec3 out_normal = normalToObject * object_position;
 
             printvec( "outpos", out_position );
             std::cout << std::endl;
             printvec( "outnormal", out_normal );
-            std::cout << std::endl;
+            std::cout << std::endl << std::endl;
 #endif // TRACE
 #endif // MATRIX
 	}
