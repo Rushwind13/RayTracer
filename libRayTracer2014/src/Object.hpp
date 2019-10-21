@@ -71,6 +71,7 @@ public:
 #ifdef TRACE
             glm::vec4 world_center = glm::vec4(c, 1.0);
             glm::vec4 object_center = worldToObject * world_center;
+            glm::vec4 world_center_calculated = objectToWorld * object_center;
 
             glm::vec3 world_normal = glm::vec3(0.0,0.0,1.0);
             glm::vec3 object_normal = normalToObject * world_normal;
@@ -78,12 +79,23 @@ public:
             printvec( "Sphere() c", c);
             std::cout << std::endl;
             printvec( "oc", object_center);
+            printvec( "expected", glm::vec4(center, 1.0));
+            std::cout << std::endl;
+            printvec( "wc", world_center_calculated);
+            printvec( "expected", world_center);
             std::cout << std::endl;
             printmat( "wto", worldToObject);
             std::cout << std::endl;
+            printmat( "otw", objectToWorld);
+            std::cout << std::endl;
             printmat( "nto", normalToObject);
             std::cout << std::endl;
+            printmat( "ntw", normalToWorld);
+            std::cout << std::endl;
             printvec( "on", object_normal);
+            glm::vec3 object_normal_calculated = world_normal;
+            object_normal_calculated *= 1.0/r;
+            printvec( "expected", object_normal_calculated);
             std::cout << std::endl;
             std::cout << glm::dot( object_normal, object_normal ) << std::endl;
 
@@ -92,23 +104,23 @@ public:
 
             glm::vec3 object_origin = glm::vec3(worldToObject * glm::vec4(world_origin, 1.0));
             glm::vec3 object_direction = normalToObject * world_direction;
+            printvec("io", object_origin);
+            std::cout << std::endl;
+            printvec("id", object_direction);
 
             float DdotD = glm::dot( object_direction, object_direction );
             float DdotO = glm::dot( object_direction, object_origin );
             float OdotO = glm::dot( object_origin, object_origin );
             float a1 = DdotD;
-            float b1 = DdotO;
-            float c1 = (OdotO - radius2)*a1;
+            float b1 = 2.0 * DdotO;
+            float c1 = (OdotO - radius2);
 
             float b2 = b1 * b1;
-            float discriminant = std::sqrt( b2 - c1 );
-            float root1 = (-b1 + discriminant) / a1;
-            float root2 = (-b1 - discriminant) / a1;
+            float discriminant = std::sqrt( b2 - (4.0 * a1 * c1));
+            float root1 = (-b1 + discriminant) / (2.0 * a1);
+            float root2 = (-b1 - discriminant) / (2.0 * a1);
 
             float distance = std::min(root1, root2);
-            printvec("io", object_origin);
-            std::cout << std::endl;
-            printvec("id", object_direction);
             std::cout << std::endl;
             std::cout << "a " << a1 << " b " << b1 << " c " << c1 << std::endl;
             std::cout << "b2 " << b2 << " disc " << discriminant << std::endl;
@@ -117,7 +129,7 @@ public:
             glm::vec3 dt = object_direction * distance;
             glm::vec3 object_position = object_origin + dt;
             glm::vec3 out_position = glm::vec3( objectToWorld * glm::vec4(object_position, 1.0));
-            glm::vec3 out_normal = normalToObject * object_position;
+            glm::vec3 out_normal = normalToWorld * object_position;
 
             printvec( "outpos", out_position );
             std::cout << std::endl;

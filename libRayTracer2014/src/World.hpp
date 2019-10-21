@@ -36,7 +36,7 @@ public:
 		sprintf( filename, "test.png" );
 
 		//	create world object list
-		glm::vec3 center(0.0,0.0,-2.0);
+		glm::vec3 center(0.0,0.0,-3.0);
 		float radius=1.0;
 		Sphere *sphere = new Sphere(center, radius);
     sphere->color = Color(0.4,0.85,0.85);
@@ -53,6 +53,15 @@ public:
 		sphere2->name = "sphere2";
 
 		objects.push_back(sphere2);/**/
+
+    glm::vec3 center3(0.0,0.0,-6.0);
+		float radius3=4.0;
+		Sphere *sphere3 = new Sphere(center3, radius3);
+		sphere3->color = Color(0.85,0.85,0.5);
+		sphere3->oid = 3;
+		sphere3->name = "sphere3";
+
+		objects.push_back(sphere3);/**/
 
 
 		/*glm::vec3 center(-2.5,0.0,-5.0);
