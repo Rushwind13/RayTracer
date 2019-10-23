@@ -65,8 +65,9 @@ public:
             normalToWorld = glm::mat3(r);
             // TODO: simple inverse works under scaling only, but not when rotation is added
             // Nobj = S^-1 * R * Nworld (invert scale but not rotation)
-            normalToObject = glm::inverse(normalToWorld);
+            normalToObject = glm::transpose(glm::inverse(normalToWorld));
             center = glm::vec3(0.0, 0.0, 0.0);
+						glm::mat4 wtoT = glm::transpose(worldToObject);
 #define TRACE
 #ifdef TRACE
             glm::vec4 world_center = glm::vec4(c, 1.0);
@@ -103,7 +104,7 @@ public:
             glm::vec3 world_direction = glm::vec3(0.0, 0.0, -1.0);
 
             glm::vec3 object_origin = glm::vec3(worldToObject * glm::vec4(world_origin, 1.0));
-            glm::vec3 object_direction = normalToObject * world_direction;
+            glm::vec3 object_direction = (normalToObject * world_direction);
             printvec("io", object_origin);
             std::cout << std::endl;
             printvec("id", object_direction);
@@ -128,8 +129,8 @@ public:
 
             glm::vec3 dt = object_direction * distance;
             glm::vec3 object_position = object_origin + dt;
-            glm::vec3 out_position = glm::vec3( objectToWorld * glm::vec4(object_position, 1.0));
-            glm::vec3 out_normal = normalToWorld * object_position;
+            glm::vec4 out_position = glm::vec4( objectToWorld * glm::vec4(object_position, 1.0));
+            glm::vec4 out_normal = glm::vec4( objectToWorld * glm::vec4(object_position, 0.0));
 
             printvec( "outpos", out_position );
             std::cout << std::endl;
