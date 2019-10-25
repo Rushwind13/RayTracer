@@ -61,15 +61,16 @@ public:
             objectToWorld = glm::mat4(r);
             objectToWorld[3] = glm::vec4(c, 1.0);
             worldToObject = glm::inverse(objectToWorld);
-			glm::mat4 wtoT = glm::transpose(worldToObject);
 
             normalToWorld = glm::mat3(r);
             // TODO: simple inverse works under scaling only, but not when rotation is added
             // Nobj = S^-1 * R * Nworld (invert scale but not rotation)
             normalToObject = glm::inverse(normalToWorld);
             center = glm::vec3(0.0, 0.0, 0.0);
-#define TRACE
+// #define TRACE
 #ifdef TRACE
+            glm::mat4 wtoT = glm::transpose(worldToObject);
+
             glm::vec4 world_center = glm::vec4(c, 1.0);
             glm::vec4 object_center = worldToObject * world_center;
             glm::vec4 world_center_calculated = objectToWorld * object_center;
