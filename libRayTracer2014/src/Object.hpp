@@ -61,13 +61,13 @@ public:
             objectToWorld = glm::mat4(r);
             objectToWorld[3] = glm::vec4(c, 1.0);
             worldToObject = glm::inverse(objectToWorld);
+			glm::mat4 wtoT = glm::transpose(worldToObject);
 
             normalToWorld = glm::mat3(r);
             // TODO: simple inverse works under scaling only, but not when rotation is added
             // Nobj = S^-1 * R * Nworld (invert scale but not rotation)
-            normalToObject = glm::transpose(glm::inverse(normalToWorld));
+            normalToObject = glm::inverse(normalToWorld);
             center = glm::vec3(0.0, 0.0, 0.0);
-						glm::mat4 wtoT = glm::transpose(worldToObject);
 #define TRACE
 #ifdef TRACE
             glm::vec4 world_center = glm::vec4(c, 1.0);
@@ -89,6 +89,8 @@ public:
             std::cout << std::endl;
             printmat( "otw", objectToWorld);
             std::cout << std::endl;
+            printmat( "wTo", wtoT);
+            std::cout << std::endl;
             printmat( "nto", normalToObject);
             std::cout << std::endl;
             printmat( "ntw", normalToWorld);
@@ -100,26 +102,26 @@ public:
             std::cout << std::endl;
             std::cout << glm::dot( object_normal, object_normal ) << std::endl;
 
-            glm::vec3 world_origin = glm::vec3(0.0, 0.0, 0.0);
+            glm::vec4 world_origin = glm::vec4(0.0, 0.0, 0.0, 1.0);
             glm::vec3 world_direction = glm::vec3(0.0, 0.0, -1.0);
 
-            glm::vec3 object_origin = glm::vec3(worldToObject * glm::vec4(world_origin, 1.0));
-            glm::vec3 object_direction = (normalToObject * world_direction);
+            glm::vec4 object_origin = worldToObject * world_origin;
+            glm::vec3 object_direction = normalToObject * world_direction;
             printvec("io", object_origin);
             std::cout << std::endl;
             printvec("id", object_direction);
 
             float DdotD = glm::dot( object_direction, object_direction );
-            float DdotO = glm::dot( object_direction, object_origin );
+            float DdotO = glm::dot( glm::vec4(object_direction, 0.0), object_origin );
             float OdotO = glm::dot( object_origin, object_origin );
             float a1 = DdotD;
-            float b1 = 2.0 * DdotO;
-            float c1 = (OdotO - radius2);
+            float b1 = DdotO;
+            float c1 = (OdotO - 2.0);
 
             float b2 = b1 * b1;
-            float discriminant = std::sqrt( b2 - (4.0 * a1 * c1));
-            float root1 = (-b1 + discriminant) / (2.0 * a1);
-            float root2 = (-b1 - discriminant) / (2.0 * a1);
+            float discriminant = std::sqrt( b2 - (a1 * c1));
+            float root1 = (-b1 + discriminant) / (a1);
+            float root2 = (-b1 - discriminant) / (a1);
 
             float distance = std::min(root1, root2);
             std::cout << std::endl;
@@ -128,9 +130,9 @@ public:
             std::cout << "r1 " << root1 << " r2 " << root2 << " d " << distance << std::endl;
 
             glm::vec3 dt = object_direction * distance;
-            glm::vec3 object_position = object_origin + dt;
+            glm::vec3 object_position = object_origin + glm::vec4(dt, 0.0);
             glm::vec4 out_position = glm::vec4( objectToWorld * glm::vec4(object_position, 1.0));
-            glm::vec4 out_normal = glm::vec4( objectToWorld * glm::vec4(object_position, 0.0));
+            glm::vec3 out_normal = object_position;
 
             printvec( "outpos", out_position );
             std::cout << std::endl;
