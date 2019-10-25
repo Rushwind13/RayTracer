@@ -51,7 +51,7 @@ public:
 class Sphere : public Object
 {
 public:
-	Sphere( /*const mat4 o2w,*/ glm::vec3 c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
+	Sphere( /*const mat4 o2w,*/ Position c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
 	{
             // r = radius = 1.0;
             // radius2 = r * r;
@@ -59,19 +59,19 @@ public:
 #define MATRIX
 #ifdef MATRIX
             objectToWorld = glm::mat4(r);
-            objectToWorld[3] = glm::vec4(c, 1.0);
+            objectToWorld[3] = c;
             worldToObject = glm::inverse(objectToWorld);
 
             normalToWorld = glm::mat3(r);
             // TODO: simple inverse works under scaling only, but not when rotation is added
             // Nobj = S^-1 * R * Nworld (invert scale but not rotation)
             normalToObject = glm::inverse(normalToWorld);
-            center = glm::vec3(0.0, 0.0, 0.0);
+            center = Position(0.0, 0.0, 0.0, 1.0);
 // #define TRACE
 #ifdef TRACE
             glm::mat4 wtoT = glm::transpose(worldToObject);
 
-            glm::vec4 world_center = glm::vec4(c, 1.0);
+            glm::vec4 world_center = c;
             glm::vec4 object_center = worldToObject * world_center;
             glm::vec4 world_center_calculated = objectToWorld * object_center;
 
@@ -81,7 +81,7 @@ public:
             printvec( "Sphere() c", c);
             std::cout << std::endl;
             printvec( "oc", object_center);
-            printvec( "expected", glm::vec4(center, 1.0));
+            printvec( "expected", center);
             std::cout << std::endl;
             printvec( "wc", world_center_calculated);
             printvec( "expected", world_center);
@@ -103,17 +103,17 @@ public:
             std::cout << std::endl;
             std::cout << glm::dot( object_normal, object_normal ) << std::endl;
 
-            glm::vec4 world_origin = glm::vec4(0.0, 0.0, 0.0, 1.0);
+            Position world_origin = Position(0.0, 0.0, 0.0, 1.0);
             glm::vec3 world_direction = glm::vec3(0.0, 0.0, -1.0);
 
-            glm::vec4 object_origin = worldToObject * world_origin;
+            Position object_origin = worldToObject * world_origin;
             glm::vec3 object_direction = normalToObject * world_direction;
             printvec("io", object_origin);
             std::cout << std::endl;
             printvec("id", object_direction);
 
             float DdotD = glm::dot( object_direction, object_direction );
-            float DdotO = glm::dot( glm::vec4(object_direction, 0.0), object_origin );
+            float DdotO = glm::dot( Position(object_direction, 0.0), object_origin );
             float OdotO = glm::dot( object_origin, object_origin );
             float a1 = DdotD;
             float b1 = DdotO;
@@ -131,8 +131,8 @@ public:
             std::cout << "r1 " << root1 << " r2 " << root2 << " d " << distance << std::endl;
 
             glm::vec3 dt = object_direction * distance;
-            glm::vec3 object_position = object_origin + glm::vec4(dt, 0.0);
-            glm::vec4 out_position = glm::vec4( objectToWorld * glm::vec4(object_position, 1.0));
+            Position object_position = object_origin + Position(dt, 0.0);
+            Position out_position = objectToWorld * object_position;
             glm::vec3 out_normal = object_position;
 
             printvec( "outpos", out_position );
@@ -148,14 +148,14 @@ public:
         // the incoming Ray and Intersection are in World coordinates
         // Create local ones in Object coordinates
         Ray r;
-        r.origin = worldToObject * glm::vec4(_r.origin, 1.0); // position, w = 1
+        r.origin = worldToObject * _r.origin; // position, w = 1
         r.direction = normalToObject * _r.direction; // dir, w = 0, scaled, so don't normalize?
         printvec( "o", r.origin );
-        printvec( "d", r.direction );
+        // printvec( "d", r.direction );
         std::cout << std::endl;
-        printvec( "_o", _r.origin );
-		printvec( "_d", _r.direction );
-        std::cout << std::endl;
+        printvec( "o", _r.origin );
+		// printvec( "_d", _r.direction );
+        // std::cout << std::endl;
         Intersection i;
 
 		//std::cout << "Intersect" << std::endl;
@@ -202,17 +202,18 @@ public:
 		//std::cout << DdotOC << std::endl;
 
         float DdotD = glm::dot( r.direction, r.direction );
-        float DdotO = glm::dot( r.direction, r.origin );
+        float DdotO = glm::dot( Position(r.direction, 0.0), r.origin );
         float OdotO = glm::dot( r.origin, r.origin );
         float a = DdotD;
 		float b = DdotO;
-		float c = (OdotO - radius2)*a;
+		float c = (OdotO - 2.0)*a; // TODO: why 2.0? this is supposed to be r^2 but in unit sphere r=1, so...
 
 		float b2 = b * b;
 
 		// No intersect if miss or tangent
 		if( b2 <= c || a == 0.0 )
 		{
+            // std::cout << "bad discriminant" << b2 << "<" << c << " " << a << std::endl;
 			_i.distance = 1e9;
 			_i.gothit = false;
 			return false;
@@ -226,6 +227,7 @@ public:
 		i.distance = std::min(root1, root2);
 		if( i.distance <= 0.0f )
 		{
+            // std::cout << "bad distance" << root1 << " " << root2 << std::endl;
 			// inside the sphere; for now don't intersect
 			// but later could use reversed normals.
 			_i.distance = 1e9;
@@ -234,23 +236,21 @@ public:
 		}
 
 		glm::vec3 dt = r.direction * i.distance;
-        i.position = r.origin + dt;
+        i.position = r.origin + Position(dt, 0.0);
 
 		//i.object = reinterpret_cast<const Object *>(this);
 		_i.oid = oid;
-		_i.position = glm::vec3(objectToWorld * glm::vec4(i.position, 1.0));//_r.origin + dt;
+		_i.position = objectToWorld * i.position;//_r.origin + dt;
 		// Note: o + dt - c = (o - c) + dt
 		//i.normal = glm::normalize(oc + dt);
 		_i.normal = glm::normalize(glm::vec3(i.position));
 		_i.gothit = true;
 
-        if( _r.origin.x != 0.0 )
-        {
+
         printvec( "_p", _i.position );
         printvec( "p", i.position );
 		printvec( "_n", _i.normal );
         std::cout << " " << i.distance << " ";
-        }
 
 		// TODO: texture coordinates
 		/*
@@ -358,7 +358,7 @@ public:
     }
 #endif // MATRIX
 protected:
-	glm::vec3 center;
+	Position center;
 	float radius, radius2;
 };
 

@@ -56,8 +56,8 @@ public:
 	{
 		//		- create camera
 		// TODO: Need to implement a scene file
-		glm::vec3 _eye(0.0,0.0,0.0);
-		glm::vec3 _lookAt(0.0,0.0,-1.0);
+		Position _eye(0.0,0.0,0.0,1.0);
+		Position _lookAt(0.0,0.0,-1.0,1.0);
 		glm::vec3 _up(0.0,1.0,0.0);
 		float _fovy = 90.0;
 		float _width = 150.0;
@@ -95,7 +95,7 @@ public:
 			float a = ((2.0 * (i + 0.5) / width) - 1.0) * _tan * aspect_ratio;
 			float b = (1.0 - (2.0 * (j + 0.5 )) / height) * _tan;
 
-			glm::vec3 origin = eye;
+			Position origin = eye;
 			glm::vec3 direction = (a*u) - (b*v) - w;
 			direction = glm::normalize(direction);
 	#ifdef DEBUG

@@ -48,13 +48,13 @@ int main(int argc, char** argv)
 	World world;
 	strcpy( world.filename, "./test.png" );
 
-	glm::vec3 center(-2.5,0.0,-5.0);
+	Position center(-2.5,0.0,-5.0,1.0);
 	float radius=2.0;
 	Sphere sphere(center, radius);
 	sphere.oid = 1;
 	sphere.name = "sphere1";
 	world.objects.push_back(&sphere);
-	glm::vec3 center2(2.5,0.0,-10.0);
+	Position center2(2.5,0.0,-10.0,1.0);
 	float radius2=4.0;
 	Sphere sphere2(center2, radius2);
 	sphere2.color = Color(0.0,0.0,1.0);
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 	sphere.name = "sphere2";
 	world.objects.push_back(&sphere2);
 
-	Position lpos0(-2.5, 0.0, -1.0);
+	Position lpos0(-2.5, 0.0, -1.0,1.0);
 	Light light0(lpos0);
 	light0.color = Color(1.0,1.0,1.0);
 	light0.oid = 0;
@@ -70,8 +70,8 @@ int main(int argc, char** argv)
 	world.lights.push_back(&light0);
 
 	//		- create camera
-	glm::vec3 eye(0.0,0.0,0.0);
-	glm::vec3 lookAt(0.0,0.0,-1.0);
+	Position eye(0.0,0.0,0.0,1.0);
+	Position lookAt(0.0,0.0,-1.0,1.0);
 	glm::vec3 up(0.0,1.0,0.0);
 	float fovy = 90.0;
 	float width = 900.0;

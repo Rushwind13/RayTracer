@@ -36,15 +36,15 @@ public:
 		sprintf( filename, "test.png" );
 
 		//	create world object list
-        /*glm::vec3 center3(0.0,3.0,-5.0);
-    		float radius3=3.0;
-    		Sphere *sphere3 = new Sphere(center3, radius3);
-    		sphere3->color = Color(0.85,0.85,0.5);
-    		sphere3->oid = 3;
-    		sphere3->name = "sphere3";
+        /*Position center(0.0,0.0,-5.0,1.0);
+		float radius=1.0;
+		Sphere *sphere = new Sphere(center, radius);
+        sphere->color = Color(0.4,0.85,0.85);
+		sphere->oid = 1;
+		sphere->name = "sphere1";
 
-    		objects.push_back(sphere3);/**/
-		glm::vec3 center(0.0,0.0,-2.0);
+		objects.push_back(sphere);/**/
+		Position center(0.0,0.0,-2.0,1.0);
 		float radius=1.0;
 		Sphere *sphere = new Sphere(center, radius);
     sphere->color = Color(0.4,0.85,0.85);
@@ -53,7 +53,7 @@ public:
 
 		objects.push_back(sphere);
 
-    glm::vec3 center2(0.0,0.0,-3.0);
+    Position center2(0.0,0.0,-3.0,1.0);
 		float radius2=2.0;
 		Sphere *sphere2 = new Sphere(center2, radius2);
 		sphere2->color = Color(0.85,0.5,0.85);
@@ -62,7 +62,7 @@ public:
 
 		objects.push_back(sphere2);
 
-    glm::vec3 center3(0.0,0.0,-5.0);
+    Position center3(0.0,0.0,-5.0,1.0);
 		float radius3=4.0;
 		Sphere *sphere3 = new Sphere(center3, radius3);
 		sphere3->color = Color(0.85,0.85,0.5);
@@ -72,7 +72,7 @@ public:
 		objects.push_back(sphere3);/**/
 
 
-		/*glm::vec3 center(-2.5,0.0,-5.0);
+		/*Position center(-2.5,0.0,-5.0,1.0);
 		float radius=2.0;
 		Sphere *sphere = new Sphere(center, radius);
         sphere->color = Color(0.4,0.85,0.85);
@@ -81,7 +81,7 @@ public:
 
 		objects.push_back(sphere);
 
-        glm::vec3 center2(2.5,0.0,-5.0);
+        Position center2(2.5,0.0,-5.0,1.0);
 		float radius2=2.0;
 		Sphere *sphere2 = new Sphere(center2, radius2);
 		sphere2->color = Color(0.85,0.5,0.85);
@@ -90,7 +90,7 @@ public:
 
 		objects.push_back(sphere2);/**/
 
-/*		glm::vec3 center2(2.5,0.0,-10.0);
+/*		Position center2(2.5,0.0,-10.0,1.0);
 		float radius2=4.0;
 		Sphere *sphere2 = new Sphere(center2, radius2);
 		sphere2->color = Color(0.1,0.1,1.0);
@@ -99,7 +99,7 @@ public:
 
 		objects.push_back(sphere2);
 
-		glm::vec3 center3(0.0,8.0,-20.0);
+		Position center3(0.0,8.0,-20.0,1.0);
 		float radius3=4.0;
 		Sphere *sphere3 = new Sphere(center3, radius3);
 		sphere3->color = Color(0.1,1.0,0.1);
@@ -111,7 +111,7 @@ public:
 		object_count = objects.size();
 
 		// create world light list
-		Position lpos0(0.0, 5.0, -0.5);
+		Position lpos0(0.0, 5.0, -0.5,1.0);
 		Light *light0 = new Light(lpos0);
 		light0->color = Color(1.0,1.0,1.0);
 		light0->oid = 0;

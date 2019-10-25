@@ -20,7 +20,7 @@ const float tau = 6.283185307179586;
 const float deg2rad = tau / 360.0;
 
 typedef glm::vec3 Color;
-typedef glm::vec3 Position;
+typedef glm::vec4 Position;
 
 void printvec( const std::string label, const glm::vec3 vec )
 {
@@ -89,10 +89,11 @@ inline float lerp(const float point, const float min, const float max)
 }
 
 #define MPACK(vec) vec.x, vec.y, vec.z
+#define MPACKP(vec) vec.x, vec.y, vec.z, vec.w
 
 class Ray {
 public:
-	MSGPACK_DEFINE( MPACK(direction), MPACK(origin), length )
+	MSGPACK_DEFINE( MPACK(direction), MPACKP(origin), length )
 	glm::vec3 direction;
 	Position origin;
 	float length;

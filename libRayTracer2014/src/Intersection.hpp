@@ -24,7 +24,7 @@ public:
 		}
 	};
 	~Intersection() {};
-	MSGPACK_DEFINE( gothit, anyhit, oid, distance, MPACK(normal), MPACK(position));
+	MSGPACK_DEFINE( gothit, anyhit, oid, distance, MPACK(normal), MPACKP(position));
 
 
 	//float x,y; // pixel coordinates

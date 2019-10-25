@@ -30,7 +30,7 @@ enum ColorType
 class Pixel
 {
 public:
-	MSGPACK_DEFINE( x, y, primaryRay, r, MPACK(normal), MPACK(position), distance, lid, NdotL, depth, weight, MPACK(color), oid, gothit, type )
+	MSGPACK_DEFINE( x, y, primaryRay, r, MPACK(normal), MPACKP(position), distance, lid, NdotL, depth, weight, MPACK(color), oid, gothit, type )
 
 	// Permanent variables
 	float x;
