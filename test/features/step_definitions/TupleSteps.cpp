@@ -84,6 +84,45 @@ WHEN("^I press subtract_vector$")
   context->result = context->vec - context->vec_b;
 }
 
+WHEN("^I press negate_vector$")
+{
+  ScenarioScope<TupleCtx> context;
+
+  context->result = -context->vec;
+}
+
+WHEN("^I press scale_vector ([0-9.-]+)$")
+{
+  REGEX_PARAM(float,scalar);
+  ScenarioScope<TupleCtx> context;
+
+  context->result = context->vec * scalar;
+}
+
+WHEN("^I press scale_position ([0-9.-]+)$")
+{
+  REGEX_PARAM(float,scalar);
+  ScenarioScope<TupleCtx> context;
+
+  context->result = context->pos * scalar;
+}
+
+WHEN("^I press divide_vector ([0-9.-]+)$")
+{
+  REGEX_PARAM(float,scalar);
+  ScenarioScope<TupleCtx> context;
+
+  context->result = context->vec / scalar;
+}
+
+WHEN("^I press divide_position ([0-9.-]+)$")
+{
+  REGEX_PARAM(float,scalar);
+  ScenarioScope<TupleCtx> context;
+
+  context->result = context->pos / scalar;
+}
+
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
 {
   REGEX_PARAM(double,x);
