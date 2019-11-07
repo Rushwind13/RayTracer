@@ -11,6 +11,7 @@ struct TupleCtx
   Position pos;
   Position pos_b;
   glm::vec3 result;
+  float result_b;
 };
 
 GIVEN("^I have a position ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
@@ -123,14 +124,44 @@ WHEN("^I press divide_position ([0-9.-]+)$")
   context->result = context->pos / scalar;
 }
 
+WHEN("^I press magnitude$")
+{
+  ScenarioScope<TupleCtx> context;
+
+  context->result_b = glm::length(context->vec);
+}
+
+WHEN("^I press normalize$")
+{
+  ScenarioScope<TupleCtx> context;
+
+  context->result = glm::normalize(context->vec);
+}
+
+WHEN("^I press magnorm$")
+{
+  ScenarioScope<TupleCtx> context;
+
+  context->result = glm::normalize(context->vec);
+  context->result_b = glm::length(context->result);
+}
+
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
 {
   REGEX_PARAM(double,x);
   REGEX_PARAM(double,y);
   REGEX_PARAM(double,z);
+  Position expected(x,y,z);
   ScenarioScope<TupleCtx> context;
 
-  EXPECT_EQ(Position(x,y,z), context->result);
+  bool result = false;
+  float EPSILON = 0.00001;
+  if( glm::length(expected - context->result) < EPSILON )
+  {
+      result = true;
+  }
+
+  EXPECT_EQ(result, true);
 }
 
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
@@ -138,7 +169,75 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
   REGEX_PARAM(double,x);
   REGEX_PARAM(double,y);
   REGEX_PARAM(double,z);
+  glm::vec3 expected(x,y,z);
   ScenarioScope<TupleCtx> context;
 
-  EXPECT_EQ(glm::vec3(x,y,z), context->result);
+  bool result = false;
+  float EPSILON = 0.00001;
+  if( glm::length(expected - context->result) < EPSILON )
+  {
+      result = true;
+  }
+
+  EXPECT_EQ(result, true);
+}
+
+
+THEN("^the result should be ([0-9.-]+) a float$")
+{
+  REGEX_PARAM(float,expected);
+  ScenarioScope<TupleCtx> context;
+  bool result = false;
+  float EPSILON = 0.00001;
+  if( glm::abs(expected - context->result_b) < EPSILON )
+  {
+      result = true;
+  }
+
+  EXPECT_EQ(result, true);
+}
+
+
+THEN("^result.x should be ([0-9.-]+)$")
+{
+  REGEX_PARAM(float,expected);
+  ScenarioScope<TupleCtx> context;
+  bool result = false;
+  float EPSILON = 0.00001;
+  if( glm::abs(expected - context->result.x) < EPSILON )
+  {
+      result = true;
+  }
+
+  EXPECT_EQ(result, true);
+}
+
+
+THEN("^result.y should be ([0-9.-]+)$")
+{
+  REGEX_PARAM(float,expected);
+  ScenarioScope<TupleCtx> context;
+  bool result = false;
+  float EPSILON = 0.00001;
+  if( glm::abs(expected - context->result.y) < EPSILON )
+  {
+      result = true;
+  }
+
+  EXPECT_EQ(result, true);
+}
+
+
+THEN("^result.z should be ([0-9.-]+)$")
+{
+  REGEX_PARAM(float,expected);
+  ScenarioScope<TupleCtx> context;
+  bool result = false;
+  float EPSILON = 0.00001;
+  if( glm::abs(expected - context->result.z) < EPSILON )
+  {
+      result = true;
+  }
+
+  EXPECT_EQ(result, true);
 }

@@ -74,3 +74,47 @@ Feature: Tuples
         Given I have a position 1,-2,3 in the data
         When I press divide_position 2
         Then the result should be 0.5,-1,1.5 a position
+
+    Scenario: magnitude of vector (1,0,0)
+        Given I have a vector 1,0,0 in the data
+        When I press magnitude
+        Then the result should be 1.0 a float
+
+    Scenario: magnitude of vector (0,1,0)
+        Given I have a vector 0,1,0 in the data
+        When I press magnitude
+        Then the result should be 1.0 a float
+
+    Scenario: magnitude of vector (0,0,1)
+        Given I have a vector 0,0,1 in the data
+        When I press magnitude
+        Then the result should be 1.0 a float
+
+    Scenario: magnitude of vector (1,2,3)
+        Given I have a vector 1,2,3 in the data
+        When I press magnitude
+        Then the result should be 3.74166 a float
+
+    Scenario: magnitude of vector (-1,-2,-3)
+        Given I have a vector -1,-2,-3 in the data
+        When I press magnitude
+        Then the result should be 3.74166 a float
+
+    Scenario: Normalizing vector (4,0,0) gives (1,0,0)
+        Given I have a vector 4,0,0 in the data
+        When I press normalize
+        Then the result should be 1,0,0 a vector
+
+    Scenario: magnitude of vector (1,2,3)
+        Given I have a vector 1,2,3 in the data
+        When I press normalize
+        Then the result should be 0.26726,0.53452,0.80178 a vector
+        Then result.x should be 0.26726
+        Then result.y should be 0.53452
+        Then result.z should be 0.80178
+
+    Scenario: magnitude of a normalized vector
+        Given I have a vector 1,2,3 in the data
+        When I press magnorm
+        Then the result should be 1.0 a float
+        Then the result should be 0.26726,0.53452,0.80178 a vector
