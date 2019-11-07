@@ -167,6 +167,13 @@ WHEN("^I press crossprod$")
   context->result = glm::cross(context->vec, context->vec_b);
 }
 
+WHEN("^I press ReflectVector$")
+{
+  ScenarioScope<TupleCtx> context;
+
+  context->result = ReflectVector(context->vec, context->vec_b);
+}
+
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
 {
   REGEX_PARAM(double,x);
@@ -216,6 +223,7 @@ THEN("^the result should be ([0-9.-]+) a float$")
   }
 
   EXPECT_EQ(result, true);
+  // EXPECT_EQ(expected, context->result_b);
 }
 
 
@@ -231,6 +239,7 @@ THEN("^result.x should be ([0-9.-]+)$")
   }
 
   EXPECT_EQ(result, true);
+  // EXPECT_EQ(expected, context->result.x);
 }
 
 
@@ -245,7 +254,8 @@ THEN("^result.y should be ([0-9.-]+)$")
       result = true;
   }
 
-  EXPECT_EQ(result, true);
+    EXPECT_EQ(result, true);
+    // EXPECT_EQ(expected, context->result.y);
 }
 
 
@@ -260,5 +270,6 @@ THEN("^result.z should be ([0-9.-]+)$")
       result = true;
   }
 
-  EXPECT_EQ(result, true);
+    EXPECT_EQ(result, true);
+    // EXPECT_EQ(expected, context->result.z);
 }

@@ -142,3 +142,13 @@ Feature: Tuples
         And I have a second vector 1,2,3 in the data
         When I press crossprod
         Then the result should be 1,-2,1 a vector
+
+    Scenario: reflect a vector around a normal
+        Given I have a vector 1,1,0 in the data
+        And I have a second vector 0,1,0 in the data
+        When I press ReflectVector
+        Then result.x should be -0.707107
+        Then result.y should be 0.707107
+        Then result.z should be 0
+        Then the result should be -0.707107,0.707107,0 a vector
+        
