@@ -118,3 +118,27 @@ Feature: Tuples
         When I press magnorm
         Then the result should be 1.0 a float
         Then the result should be 0.26726,0.53452,0.80178 a vector
+
+    Scenario: dot product of two vectors
+        Given I have a vector 1,2,3 in the data
+        And I have a second vector 2,3,4 in the data
+        When I press dotprod
+        Then the result should be 20 a float
+
+    Scenario: dot product of two positions
+        Given I have a position 1,2,3 in the data
+        And I have a second position 2,3,4 in the data
+        When I press dotprod_position
+        Then the result should be 20 a float
+
+    Scenario: cross product of two vectors (axb)
+        Given I have a vector 1,2,3 in the data
+        And I have a second vector 2,3,4 in the data
+        When I press crossprod
+        Then the result should be -1,2,-1 a vector
+
+    Scenario: cross product of two vectors (bxa)
+        Given I have a vector 2,3,4 in the data
+        And I have a second vector 1,2,3 in the data
+        When I press crossprod
+        Then the result should be 1,-2,1 a vector

@@ -146,6 +146,27 @@ WHEN("^I press magnorm$")
   context->result_b = glm::length(context->result);
 }
 
+WHEN("^I press dotprod$")
+{
+  ScenarioScope<TupleCtx> context;
+
+  context->result_b = glm::dot(context->vec, context->vec_b);
+}
+
+WHEN("^I press dotprod_position$")
+{
+  ScenarioScope<TupleCtx> context;
+
+  context->result_b = glm::dot(context->pos, context->pos_b);
+}
+
+WHEN("^I press crossprod$")
+{
+  ScenarioScope<TupleCtx> context;
+
+  context->result = glm::cross(context->vec, context->vec_b);
+}
+
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
 {
   REGEX_PARAM(double,x);
