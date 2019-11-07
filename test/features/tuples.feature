@@ -151,4 +151,40 @@ Feature: Tuples
         Then result.y should be 0.707107
         Then result.z should be 0
         Then the result should be -0.707107,0.707107,0 a vector
-        
+#### End of Chapter 1
+    Scenario: Colors are (red, green, blue) vectors
+        Given I have a vector -0.5,0.4,1.7 in the data
+        When I press Color_vector
+        Then result.r should be -0.5
+        Then result.g should be 0.4
+        Then result.b should be 1.7
+
+    Scenario: Colors are their own type
+        Given I have a color -0.5,0.4,1.7 in the data
+        When I press Color
+        Then result.r should be -0.5
+        Then result.g should be 0.4
+        Then result.b should be 1.7
+
+    Scenario: add two colors
+        Given I have a color 0.9,0.6,0.75 in the data
+        And I have a second color 0.7,0.1,0.25 in the data
+        When I press add_color
+        Then the result should be 1.6,0.7,1.0 a color
+
+    Scenario: subtract two colors
+        Given I have a color 0.9,0.6,0.75 in the data
+        And I have a second color 0.7,0.1,0.25 in the data
+        When I press subtract_color
+        Then the result should be 0.2,0.5,0.5 a color
+
+    Scenario: multiply color by scalar
+        Given I have a color 0.2,0.3,0.4 in the data
+        When I press scale_color 2
+        Then the result should be 0.4,0.6,0.8 a color
+
+    Scenario: multiply two colors
+        Given I have a color 1,0.2,0.4 in the data
+        And I have a second color 0.9,1,0.1 in the data
+        When I press multiply_color
+        Then the result should be 0.9,0.2,0.04 a color
