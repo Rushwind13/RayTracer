@@ -91,3 +91,13 @@ Feature: Matrix
       | 44  | 54  |114  |108  |
       | 40  | 58  |110  |102  |
       | 16  | 26  | 46  | 42  |
+
+  Scenario: multiply matrix by position
+    Given the following matrix A:
+      |  x  |  y  |  z  |  w  |
+      |  1  |  2  |  3  |  4  |
+      |  2  |  4  |  4  |  2  |
+      |  8  |  6  |  4  |  1  |
+      |  0  |  0  |  0  |  1  |
+    And the following position <1,2,3,1>
+    Then A * b = <18,24,33,1> is a position

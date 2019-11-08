@@ -10,6 +10,7 @@ struct MatrixCtx
   glm::mat3 mat3;
   glm::mat2 mat2;
   glm::mat4 mat_b;
+  glm::vec4 pos;
 };
 
 GIVEN("^the following matrix ([MAB]):$")
@@ -74,6 +75,16 @@ GIVEN("^the following 2x2 matrix M:$")
   context->mat2 = glm::transpose(context->mat2);
 }
 
+GIVEN("^the following position <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)>$")
+{
+  REGEX_PARAM(float, x);
+  REGEX_PARAM(float, y);
+  REGEX_PARAM(float, z);
+  REGEX_PARAM(float, w);
+  ScenarioScope<MatrixCtx> context;
+  context->pos = glm::vec4(x,y,z,w);
+}
+
 THEN("^M([234])<([0-9]),([0-9])> = ([0-9.-]+)$")
 {
   REGEX_PARAM(char, dim);
@@ -131,6 +142,19 @@ THEN("^A \\* B is the following 4x4 matrix:$")
 
   glm::mat4 result = context->mat * context->mat_b;
   // std::cout << result[0][0] << ' ' << result[1][1] << ' ' << result[2][2] << ' ' << result[3][3] << std::endl;
+
+  EXPECT_EQ(result, expected);
+}
+
+THEN("^A \\* b = <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)> is a position$")
+{
+  REGEX_PARAM(float, x);
+  REGEX_PARAM(float, y);
+  REGEX_PARAM(float, z);
+  REGEX_PARAM(float, w);
+  ScenarioScope<MatrixCtx> context;
+  glm::vec4 expected(x,y,z,w);
+  glm::vec4 result = context->mat * context->pos;
 
   EXPECT_EQ(result, expected);
 }
