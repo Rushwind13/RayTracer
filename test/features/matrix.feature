@@ -131,3 +131,40 @@ Feature: Matrix
 
     Scenario: identity transpose is itself
        Then I = IT
+
+   Scenario: invert trivial matrix
+     Given the following matrix A:
+       |  x  |  y  |  z  |  w  |
+       |  4  |  0  |  0  | -2.5|
+       |  0  |  4  |  0  |  0  |
+       |  0  |  0  |  4  | -5  |
+       |  0  |  0  |  0  |  1  |
+     Then A-1 the inverse of A is the following matrix
+       |  x  |  y  |  z  |  w   |
+       | 0.25| 0   | 0   | 0.625|
+       | 0   | 0.25| 0   | 0    |
+       | 0   | 0   | 0.25| 1.25 |
+       | 0   | 0   | 0   | 1    |
+
+   Scenario: invert matrix
+     Given the following matrix A:
+       |  x  |  y  |  z  |  w  |
+       |  1  |  2  |  3  |  4  |
+       |  2  |  4  |  4  |  2  |
+       |  8  |  6  |  4  |  1  |
+       |  0  |  0  |  0  |  1  |
+     Then A-1 the inverse of A is the following matrix
+       |  x  |  y  |  z  |  w   |
+       | 0.4 |-0.5 | 0.2 |-0.8  |
+       |-1.2 | 1   |-0.1 | 2.9  |
+       | 1   |-0.5 | 0   |-3    |
+       | 0   | 0   | 0   | 1    |
+
+   Scenario: a matrix multiplied by its inverse is the identity matrix
+     Given the following matrix A:
+       |  x  |  y  |  z  |  w  |
+       |  1  |  2  |  3  |  4  |
+       |  2  |  4  |  4  |  2  |
+       |  8  |  6  |  4  |  1  |
+       |  0  |  0  |  0  |  1  |
+      Then A-1 * A = I

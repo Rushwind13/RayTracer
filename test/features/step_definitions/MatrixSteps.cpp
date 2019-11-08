@@ -187,3 +187,62 @@ THEN("^I = IT$")
     ScenarioScope<MatrixCtx> context;
     EXPECT_EQ(context->id, glm::transpose(context->id));
 }
+
+THEN("^A-1 the inverse of A is the following matrix$")
+{
+  TABLE_PARAM(table);
+  ScenarioScope<MatrixCtx> context;
+  glm::mat4 expected = parseMatrix(table);
+  glm::inverse(context->mat);
+  glm::mat4 actual = context->mat;
+
+  bool result = false;
+  float EPSILON = 0.00001;
+  for( int i=0; i < 4; i++)
+  {
+      if( glm::length(expected[i]-actual[i]) < EPSILON )
+      {
+          result = true;
+      }
+      else
+      {
+          printvec("e", expected[i]);
+          std::cout << std::endl;
+          printvec("a", actual[i]);
+          std::cout << std::endl;
+          result = false;
+          break;
+      }
+  }
+
+  EXPECT_EQ(result, true);
+}
+
+THEN("^A-1 \\* A = I$")
+{
+    ScenarioScope<MatrixCtx> context;
+    glm::mat4 expected = context->id;
+    glm::mat4 actual = glm::inverse(context->mat) * context->mat;
+
+    bool result = false;
+    float EPSILON = 0.00001;
+    for( int i=0; i < 4; i++)
+    {
+        if( glm::length(expected[i]-actual[i]) < EPSILON )
+        {
+            result = true;
+        }
+        else
+        {
+            printvec("e", expected[i]);
+            std::cout << std::endl;
+            printvec("a", actual[i]);
+            std::cout << std::endl;
+            result = false;
+            break;
+        }
+    }
+
+    EXPECT_EQ(result, true);
+    // EXPECT_EQ(result, expected);
+}
