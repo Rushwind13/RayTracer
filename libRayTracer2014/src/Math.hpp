@@ -21,6 +21,16 @@ const float deg2rad = tau / 360.0;
 
 typedef glm::vec3 Color;
 typedef glm::vec3 Position;
+// class Position : public glm::vec4
+// {
+// public:
+//     Position(float _x, float _y, float _z){ x=_x; y=_y; z=_z; w=1.0; };
+//     Position(glm::vec3 v){ x=v.x; y=v.y; z=v.z; w=1.0; };
+//     Position(glm::vec4 v){ x=v.x; y=v.y; z=v.z; w=1.0; };
+//     Position(){ x=y=z=0.0; w=1.0; };
+//     Position(float _s){ x=y=z=_s; w=1.0; };
+//     Position(const Position &p) {x=p.x; y=p.y; z=p.z; w=1.0; };
+// };
 
 void printvec( const std::string label, const glm::vec3 vec )
 {

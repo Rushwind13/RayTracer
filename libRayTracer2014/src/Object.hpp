@@ -165,7 +165,7 @@ public:
 			return false;
 		}
 
-		glm::vec3 dt = r.direction * i.distance;
+		Position dt = r.direction * i.distance;
 
 		//i.object = reinterpret_cast<const Object *>(this);
 		i.oid = oid;
@@ -186,7 +186,7 @@ public:
 		return true;
 	}
 protected:
-	glm::vec3 center;
+	Position center;
 	float radius, radius2;
 };
 
