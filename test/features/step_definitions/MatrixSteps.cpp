@@ -14,31 +14,42 @@ struct MatrixCtx
   glm::mat4 id = glm::mat4(1);
 };
 
+glm::mat4 parseMatrix( const ::cucumber::internal::Table & _table )
+{
+    glm::mat4 result;
+
+    // Note that I'm reading rows here...
+    const ::cucumber::internal::Table::hashes_type & rows = _table.hashes();
+    int col = 0;
+    for (::cucumber::internal::Table::hashes_type::const_iterator it = rows.begin(); it != rows.end(); ++it)
+    {
+        float x = ::cucumber::internal::fromString<float>(it->at("x"));
+        float y = ::cucumber::internal::fromString<float>(it->at("y"));
+        float z = ::cucumber::internal::fromString<float>(it->at("z"));
+        float w = ::cucumber::internal::fromString<float>(it->at("w"));
+
+        // ...but filling the glm::mat4 column-by-column.
+        // sigh, this is the way I know how to fill this matrix class, so...
+        result[col++] = glm::vec4(x,y,z,w);
+    }
+    // ...I have to transpose the result *eyeroll*
+    return glm::transpose(result);
+}
+
 GIVEN("^the following matrix ([MAB]):$")
 {
   REGEX_PARAM(char, name);
   TABLE_PARAM(table);
   ScenarioScope<MatrixCtx> context;
-  glm::mat4 input;
-  const table_hashes_type & rows = table.hashes();
-  int col = 0;
-  for (table_hashes_type::const_iterator it = rows.begin(); it != rows.end(); ++it)
-  {
-      float x = ::cucumber::internal::fromString<float>(it->at("x"));
-      float y = ::cucumber::internal::fromString<float>(it->at("y"));
-      float z = ::cucumber::internal::fromString<float>(it->at("z"));
-      float w = ::cucumber::internal::fromString<float>(it->at("w"));
-
-      input[col++] = glm::vec4(x,y,z,w);
-  }
+  glm::mat4 input = parseMatrix(table);
   switch(name)
   {
     case 'M':
     case 'A':
-      context->mat = glm::transpose(input);
+      context->mat = input;
       break;
     case 'B':
-      context->mat_b = glm::transpose(input);
+      context->mat_b = input;
       break;
   }
 }
@@ -127,20 +138,7 @@ THEN("^A \\* B is the following 4x4 matrix:$")
 {
   TABLE_PARAM(table);
   ScenarioScope<MatrixCtx> context;
-  glm::mat4 expected;
-  const table_hashes_type & rows = table.hashes();
-  int col = 0;
-  for (table_hashes_type::const_iterator it = rows.begin(); it != rows.end(); ++it)
-  {
-      float x = ::cucumber::internal::fromString<float>(it->at("x"));
-      float y = ::cucumber::internal::fromString<float>(it->at("y"));
-      float z = ::cucumber::internal::fromString<float>(it->at("z"));
-      float w = ::cucumber::internal::fromString<float>(it->at("w"));
-
-      expected[col++] = glm::vec4(x,y,z,w);
-  }
-  expected = glm::transpose(expected);
-
+  glm::mat4 expected = parseMatrix(table);
   glm::mat4 result = context->mat * context->mat_b;
   // std::cout << result[0][0] << ' ' << result[1][1] << ' ' << result[2][2] << ' ' << result[3][3] << std::endl;
 
@@ -165,4 +163,27 @@ THEN("^A \\* I = A$")
     ScenarioScope<MatrixCtx> context;
     glm::mat4 result = context->mat * context->id;
     EXPECT_EQ(result, context->mat);
+}
+
+THEN("^I \\* b = b$")
+{
+    ScenarioScope<MatrixCtx> context;
+    glm::vec4 result = context->id * context->pos;
+    EXPECT_EQ(result, context->pos);
+}
+
+THEN("^M transpose, MT, is the following matrix")
+{
+  TABLE_PARAM(table);
+  ScenarioScope<MatrixCtx> context;
+  glm::mat4 expected = parseMatrix(table);
+  glm::mat4 result = glm::transpose(context->mat);
+
+  EXPECT_EQ(result, expected);
+}
+
+THEN("^I = IT$")
+{
+    ScenarioScope<MatrixCtx> context;
+    EXPECT_EQ(context->id, glm::transpose(context->id));
 }

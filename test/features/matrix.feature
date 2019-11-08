@@ -110,3 +110,24 @@ Feature: Matrix
         |  8  |  6  |  4  |  1  |
         |  0  |  0  |  0  |  1  |
       Then A * I = A
+
+    Scenario: multiply position by identity matrix
+        Given the following position <1,2,3,1>
+        Then I * b = b
+
+    Scenario: transpose matrix
+      Given the following matrix A:
+        |  x  |  y  |  z  |  w  |
+        |  1  |  2  |  3  |  4  |
+        |  2  |  4  |  4  |  2  |
+        |  8  |  6  |  4  |  1  |
+        |  0  |  0  |  0  |  1  |
+      Then M transpose, MT, is the following matrix
+        |  x  |  y  |  z  |  w  |
+        |  1  |  2  |  8  |  0  |
+        |  2  |  4  |  6  |  0  |
+        |  3  |  4  |  4  |  0  |
+        |  4  |  2  |  1  |  1  |
+
+    Scenario: identity transpose is itself
+       Then I = IT
