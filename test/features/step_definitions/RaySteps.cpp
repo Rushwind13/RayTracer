@@ -13,7 +13,7 @@ struct RayCtx
   Ray result;
 };
 
-GIVEN("^I have a position ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
+GIVEN("^the following position ([0-9.-]+),([0-9.-]+),([0-9.-]+) = origin$")
 {
   REGEX_PARAM(double,x);
   REGEX_PARAM(double,y);
@@ -22,7 +22,7 @@ GIVEN("^I have a position ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
   context->origin = Position(x,y,z);
 }
 
-GIVEN("^I have a vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
+GIVEN("^the following vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) = direction$")
 {
   REGEX_PARAM(double,x);
   REGEX_PARAM(double,y);
