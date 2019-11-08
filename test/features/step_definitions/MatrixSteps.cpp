@@ -11,6 +11,7 @@ struct MatrixCtx
   glm::mat2 mat2;
   glm::mat4 mat_b;
   glm::vec4 pos;
+  glm::mat4 id = glm::mat4(1);
 };
 
 GIVEN("^the following matrix ([MAB]):$")
@@ -157,4 +158,11 @@ THEN("^A \\* b = <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)> is a position$")
   glm::vec4 result = context->mat * context->pos;
 
   EXPECT_EQ(result, expected);
+}
+
+THEN("^A \\* I = A$")
+{
+    ScenarioScope<MatrixCtx> context;
+    glm::mat4 result = context->mat * context->id;
+    EXPECT_EQ(result, context->mat);
 }

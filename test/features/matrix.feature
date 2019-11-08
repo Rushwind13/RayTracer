@@ -101,3 +101,12 @@ Feature: Matrix
       |  0  |  0  |  0  |  1  |
     And the following position <1,2,3,1>
     Then A * b = <18,24,33,1> is a position
+
+    Scenario: multiply matrix by identity matrix
+      Given the following matrix A:
+        |  x  |  y  |  z  |  w  |
+        |  1  |  2  |  3  |  4  |
+        |  2  |  4  |  4  |  2  |
+        |  8  |  6  |  4  |  1  |
+        |  0  |  0  |  0  |  1  |
+      Then A * I = A
