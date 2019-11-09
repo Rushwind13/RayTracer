@@ -358,16 +358,14 @@ THEN("^result.([xyzrgb]) should be ([0-9.-]+)$")
   // EXPECT_EQ(expected, compare);
 }
 
-THEN("^This is a vector$")
+THEN("^It is (a position|not a vector)$")
 {
-  ScenarioScope<TupleCtx> context;
-  Direction result = context->vec;
-  EXPECT_EQ(result.w, 0.0);
+    ScenarioScope<TupleCtx> context;
+    EXPECT_EQ(context->pos.w, 1.0);
 }
 
-THEN("^This is a position$")
+THEN("^It is (a vector|a color|not a position)$")
 {
-  ScenarioScope<TupleCtx> context;
-  Position result = context->pos;
-  EXPECT_EQ(result.w, 1.0);
+    ScenarioScope<TupleCtx> context;
+    EXPECT_EQ(context->vec.w, 0.0);
 }
