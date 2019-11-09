@@ -14,6 +14,11 @@ Feature: Tuples
         Then It is a vector
         Then It is not a position
 
+    Scenario: I can create colors
+        Given I have a color 1,2,3 in the data
+        Then It is a color
+        Then It is not a position
+
     Scenario: add vector to position
         Given I have a position 1,0,0 in the data
         And I have a vector 0,1,0 in the data
@@ -161,7 +166,7 @@ Feature: Tuples
         And I have a second position 2,3,4 in the data
         When I press dotprod_position
         Then the result should be 21 a float
-        And I'm not sure this is correct.
+        #And I'm not sure this is correct.
 
     Scenario: cross product of two vectors (axb)
         Given I have a vector 1,2,3 in the data
