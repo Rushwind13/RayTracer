@@ -43,7 +43,7 @@ public:
 
 	// Added from Intersection object (to hold onto during Shadow tests)
 	short oid; // object ID (all widgets will have same world data)
-	glm::vec3 normal; // Normal at hit point
+	Direction normal; // Normal at hit point
 	Position position; // intersection point
 	float distance; // distance along primary ray to intersection point.
 

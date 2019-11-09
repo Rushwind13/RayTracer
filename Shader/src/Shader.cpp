@@ -61,11 +61,11 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		// shouldn't it sometimes be below the surface during refraction? hmm.
 		Light *light = *it;
 
-		glm::vec3 vL;
+		Direction vL;
 		float light_dist;
 		lighting.vL(*light, i, vL, light_dist );
 
-		float NdotL = glm::dot( i.normal, vL );
+		float NdotL = glm::dot( (glm::vec4)i.normal, (glm::vec4)vL );
 
 		//   N.L < 0 = send off background color message
 		if( NdotL < (ambient.r + emissive.r) )

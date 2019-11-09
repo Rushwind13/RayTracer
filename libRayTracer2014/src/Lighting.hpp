@@ -16,15 +16,15 @@ public:
 	~Lighting() {}
 
 	// Vector from a given intersection point to a given light.
-	static inline void vL( Light light, Intersection hit, glm::vec3 &vL, float &light_dist )
+	static inline void vL( Light light, Intersection hit, Direction &vL, float &light_dist )
 	{
 		// Returns a normalized vector from the hit point to the light
 		vL = (light.position) - (hit.position);
-		light_dist = glm::length(vL);
+		light_dist = glm::length((glm::vec4)vL);
 		vL = vL / light_dist;
 	}
 
-	void Shadow( glm::vec3 vL, Intersection hit, Ray *ray )
+	void Shadow( Direction vL, Intersection hit, Ray *ray )
 	{
 		// create a ray
 		// where o = hit.position and d = a normalized vector pointing at the light;
