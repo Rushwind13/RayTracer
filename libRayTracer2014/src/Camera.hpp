@@ -50,14 +50,16 @@ public:
 		_tan = std::tan(angle*0.5);
 		half_height = height * 0.5;
 		half_width = width * 0.5;
+        printvec("eye", eye);
+        std::cout << std::endl;
 	}
 
 	void setup()
 	{
 		//		- create camera
 		// TODO: Need to implement a scene file
-		Direction _eye(0.0,0.0,0.0);
-		Direction _lookAt(0.0,0.0,-1.0);
+		Position _eye(0.0,0.0,0.0);
+		Position _lookAt(0.0,0.0,-1.0);
 		Direction _up(0.0,1.0,0.0);
 		float _fovy = 90.0;
 		float _width = 150.0;
@@ -95,7 +97,7 @@ public:
 			float a = ((2.0 * (i + 0.5) / width) - 1.0) * _tan * aspect_ratio;
 			float b = (1.0 - (2.0 * (j + 0.5 )) / height) * _tan;
 
-			Direction origin = eye;
+			Position origin = eye;
 			Direction direction = (a*u) - (b*v) - w;
 			direction = glm::normalize(direction);
 	#ifdef DEBUG
