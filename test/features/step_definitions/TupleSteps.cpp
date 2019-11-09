@@ -4,6 +4,13 @@
 #include <Math.hpp>
 using cucumber::ScenarioScope;
 
+
+/*#######
+##
+## CONTEXT
+##
+#######*/
+
 struct TupleCtx
 {
     Color col;
@@ -17,6 +24,13 @@ struct TupleCtx
     Color result_col;
     float result_b;
 };
+
+
+/*#######
+##
+## GIVEN
+##
+#######*/
 
 GIVEN("^I have a position ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
 {
@@ -74,10 +88,18 @@ GIVEN("^I have a second vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
   context->vec_b = Direction(x,y,z);
 }
 
+
+/*#######
+##
+## WHEN
+##
+#######*/
+
 WHEN("^I press add$")
 {
   ScenarioScope<TupleCtx> context;
 
+  context->result_b = context->pos.w;
   context->result_pos = context->pos + context->vec;
   // printvec("result", context->result_pos);
   // std::cout << std::endl;
@@ -100,7 +122,8 @@ WHEN("^I press add_color$")
 WHEN("^I press subtract$")
 {
   ScenarioScope<TupleCtx> context;
-
+  
+  context->result_b = context->pos.w;
   context->result_pos = context->pos - context->vec;
 }
 
@@ -144,8 +167,9 @@ WHEN("^I press scale_position ([0-9.-]+)$")
 {
   REGEX_PARAM(float,scalar);
   ScenarioScope<TupleCtx> context;
-
-  context->result_pos = context->pos * scalar;
+  std::cout << "s " << scalar << " ";
+  context->result_pos = (glm::vec4)context->pos * scalar;
+  printvec("resin", context->result_pos);
 }
 
 WHEN("^I press scale_color ([0-9.-]+)$")
@@ -177,6 +201,7 @@ WHEN("^I press divide_position ([0-9.-]+)$")
   ScenarioScope<TupleCtx> context;
 
   context->result_pos = context->pos / scalar;
+  context->result_b = context->pos.w;
 }
 
 WHEN("^I press magnitude$")
@@ -244,6 +269,13 @@ WHEN("^I press Color$")
   context->result_col = context->col;
 }
 
+
+/*#######
+##
+## THEN
+##
+#######*/
+
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
 {
   REGEX_PARAM(float,x);
@@ -262,7 +294,30 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
   // std::cout << std::endl;
 
   EXPECT_EQ(result, true);
-  EXPECT_EQ(context->result_pos.w, 1.0);
+  // EXPECT_EQ(context->result_pos.w, 1.0);
+}
+
+
+THEN("^Results in ([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
+{
+  REGEX_PARAM(float,x);
+  REGEX_PARAM(float,y);
+  REGEX_PARAM(float,z);
+  REGEX_PARAM(float,w);
+  Position expected(x,y,z,w);
+  ScenarioScope<TupleCtx> context;
+
+  bool result = false;
+  float EPSILON = 0.00001;
+  if( glm::length(expected - context->result_pos) < EPSILON )
+  {
+      result = true;
+  }
+  // printvec("->", context->result_pos);
+  // std::cout << std::endl;
+
+  EXPECT_EQ(result, true);
+  // EXPECT_EQ(context->result_pos.w, 1.0);
 }
 
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
@@ -281,7 +336,7 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
   }
 
   EXPECT_EQ(result, true);
-  EXPECT_EQ(context->result.w, 0.0);
+  // EXPECT_EQ(context->result.w, 0.0);
 }
 
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a color$")
@@ -300,7 +355,7 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a color$")
   }
 
   EXPECT_EQ(result, true);
-  EXPECT_EQ(context->result_col.w, 0.0);
+  // EXPECT_EQ(context->result_col.w, 0.0);
 }
 
 
@@ -358,14 +413,56 @@ THEN("^result.([xyzrgb]) should be ([0-9.-]+)$")
   // EXPECT_EQ(expected, compare);
 }
 
+THEN("^Result is (a position|not a vector)$")
+{
+    ScenarioScope<TupleCtx> context;
+    EXPECT_NE(context->result_pos.w, 0.0);
+    printvec("resout", context->result_pos);
+    std::cout << std::endl;
+}
+
 THEN("^It is (a position|not a vector)$")
 {
     ScenarioScope<TupleCtx> context;
-    EXPECT_EQ(context->pos.w, 1.0);
+    EXPECT_NE(context->pos.w, 0.0);
 }
 
 THEN("^It is (a vector|a color|not a position)$")
 {
     ScenarioScope<TupleCtx> context;
     EXPECT_EQ(context->vec.w, 0.0);
+}
+
+THEN("^The scale did not change$")
+{
+    ScenarioScope<TupleCtx> context;
+    float expected = context->result_b;
+    float compare = context->result_pos.w;
+
+    bool result = false;
+    float EPSILON = 0.00001;
+    if( glm::abs(expected - compare) < EPSILON )
+    {
+      result = true;
+    }
+
+    EXPECT_EQ(result, true);
+    // EXPECT_EQ(expected, compare);
+}
+
+THEN("^The scale changed to ([0-9.-]+)$")
+{
+    REGEX_PARAM(float, expected);
+    ScenarioScope<TupleCtx> context;
+    float compare = context->result_pos.w;
+
+    bool result = false;
+    float EPSILON = 0.00001;
+    if( glm::abs(expected - compare) < EPSILON )
+    {
+      result = true;
+    }
+
+    EXPECT_EQ(result, true);
+    // EXPECT_EQ(expected, compare);
 }

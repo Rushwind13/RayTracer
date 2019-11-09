@@ -20,6 +20,7 @@ Feature: Tuples
         When I press add
         Then the result should be 1,1,0 a position
         And It is a position
+        And The scale did not change
 
     Scenario: add two vectors
         Given I have a vector 1,0,0 in the data
@@ -41,6 +42,7 @@ Feature: Tuples
         When I press subtract
         Then the result should be -2,-4,-6 a position
         And It is a position
+        And The scale did not change
 
     Scenario: subtract two vectors
         Given I have a vector 3,2,1 in the data
@@ -71,8 +73,9 @@ Feature: Tuples
     Scenario: multiply position by a scalar
         Given I have a position 1,-2,3 in the data
         When I press scale_position 3.5
-        Then the result should be 3.5,-7,10.5 a position
-        And It is a position
+        Then Results in 3.5,-7,10.5,3.5 a position
+        And Result is a position
+        And The scale changed to 3.5
 
     Scenario: multiply vector by a fractional scalar
         Given I have a vector 1,-2,3 in the data
@@ -83,8 +86,9 @@ Feature: Tuples
     Scenario: multiply position by a fractional scalar
         Given I have a position 1,-2,3 in the data
         When I press scale_position 0.5
-        Then the result should be 0.5,-1,1.5 a position
+        Then Results in 0.5,-1,1.5,0.5 a position
         And It is a position
+        And The scale changed to 0.5
 
     Scenario: divide vector by a scalar
         Given I have a vector 1,-2,3 in the data
@@ -95,8 +99,9 @@ Feature: Tuples
     Scenario: divide position by a scalar
         Given I have a position 1,-2,3 in the data
         When I press divide_position 2
-        Then the result should be 0.5,-1,1.5 a position
+        Then Results in 0.5,-1,1.5,0.5 a position
         And It is a position
+        And The scale changed to 0.5
 
     Scenario: magnitude of vector (1,0,0)
         Given I have a vector 1,0,0 in the data
