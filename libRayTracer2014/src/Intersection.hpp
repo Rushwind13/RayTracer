@@ -32,7 +32,7 @@ public:
 	bool gothit; //.
 	bool anyhit;
 	short oid; //.
-	glm::vec3 normal; //.
+	Direction normal; //.
 	Position position; //.
 	float distance; //.
 	// TODO: vec2 texture coordinates;

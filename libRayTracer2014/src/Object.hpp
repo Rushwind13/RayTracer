@@ -91,7 +91,7 @@ public:
 class Sphere : public Object
 {
 public:
-	Sphere( /*const mat4 o2w,*/ glm::vec3 c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
+	Sphere( /*const mat4 o2w,*/ Position c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
 	{
 			color = COLOR_RED;
 	}
@@ -131,9 +131,9 @@ public:
 
 		//printvec( "o", r.origin );
 		//printvec( "d", r.direction );
-		glm::vec3 oc = r.origin - center;
-		float DdotOC = glm::dot( r.direction, oc );
-		float len2 = glm::dot(oc, oc);
+		Direction oc = r.origin - center;
+		float DdotOC = glm::dot( (glm::vec4)r.direction, (glm::vec4)oc );
+		float len2 = glm::dot((glm::vec4)oc, (glm::vec4)oc);
 
 		//std::cout << DdotOC << std::endl;
 

@@ -8,7 +8,7 @@ using cucumber::ScenarioScope;
 struct RayCtx
 {
   Position origin;
-  glm::vec3 direction;
+  Direction direction;
   Ray ray;
   Ray result;
 };
@@ -28,7 +28,7 @@ GIVEN("^the following vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) = direction$")
   REGEX_PARAM(double,y);
   REGEX_PARAM(double,z);
   ScenarioScope<RayCtx> context;
-  context->direction = glm::vec3(x,y,z);
+  context->direction = Direction(x,y,z);
 }
 
 WHEN("^I press Ray$")
@@ -63,12 +63,12 @@ THEN("^the direction should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
   REGEX_PARAM(double,x);
   REGEX_PARAM(double,y);
   REGEX_PARAM(double,z);
-  glm::vec3 expected(x,y,z);
+  Direction expected(x,y,z);
   ScenarioScope<RayCtx> context;
 
   bool result = false;
   float EPSILON = 0.00001;
-  if( glm::length(expected - context->result.direction) < EPSILON )
+  if( glm::length((glm::vec4)expected - (glm::vec4)context->result.direction) < EPSILON )
   {
       result = true;
   }
@@ -83,11 +83,11 @@ THEN("^the length should be ([0-9.-]+) a float$")
   ScenarioScope<RayCtx> context;
   bool result = false;
   float EPSILON = 0.00001;
-  if( glm::abs(expected - glm::length(context->result.direction)) < EPSILON )
+  if( glm::abs(expected - glm::length((glm::vec4)context->result.direction)) < EPSILON )
   {
       result = true;
   }
 
   // EXPECT_EQ(result, true);
-  EXPECT_EQ(expected, glm::length(context->result.direction));
+  EXPECT_EQ(expected, glm::length((glm::vec4)context->result.direction));
 }

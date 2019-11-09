@@ -38,21 +38,21 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	diffuse = obj->color * pixel.NdotL;
 
 	float s = 100.0f; // TODO: shininess should come from the object definition
-	glm::vec3 vV = glm::normalize(pixel.primaryRay.origin - pixel.position);
-	glm::vec3 vL = glm::normalize(light->position - pixel.position);
+	Direction vV = glm::normalize(pixel.primaryRay.origin - pixel.position);
+	Direction vL = glm::normalize(light->position - pixel.position);
 	float cosTheta = 0.0;
 //#define PHONG
 #define PHONGBLINN
 #ifdef PHONGBLINN
 	// Specular (Phong-Blinn)
-	glm::vec3 vH = glm::normalize(vL + vV);
-	cosTheta = glm::dot( pixel.normal, vH );
+	Direction vH = glm::normalize(vL + vV);
+	cosTheta = glm::dot( (glm::vec4)pixel.normal, (glm::vec4)vH );
 	s *= 4.0f; // Blinn causes a larger spot compared to Phong; 4x change in shininess fixes it.
 #endif /* PHONGBLINN */
 #ifdef PHONG
 	// Specular (Phong)
-	glm::vec3 vR = ReflectVector( vL, pixel.normal );
-	cosTheta = glm::dot( vV, vR );
+	Direction vR = ReflectVector( vL, pixel.normal );
+	cosTheta = glm::dot( (glm::vec4)vV, (glm::vec4)vR );
 #endif /* PHONG */
 #ifdef DEBUG
 	//std::cout << glm::length(pixel.normal) << std::endl;

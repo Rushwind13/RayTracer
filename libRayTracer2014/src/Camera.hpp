@@ -27,14 +27,14 @@ public:
 	 */
 	Position eye;
 	Position lookAt;
-	glm::vec3 up;
+	Direction up;
 
 	// I'm torn about whether the viewport size should be here or somewhere else.
 	unsigned int width, height;
 
 	float fovy;
 
-	Camera(Position _eye, Position _lookAt, glm::vec3 _up, float _fovy, float _width, float _height):
+	Camera(Position _eye, Position _lookAt, Direction _up, float _fovy, float _width, float _height):
 		eye(_eye), lookAt(_lookAt), up(_up), width (_width), height(_height), fovy(_fovy)
 	{
 		init();
@@ -56,13 +56,13 @@ public:
 	{
 		//		- create camera
 		// TODO: Need to implement a scene file
-		glm::vec3 _eye(0.0,0.0,0.0);
-		glm::vec3 _lookAt(0.0,0.0,-1.0);
-		glm::vec3 _up(0.0,1.0,0.0);
+		Direction _eye(0.0,0.0,0.0);
+		Direction _lookAt(0.0,0.0,-1.0);
+		Direction _up(0.0,1.0,0.0);
 		float _fovy = 90.0;
-		/*float _width = 150.0;
+		float _width = 150.0;
 		float _height = 100.0;/**/
-		float _width = 600.0;
+		/*float _width = 600.0;
 		float _height = 400.0;/**/
 
 		eye = _eye;
@@ -95,8 +95,8 @@ public:
 			float a = ((2.0 * (i + 0.5) / width) - 1.0) * _tan * aspect_ratio;
 			float b = (1.0 - (2.0 * (j + 0.5 )) / height) * _tan;
 
-			glm::vec3 origin = eye;
-			glm::vec3 direction = (a*u) - (b*v) - w;
+			Direction origin = eye;
+			Direction direction = (a*u) - (b*v) - w;
 			direction = glm::normalize(direction);
 	#ifdef DEBUG
 			std::cout << "(" << i << "," << j << ") ";

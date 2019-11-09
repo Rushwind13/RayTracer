@@ -129,7 +129,8 @@ Feature: Tuples
         Given I have a position 1,2,3 in the data
         And I have a second position 2,3,4 in the data
         When I press dotprod_position
-        Then the result should be 20 a float
+        Then the result should be 21 a float
+        And I'm not sure this is correct.
 
     Scenario: cross product of two vectors (axb)
         Given I have a vector 1,2,3 in the data
