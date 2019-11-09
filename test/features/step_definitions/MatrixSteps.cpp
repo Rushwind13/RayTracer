@@ -193,8 +193,7 @@ THEN("^A-1 the inverse of A is the following matrix$")
   TABLE_PARAM(table);
   ScenarioScope<MatrixCtx> context;
   glm::mat4 expected = parseMatrix(table);
-  glm::inverse(context->mat);
-  glm::mat4 actual = context->mat;
+  glm::mat4 actual = glm::inverse(context->mat);
 
   bool result = false;
   float EPSILON = 0.00001;
