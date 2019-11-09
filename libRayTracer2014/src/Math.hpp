@@ -19,17 +19,26 @@
 const float tau = 6.283185307179586;
 const float deg2rad = tau / 360.0;
 
-typedef glm::vec3 Color;
+
+void printvec( const std::string label, const glm::vec3 vec )
+{
+	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  ";
+}
+void printvec( const std::string label, const glm::vec4 vec )
+{
+	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  " << vec.w << "  ";
+}
+// typedef glm::vec3 Color;
 // typedef glm::vec3 Position;
 class Position : public glm::vec4
 {
 public:
-    Position(float _x, float _y, float _z){ x=_x; y=_y; z=_z; w=1.0; };
+    Position(float _x, float _y, float _z){ x=_x; y=_y; z=_z; w=1.0; /*printvec("<-xyz", *(this));/**/};
     Position(glm::vec3 v){ x=v.x; y=v.y; z=v.z; w=1.0; };
     Position(glm::vec4 v){ x=v.x; y=v.y; z=v.z; w=1.0; };
     Position(){ x=y=z=0.0; w=1.0; };
     Position(float _s){ x=y=z=_s; w=1.0; };
-    Position(const Position &p) {x=p.x; y=p.y; z=p.z; w=1.0; };
+    Position(const Position &p) {x=p.x; y=p.y; z=p.z; w=1.0; /*printvec("<-Position", *(this));/**/};
 };
 class Direction : public glm::vec4
 {
@@ -41,11 +50,16 @@ public:
     Direction(float _s){ x=y=z=_s; w=0.0; };
     Direction(const Direction &p) {x=p.x; y=p.y; z=p.z; w=0.0; };
 };
-
-void printvec( const std::string label, const Direction vec )
+class Color : public glm::vec4
 {
-	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  ";
-}
+public:
+    Color(float _r, float _g, float _b){ r=_r; g=_g; b=_b; w=0.0; };
+    Color(glm::vec3 v){ r=v.r; g=v.g; b=v.b; w=0.0; };
+    Color(glm::vec4 v){ r=v.r; g=v.g; b=v.b; w=0.0; };
+    Color(){ r=g=b=0.0; w=0.0; };
+    Color(float _s){ r=g=b=_s; w=0.0; };
+    Color(const Color &c){ r=c.r; g=c.g; b=c.b; w=0.0;/*printvec("<-Color", *(this));/**/};
+};
 
 Direction ReflectVector(const Direction vIncident, const Direction vNormal) {
 	// vR = vI - [2 * (N . I)]N
@@ -85,7 +99,7 @@ inline float lerp(const float point, const float min, const float max)
 	return point / (max - min);
 }
 
-#define MPACK(vec) vec.x, vec.y, vec.z
+#define MPACK(vec) vec.x, vec.y, vec.z, vec.w
 
 class Ray {
 public:

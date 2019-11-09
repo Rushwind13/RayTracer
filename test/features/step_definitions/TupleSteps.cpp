@@ -25,6 +25,7 @@ GIVEN("^I have a position ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
   REGEX_PARAM(float,z);
   ScenarioScope<TupleCtx> context;
   context->pos = Position(x,y,z);
+  // printvec("pos", context->pos);
 }
 
 GIVEN("^I have a second position ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
@@ -61,6 +62,7 @@ GIVEN("^I have a vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
   REGEX_PARAM(float,z);
   ScenarioScope<TupleCtx> context;
   context->vec = Direction(x,y,z);
+  // printvec("vec", context->vec);
 }
 
 GIVEN("^I have a second vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) in the data$")
@@ -77,6 +79,8 @@ WHEN("^I press add$")
   ScenarioScope<TupleCtx> context;
 
   context->result_pos = context->pos + context->vec;
+  // printvec("result", context->result_pos);
+  // std::cout << std::endl;
 }
 
 WHEN("^I press add_vector$")
@@ -90,7 +94,7 @@ WHEN("^I press add_color$")
 {
   ScenarioScope<TupleCtx> context;
 
-  context->result = context->col_b + context->col;
+  context->result_col = context->col_b + context->col;
 }
 
 WHEN("^I press subtract$")
@@ -118,7 +122,7 @@ WHEN("^I press subtract_color$")
 {
   ScenarioScope<TupleCtx> context;
 
-  context->result = context->col - context->col_b;
+  context->result_col = context->col - context->col_b;
 }
 
 WHEN("^I press negate_vector$")
@@ -149,7 +153,7 @@ WHEN("^I press scale_color ([0-9.-]+)$")
   REGEX_PARAM(float,scalar);
   ScenarioScope<TupleCtx> context;
 
-  context->result = context->col * scalar;
+  context->result_col = context->col * scalar;
 }
 
 WHEN("^I press divide_vector ([0-9.-]+)$")
@@ -164,7 +168,7 @@ WHEN("^I press multiply_color$")
 {
   ScenarioScope<TupleCtx> context;
 
-  context->result = context->col * context->col_b;
+  context->result_col = context->col * context->col_b;
 }
 
 WHEN("^I press divide_position ([0-9.-]+)$")
@@ -254,9 +258,11 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
   {
       result = true;
   }
+  // printvec("->", context->result_pos);
+  // std::cout << std::endl;
 
   EXPECT_EQ(result, true);
-  EXPECT_EQ(context->result.w, 1.0);
+  EXPECT_EQ(context->result_pos.w, 1.0);
 }
 
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
@@ -275,6 +281,7 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
   }
 
   EXPECT_EQ(result, true);
+  EXPECT_EQ(context->result.w, 0.0);
 }
 
 THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a color$")
@@ -293,6 +300,7 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a color$")
   }
 
   EXPECT_EQ(result, true);
+  EXPECT_EQ(context->result_col.w, 0.0);
 }
 
 
@@ -330,13 +338,13 @@ THEN("^result.([xyzrgb]) should be ([0-9.-]+)$")
         compare = context->result.z;
         break;
     case 'r':
-        compare = context->result.r;
+        compare = context->result_col.r;
         break;
     case 'g':
-        compare = context->result.g;
+        compare = context->result_col.g;
         break;
     case 'b':
-        compare = context->result.b;
+        compare = context->result_col.b;
         break;
     }
   bool result = false;
