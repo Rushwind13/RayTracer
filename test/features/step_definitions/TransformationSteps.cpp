@@ -14,14 +14,20 @@ GIVEN("^I create a translation matrix$")
 {
   ScenarioScope<TestCtx> context;
   context->mat = TranslateMatrix(context->pos);
-  // printvec("v->", context->pos);
-  // printvec("<-m", context->mat[3]);
 }
 
 GIVEN("^I create a scaling matrix$")
 {
   ScenarioScope<TestCtx> context;
   context->mat = ScaleMatrix(context->pos);
+}
+
+GIVEN("^I create a rotation matrix ([0-9.-]+) degrees about ([XYZ])$")
+{
+  REGEX_PARAM(float, degrees);
+  REGEX_PARAM(char, axis);
+  ScenarioScope<TestCtx> context;
+  context->mat = RotateMatrix(degrees, axis);
   // printvec("v->", context->pos);
   // printvec("<-m", context->mat[3]);
 }

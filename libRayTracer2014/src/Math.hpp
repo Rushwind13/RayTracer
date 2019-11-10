@@ -115,6 +115,38 @@ glm::mat4 ScaleMatrix( const Position translate )
 	return result;
 }
 
+glm::mat4 RotateMatrix( const float degrees, const char axis )
+{
+	glm::mat4 result(1.0);
+	float angle = degrees * deg2rad;
+  float sin = glm::sin(angle);
+  float cos = glm::cos(angle);
+
+	switch(axis)
+	{
+		case 'X':
+			result[1][1] = cos;
+			result[2][1] = -sin;
+			result[1][2] = sin;
+			result[2][2] = cos;
+			break;
+		case 'Y':
+			result[0][0] = cos;
+			result[2][0] = sin;
+			result[0][2] = -sin;
+			result[2][2] = cos;
+			break;
+		case 'Z':
+			result[0][0] = cos;
+			result[1][0] = -sin;
+			result[0][1] = sin;
+			result[1][1] = cos;
+			break;
+	}
+
+	return result;
+}
+
 inline float lerp(const float point, const float min, const float max)
 {
 	return point / (max - min);

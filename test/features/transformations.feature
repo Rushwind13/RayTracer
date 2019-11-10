@@ -71,3 +71,32 @@ Feature: Matrix Transformations
     Then the result should be -2,3,4 a position
     And It is a position
     And The scale did not change
+## Rotation
+  Scenario: Rotate a point around the X axis
+    Given I create a rotation matrix 90 degrees about X
+    When I transform the position 0,1,0 with A
+    Then the result should be 0,0,1 a position
+    And It is a position
+    And The scale did not change
+
+  Scenario: The inverse of a rotation rotates in the opposite direction
+    Given I create a rotation matrix 90 degrees about X
+    When I invert the matrix A
+    When I transform the position 0,1,0 with R
+    Then the result should be 0,0,-1 a position
+    And It is a position
+    And The scale did not change
+
+  Scenario: Rotate a point around the Y axis
+    Given I create a rotation matrix 90 degrees about Y
+    When I transform the position 0,0,1 with A
+    Then the result should be 1,0,0 a position
+    And It is a position
+    And The scale did not change
+
+  Scenario: Rotate a point around the Z axis
+    Given I create a rotation matrix 90 degrees about Z
+    When I transform the position 0,1,0 with A
+    Then the result should be -1,0,0 a position
+    And It is a position
+    And The scale did not change
