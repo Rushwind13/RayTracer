@@ -65,3 +65,15 @@ THEN("^the length should be ([0-9.-]+) a float$")
   EXPECT_EQ(expected, context->result_ray.length);
   EXPECT_EQ(glm::length((glm::vec4)context->result_ray.direction), 1.0);
 }
+
+THEN("^position r,([0-9.-]+) = ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
+{
+    REGEX_PARAM(float, t);
+    REGEX_PARAM(float, x);
+    REGEX_PARAM(float, y);
+    REGEX_PARAM(float, z);
+    ScenarioScope<TestCtx> context;
+    Position expected(x,y,z);
+
+    context->result_pos = context->ray.origin + (context->ray.direction * t);
+}
