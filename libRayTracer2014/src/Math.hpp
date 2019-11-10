@@ -104,6 +104,17 @@ glm::mat4 TranslateMatrix( const Position translate )
 	return result;
 }
 
+glm::mat4 ScaleMatrix( const Position translate )
+{
+	glm::mat4 result(1.0);
+	result[0][0] = translate.x;
+	result[1][1] = translate.y;
+	result[2][2] = translate.z;
+	result[3][3] = translate.w;
+
+	return result;
+}
+
 inline float lerp(const float point, const float min, const float max)
 {
 	return point / (max - min);
