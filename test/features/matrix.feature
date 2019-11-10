@@ -99,7 +99,7 @@ Feature: Matrix
       |  2  |  4  |  4  |  2  |
       |  8  |  6  |  4  |  1  |
       |  0  |  0  |  0  |  1  |
-    And the following position <1,2,3,1>
+    And I have a position <1,2,3,1> in the data
     Then A * b = <18,24,33,1> is a position
 
     Scenario: multiply matrix by identity matrix
@@ -112,7 +112,7 @@ Feature: Matrix
       Then A * I = A
 
     Scenario: multiply position by identity matrix
-        Given the following position <1,2,3,1>
+        Given I have a position <1,2,3,1> in the data
         Then I * b = b
 
     Scenario: transpose matrix

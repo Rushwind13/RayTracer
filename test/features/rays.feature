@@ -5,8 +5,8 @@ Feature: Rays
     I want to do lots of math with Rays
 
     Scenario: create a Ray
-        Given the following position 0,0,0 = origin
-        And the following vector 0,0,-1 = direction
+        Given I have a position 0,0,0 in the data
+        And I have a vector 0,0,-1 in the data
         When I press Ray
         Then the origin should be 0,0,0 a position
         Then the direction should be 0,0,-1 a vector

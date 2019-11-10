@@ -11,11 +11,7 @@
 #include <cmath>
 
 #include "glm/glm.hpp"
-//using namespace glm;
-/*typedef glm::mat3 mat3 ;
- typedef glm::mat4 mat4 ;
- typedef glm::vec3 vec3 ;
- typedef glm::vec4 vec4 ;/**/
+
 const float tau = 6.283185307179586;
 const float deg2rad = tau / 360.0;
 
@@ -28,8 +24,14 @@ void printvec( const std::string label, const glm::vec4 vec )
 {
 	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  " << vec.w << "  ";
 }
-// typedef glm::vec3 Color;
-// typedef glm::vec3 Position;
+void printmat( const std::string label, const glm::mat4 mat )
+{
+	printvec(label, mat[0]); std::cout << std::endl;
+	printvec(label, mat[1]); std::cout << std::endl;
+	printvec(label, mat[2]); std::cout << std::endl;
+	printvec(label, mat[3]); std::cout << std::endl;
+}
+
 class Position : public glm::vec4
 {
 public:
@@ -94,6 +96,14 @@ Direction RefractVector(const Direction vIncident, const Direction vNormal, cons
 	return vRefracted;
 }
 
+glm::mat4 TranslateMatrix( const Position translate )
+{
+	glm::mat4 result(1.0);
+	result[3] = (glm::vec4)translate;
+
+	return result;
+}
+
 inline float lerp(const float point, const float min, const float max)
 {
 	return point / (max - min);
@@ -110,7 +120,7 @@ public:
 
 	Ray(Position o, Direction d) :
 			direction(d), origin(o) {
-		length = direction.length();
+		length = glm::length((glm::vec4)direction);
 		direction = glm::normalize(direction);
 	}
 
