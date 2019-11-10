@@ -10,24 +10,75 @@ using cucumber::ScenarioScope;
 ## GIVEN
 ##
 #######*/
-GIVEN("^I create a translation matrix$")
+GIVEN("^I create a translation matrix ([MABCR])$")
 {
+  REGEX_PARAM(char, name);
   ScenarioScope<TestCtx> context;
-  context->mat = TranslateMatrix(context->pos);
+  glm::mat4 input = TranslateMatrix(context->pos);
+  switch(name)
+  {
+      case 'M':
+      case 'A':
+        context->mat = input;
+        break;
+      case 'B':
+        context->mat_b = input;
+        break;
+      case 'C':
+        context->mat_c = input;
+        break;
+      case 'R':
+        context->result_mat = input;
+        break;
+  }
 }
 
-GIVEN("^I create a scaling matrix$")
+GIVEN("^I create a scaling matrix ([MABCR])$")
 {
+  REGEX_PARAM(char, name);
   ScenarioScope<TestCtx> context;
-  context->mat = ScaleMatrix(context->pos);
+  glm::mat4 input = ScaleMatrix(context->pos);
+  switch(name)
+  {
+      case 'M':
+      case 'A':
+        context->mat = input;
+        break;
+      case 'B':
+        context->mat_b = input;
+        break;
+      case 'C':
+        context->mat_c = input;
+        break;
+      case 'R':
+        context->result_mat = input;
+        break;
+  }
 }
 
-GIVEN("^I create a rotation matrix ([0-9.-]+) degrees about ([XYZ])$")
+GIVEN("^I create a rotation matrix ([MABCR]) ([0-9.-]+) degrees about ([XYZ])$")
 {
+  REGEX_PARAM(char, name);
   REGEX_PARAM(float, degrees);
   REGEX_PARAM(char, axis);
   ScenarioScope<TestCtx> context;
-  context->mat = RotateMatrix(degrees, axis);
+  glm::mat4 input = RotateMatrix(degrees, axis);
+  switch(name)
+  {
+      case 'M':
+      case 'A':
+        context->mat = input;
+        break;
+      case 'B':
+        context->mat_b = input;
+        break;
+      case 'C':
+        context->mat_c = input;
+        break;
+      case 'R':
+        context->result_mat = input;
+        break;
+  }
 }
 
 GIVEN("^I create a shearing matrix <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)>$")
@@ -47,7 +98,7 @@ GIVEN("^I create a shearing matrix <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),
 ## WHEN
 ##
 #######*/
-WHEN("^I transform the position ([0-9.-]+),([0-9.-]+),([0-9.-]+) with ([MABR])$")
+WHEN("^I transform the position ([0-9.-]+),([0-9.-]+),([0-9.-]+) with ([MABCR])$")
 {
   REGEX_PARAM(float, x);
   REGEX_PARAM(float, y);
@@ -66,6 +117,9 @@ WHEN("^I transform the position ([0-9.-]+),([0-9.-]+),([0-9.-]+) with ([MABR])$"
     case 'B':
       input = context->mat_b;
       break;
+    case 'C':
+      input = context->mat_c;
+      break;
     case 'R':
       input = context->result_mat;
       break;
@@ -73,7 +127,7 @@ WHEN("^I transform the position ([0-9.-]+),([0-9.-]+),([0-9.-]+) with ([MABR])$"
   context->result_pos = input * context->pos;
 }
 
-WHEN("^I transform the vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) with ([MABR])$")
+WHEN("^I transform the vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) with ([MABCR])$")
 {
   REGEX_PARAM(float, x);
   REGEX_PARAM(float, y);
@@ -91,6 +145,9 @@ WHEN("^I transform the vector ([0-9.-]+),([0-9.-]+),([0-9.-]+) with ([MABR])$")
       break;
     case 'B':
       input = context->mat_b;
+      break;
+    case 'C':
+      input = context->mat_c;
       break;
     case 'R':
       input = context->result_mat;

@@ -6,7 +6,7 @@ Feature: Matrix Transformations
 ## Translation
   Scenario: Apply a translation matrix to a position
     Given I have a position 5,-3,2 in the data
-    And I create a translation matrix
+    And I create a translation matrix A
     When I transform the position -3,4,5 with A
     Then the result should be 2,1,7 a position
     And It is a position
@@ -14,7 +14,7 @@ Feature: Matrix Transformations
 
   Scenario: Apply the inverse of a translation matrix to a position
     Given I have a position 5,-3,2 in the data
-    And I create a translation matrix
+    And I create a translation matrix A
     When I invert the matrix A
     When I transform the position -3,4,5 with R
     Then A-1 the inverse of A is the following matrix
@@ -29,14 +29,14 @@ Feature: Matrix Transformations
 
   Scenario: Translation does not affect vectors
     Given I have a position 5,-3,2 in the data
-    And I create a translation matrix
+    And I create a translation matrix A
     And I have a vector -3,4,5 in the data
     Then A * v = <-3,4,5> is a vector
     And It is a vector
 ## Scaling
   Scenario: Apply a scaling matrix to a position
     Given I have a position 2,3,4 in the data
-    And I create a scaling matrix
+    And I create a scaling matrix A
     When I transform the position -4,6,8 with A
     Then the result should be -8,18,32 a position
     And It is a position
@@ -44,14 +44,14 @@ Feature: Matrix Transformations
 
   Scenario: Apply a scaling matrix to a vector
     Given I have a position 2,3,4 in the data
-    And I create a scaling matrix
+    And I create a scaling matrix A
     When I transform the vector -4,6,8 with A
     Then the result should be -8,18,32 a vector
     And It is a vector
 
   Scenario: Apply the inverse of a scaling matrix to a position
     Given I have a position 2,4,5 in the data
-    And I create a scaling matrix
+    And I create a scaling matrix A
     When I invert the matrix A
     When I transform the position -4,6,8 with R
     Then A-1 the inverse of A is the following matrix
@@ -66,21 +66,21 @@ Feature: Matrix Transformations
 
   Scenario: Reflection is scaling by a negative value
     Given I have a position -1,1,1 in the data
-    And I create a scaling matrix
+    And I create a scaling matrix A
     When I transform the position 2,3,4 with A
     Then the result should be -2,3,4 a position
     And It is a position
     And The scale did not change
 ## Rotation
   Scenario: Rotate a point around the X axis
-    Given I create a rotation matrix 90 degrees about X
+    Given I create a rotation matrix A 90 degrees about X
     When I transform the position 0,1,0 with A
     Then the result should be 0,0,1 a position
     And It is a position
     And The scale did not change
 
   Scenario: The inverse of a rotation rotates in the opposite direction
-    Given I create a rotation matrix 90 degrees about X
+    Given I create a rotation matrix A 90 degrees about X
     When I invert the matrix A
     When I transform the position 0,1,0 with R
     Then the result should be 0,0,-1 a position
@@ -88,14 +88,14 @@ Feature: Matrix Transformations
     And The scale did not change
 
   Scenario: Rotate a point around the Y axis
-    Given I create a rotation matrix 90 degrees about Y
+    Given I create a rotation matrix A 90 degrees about Y
     When I transform the position 0,0,1 with A
     Then the result should be 1,0,0 a position
     And It is a position
     And The scale did not change
 
   Scenario: Rotate a point around the Z axis
-    Given I create a rotation matrix 90 degrees about Z
+    Given I create a rotation matrix A 90 degrees about Z
     When I transform the position 0,1,0 with A
     Then the result should be -1,0,0 a position
     And It is a position
@@ -140,5 +140,33 @@ Feature: Matrix Transformations
         Given I create a shearing matrix <0,0,0,0,0,1>
         When I transform the position 2,3,4 with A
         Then the result should be 2,3,7 a position
+        And It is a position
+        And The scale did not change
+## Chaining transformations
+    Scenario: Individual transformations are applied in sequence
+        Given I create a rotation matrix A 90 degrees about X
+        Given I have a position 5,5,5 in the data
+        And I create a scaling matrix B
+        Given I have a position 10,5,7 in the data
+        And I create a translation matrix C
+        When I transform the position 1,0,1 with A
+        Then the result should be 1,-1,0 a position
+        When I transform the position 1,-1,0 with B
+        Then the result should be 5,-5,0 a position
+        When I transform the position 5,-5,0 with C
+        Then the result should be 15,0,7 a position
+        And It is a position
+        And The scale did not change
+
+    Scenario: Chained transformations must be applied in reverse
+        Given I create a rotation matrix A 90 degrees about X
+        Given I have a position 5,5,5 in the data
+        And I create a scaling matrix B
+        Given I have a position 10,5,7 in the data
+        And I create a translation matrix C
+        When R = C * B
+        And R = R * A
+        When I transform the position 1,0,1 with R
+        Then the result should be 15,0,7 a position
         And It is a position
         And The scale did not change

@@ -105,6 +105,48 @@ WHEN("^I invert the matrix ([MAB])$")
 
 }
 
+WHEN("^R = ([MABCR]) \\* ([MABCR])$")
+{
+    REGEX_PARAM(char, l);
+    REGEX_PARAM(char, r);
+    ScenarioScope<TestCtx> context;
+    glm::mat4 lhs;
+    glm::mat4 rhs;
+    switch(l)
+    {
+      case 'M':
+      case 'A':
+        lhs = context->mat;
+        break;
+      case 'B':
+        lhs = context->mat_b;
+        break;
+      case 'C':
+        lhs = context->mat_c;
+        break;
+      case 'R':
+        lhs = context->result_mat;
+        break;
+    }
+    switch(r)
+    {
+      case 'M':
+      case 'A':
+        rhs = context->mat;
+        break;
+      case 'B':
+        rhs = context->mat_b;
+        break;
+      case 'C':
+        rhs = context->mat_c;
+        break;
+      case 'R':
+        rhs = context->result_mat;
+        break;
+    }
+    context->result_mat = lhs * rhs;
+}
+
 /*#######
 ##
 ## THEN

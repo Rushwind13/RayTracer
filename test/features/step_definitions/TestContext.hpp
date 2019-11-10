@@ -10,6 +10,7 @@ struct TestCtx
 {
   glm::mat4 mat;
   glm::mat4 mat_b;
+  glm::mat4 mat_c;
   glm::mat4 id = glm::mat4(1);
 
   glm::mat3 mat3;
