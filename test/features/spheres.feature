@@ -27,3 +27,15 @@ Feature: Spheres
       And I have a sphere
       When I intersect the ray with the sphere
       Then no intersection occurred
+
+  Scenario: A ray originates inside a sphere
+      Given I have a Ray with origin 0,0,1 and direction 0,0,1
+      And I have a sphere
+      When I intersect the ray with the sphere
+      Then no intersection occurred
+
+  Scenario: A sphere is behind a ray
+      Given I have a Ray with origin 0,0,5 and direction 0,0,1
+      And I have a sphere
+      When I intersect the ray with the sphere
+      Then no intersection occurred
