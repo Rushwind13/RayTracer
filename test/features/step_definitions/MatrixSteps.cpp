@@ -172,6 +172,21 @@ THEN("^A \\* b = <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)> is a position$")
   EXPECT_EQ(result, expected);
 }
 
+THEN("^A \\* v = <([0-9.-]+),([0-9.-]+),([0-9.-]+)> is a vector$")
+{
+  REGEX_PARAM(float, x);
+  REGEX_PARAM(float, y);
+  REGEX_PARAM(float, z);
+  ScenarioScope<TestCtx> context;
+  Direction expected(x,y,z);
+  Direction result = context->mat * context->vec;
+
+  printvec("expected", expected);
+  printvec("result", result);
+
+  EXPECT_EQ(result, expected);
+}
+
 THEN("^A \\* I = A$")
 {
     ScenarioScope<TestCtx> context;

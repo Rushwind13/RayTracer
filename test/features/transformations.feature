@@ -26,3 +26,10 @@ Feature: Matrix Transformations
     Then the result should be -8,7,3 a position
     And It is a position
     And The scale did not change
+
+  Scenario: Translation does not affect vectors
+    Given I have a position 5,-3,2 in the data
+    And I create a translation matrix
+    And I have a vector -3,4,5 in the data
+    Then A * v = <-3,4,5> is a vector
+    And It is a vector
