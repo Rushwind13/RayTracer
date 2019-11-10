@@ -91,13 +91,21 @@ public:
 class Sphere : public Object
 {
 public:
+    Sphere()
+    {
+        color = COLOR_RED;
+        center = Position(0);
+        radius = 1.0;
+        radius2 = 1.0;
+    }
+
 	Sphere( /*const mat4 o2w,*/ Position c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
 	{
 			color = COLOR_RED;
 	}
 	bool Intersect( const Ray &r, Intersection &i ) const
 	{
-		//std::cout << "Intersect" << std::endl;
+		// std::cout << "Intersect" << std::endl;
 		// basic ray equation = o + dt (origin, direction, length)
 		// basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
 		// sub in ray for p:
@@ -129,13 +137,13 @@ public:
 		// h = o + dt and you have o-c calculated already, (h-c) = o + dt - c = (o-c) + dt
 		// which seems counterintuitive (since vec subtraction is not commutative nor associative), but seems to work.
 
-		//printvec( "o", r.origin );
-		//printvec( "d", r.direction );
+		// printvec( "o", r.origin );
+		// printvec( "d", r.direction );
 		Direction oc = r.origin - center;
 		float DdotOC = glm::dot( (glm::vec4)r.direction, (glm::vec4)oc );
 		float len2 = glm::dot((glm::vec4)oc, (glm::vec4)oc);
 
-		//std::cout << DdotOC << std::endl;
+		// std::cout << DdotOC << std::endl;
 
 		float b = DdotOC;
 		float c = len2 - radius2;
@@ -143,7 +151,7 @@ public:
 		float b2 = b * b;
 
 		// No intersect if miss or tangent
-		if( b2 <= c )
+		if( b2 < c )
 		{
 			i.distance = 1e9;
 			i.gothit = false;
@@ -182,7 +190,7 @@ public:
 			texture = array([u,v])
 		 */
 
-		//std::cout << "done with Intersect" << std::endl;
+		// std::cout << "done with Intersect" << std::endl;
 		return true;
 	}
 protected:

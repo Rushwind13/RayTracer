@@ -5,6 +5,24 @@
 using cucumber::ScenarioScope;
 #include "TestContext.hpp"
 
+GIVEN("^I have a Ray with origin ([0-9.-]+),([0-9.-]+),([0-9.-]+) and direction ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
+{
+    REGEX_PARAM(float, ox);
+    REGEX_PARAM(float, oy);
+    REGEX_PARAM(float, oz);
+    REGEX_PARAM(float, dx);
+    REGEX_PARAM(float, dy);
+    REGEX_PARAM(float, dz);
+
+    ScenarioScope<TestCtx> context;
+    context->pos = Position(ox,oy,oz);
+    context->vec = Direction(dx,dy,dz);
+
+    context->ray = Ray(context->pos, context->vec);
+    // printvec("ro->", context->ray.origin);
+    // printvec("rd->", context->ray.direction);
+}
+
 WHEN("^I press Ray$")
 {
   ScenarioScope<TestCtx> context;

@@ -1,6 +1,8 @@
 #ifndef __TEST_CONTEXT__
 #define __TEST_CONTEXT__
 
+#include <Object.hpp>
+#include <Intersection.hpp>
 /*#######
 ##
 ## CONTEXT
@@ -28,6 +30,9 @@ struct TestCtx
   Position origin;
   Direction direction;
   Ray ray;
+
+  Sphere sphere;
+  Intersection intersection;
 
   glm::mat4 result_mat;
   Position result_pos;
