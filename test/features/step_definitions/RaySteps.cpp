@@ -30,6 +30,11 @@ WHEN("^I press Ray$")
   context->result_ray = Ray(context->pos, context->vec);
 }
 
+WHEN("^I transform the ray with A$")
+{
+    ScenarioScope<TestCtx> context;
+    context->result_ray = TransformRay(context->ray, context->mat);
+}
 
 THEN("^the origin should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
 {

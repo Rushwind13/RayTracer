@@ -194,4 +194,12 @@ public:
 	Ray() {};
 };
 
+Ray TransformRay( const Ray &in, const glm::mat4 transform )
+{
+    Ray result;
+    result.origin = transform * in.origin;
+    result.direction = transform * in.direction;
+
+    return result;
+}
 #endif /* MATH_H_ */
