@@ -23,21 +23,30 @@ GIVEN("^I create a translation matrix$")
 ## WHEN
 ##
 #######*/
-WHEN("^I transform the position ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
+WHEN("^I transform the position ([0-9.-]+),([0-9.-]+),([0-9.-]+) with ([MABR])$")
 {
   REGEX_PARAM(float, x);
   REGEX_PARAM(float, y);
   REGEX_PARAM(float, z);
+  REGEX_PARAM(char, name);
   ScenarioScope<TestCtx> context;
   context->pos = Position(x,y,z);
   context->result_float = context->pos.w;
-  context->result_pos = context->mat * context->pos;
-  // std::cout << std::endl;
-  // printmat("xf", context->mat);
-  // printvec("xp", context->pos);
-  // std::cout << std::endl;
-  // printvec("rp", context->result_pos);
-  // std::cout << std::endl;
+  glm::mat4 input;
+  switch(name)
+  {
+    case 'M':
+    case 'A':
+      input = context->mat;
+      break;
+    case 'B':
+      input = context->mat_b;
+      break;
+    case 'R':
+      input = context->result_mat;
+      break;
+  }
+  context->result_pos = input * context->pos;
 }
 
 /*#######

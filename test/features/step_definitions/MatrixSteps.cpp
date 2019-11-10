@@ -26,6 +26,11 @@ glm::mat4 parseMatrix( const ::cucumber::internal::Table & _table )
     // ...I have to transpose the result *eyeroll*
     return glm::transpose(result);
 }
+/*#######
+##
+## GIVEN
+##
+#######*/
 
 GIVEN("^the following matrix ([MAB]):$")
 {
@@ -77,6 +82,34 @@ GIVEN("^the following 2x2 matrix M:$")
   }
   context->mat2 = glm::transpose(context->mat2);
 }
+
+/*#######
+##
+## WHEN
+##
+#######*/
+WHEN("^I invert the matrix ([MAB])$")
+{
+    REGEX_PARAM(char, name);
+    ScenarioScope<TestCtx> context;
+    switch(name)
+    {
+      case 'M':
+      case 'A':
+        context->result_mat = glm::inverse(context->mat);
+        break;
+      case 'B':
+        context->result_mat = glm::inverse(context->mat_b);
+        break;
+    }
+
+}
+
+/*#######
+##
+## THEN
+##
+#######*/
 
 THEN("^M([234])<([0-9]),([0-9])> = ([0-9.-]+)$")
 {
@@ -174,7 +207,7 @@ THEN("^A-1 the inverse of A is the following matrix$")
   TABLE_PARAM(table);
   ScenarioScope<TestCtx> context;
   glm::mat4 expected = parseMatrix(table);
-  glm::mat4 actual = glm::inverse(context->mat);
+  glm::mat4 actual = context->result_mat;
 
   bool result = false;
   float EPSILON = 0.00001;

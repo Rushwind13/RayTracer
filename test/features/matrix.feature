@@ -139,6 +139,7 @@ Feature: Matrix
        |  0  |  4  |  0  |  0  |
        |  0  |  0  |  4  | -5  |
        |  0  |  0  |  0  |  1  |
+     When I invert the matrix A
      Then A-1 the inverse of A is the following matrix
        |  x  |  y  |  z  |  w   |
        | 0.25| 0   | 0   | 0.625|
@@ -153,6 +154,7 @@ Feature: Matrix
        |  2  |  4  |  4  |  2  |
        |  8  |  6  |  4  |  1  |
        |  0  |  0  |  0  |  1  |
+     When I invert the matrix A
      Then A-1 the inverse of A is the following matrix
        |  x  |  y  |  z  |  w   |
        | 0.4 |-0.5 | 0.2 |-0.8  |
