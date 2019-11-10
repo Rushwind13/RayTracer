@@ -26,10 +26,11 @@ void printvec( const std::string label, const glm::vec4 vec )
 }
 void printmat( const std::string label, const glm::mat4 mat )
 {
-	printvec(label, mat[0]); std::cout << std::endl;
-	printvec(label, mat[1]); std::cout << std::endl;
-	printvec(label, mat[2]); std::cout << std::endl;
-	printvec(label, mat[3]); std::cout << std::endl;
+    glm::mat4 flipper = glm::transpose(mat);
+	printvec(label, flipper[0]); std::cout << std::endl;
+	printvec(label, flipper[1]); std::cout << std::endl;
+	printvec(label, flipper[2]); std::cout << std::endl;
+	printvec(label, flipper[3]); std::cout << std::endl;
 }
 
 class Position : public glm::vec4
@@ -199,6 +200,13 @@ Ray TransformRay( const Ray &in, const glm::mat4 transform )
     Ray result;
     result.origin = transform * in.origin;
     result.direction = transform * in.direction;
+
+    printvec("in", in.origin);
+    std::cout << std::endl;
+    printmat("M", transform);
+    printvec("out", result.origin);
+    std::cout << std::endl;
+    std::cout << std::endl;
 
     return result;
 }
