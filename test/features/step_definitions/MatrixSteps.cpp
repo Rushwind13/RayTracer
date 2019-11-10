@@ -181,9 +181,6 @@ THEN("^A \\* v = <([0-9.-]+),([0-9.-]+),([0-9.-]+)> is a vector$")
   Direction expected(x,y,z);
   Direction result = context->mat * context->vec;
 
-  printvec("expected", expected);
-  printvec("result", result);
-
   EXPECT_EQ(result, expected);
 }
 

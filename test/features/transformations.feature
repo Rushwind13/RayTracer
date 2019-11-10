@@ -100,3 +100,45 @@ Feature: Matrix Transformations
     Then the result should be -1,0,0 a position
     And It is a position
     And The scale did not change
+## Shearing
+    Scenario: A shearing transformation moves X in proportion to Y
+        Given I create a shearing matrix <1,0,0,0,0,0>
+        When I transform the position 2,3,4 with A
+        Then the result should be 5,3,4 a position
+        And It is a position
+        And The scale did not change
+
+    Scenario: A shearing transformation moves X in proportion to Z
+        Given I create a shearing matrix <0,1,0,0,0,0>
+        When I transform the position 2,3,4 with A
+        Then the result should be 6,3,4 a position
+        And It is a position
+        And The scale did not change
+
+    Scenario: A shearing transformation moves Y in proportion to X
+        Given I create a shearing matrix <0,0,1,0,0,0>
+        When I transform the position 2,3,4 with A
+        Then the result should be 2,5,4 a position
+        And It is a position
+        And The scale did not change
+
+    Scenario: A shearing transformation moves Y in proportion to Z
+        Given I create a shearing matrix <0,0,0,1,0,0>
+        When I transform the position 2,3,4 with A
+        Then the result should be 2,7,4 a position
+        And It is a position
+        And The scale did not change
+
+    Scenario: A shearing transformation moves Z in proportion to X
+        Given I create a shearing matrix <0,0,0,0,1,0>
+        When I transform the position 2,3,4 with A
+        Then the result should be 2,3,6 a position
+        And It is a position
+        And The scale did not change
+
+    Scenario: A shearing transformation moves Z in proportion to Y
+        Given I create a shearing matrix <0,0,0,0,0,1>
+        When I transform the position 2,3,4 with A
+        Then the result should be 2,3,7 a position
+        And It is a position
+        And The scale did not change

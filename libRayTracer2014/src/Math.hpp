@@ -147,6 +147,25 @@ glm::mat4 RotateMatrix( const float degrees, const char axis )
 	return result;
 }
 
+glm::mat4 ShearMatrix(
+    const float xy,
+    const float xz,
+    const float yx,
+    const float yz,
+    const float zx,
+    const float zy )
+{
+	glm::mat4 result(1.0);
+	result[1][0] = xy;
+	result[2][0] = xz;
+	result[0][1] = yx;
+	result[2][1] = yz;
+	result[0][2] = zx;
+	result[1][2] = zy;
+
+	return result;
+}
+
 inline float lerp(const float point, const float min, const float max)
 {
 	return point / (max - min);

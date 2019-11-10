@@ -28,8 +28,18 @@ GIVEN("^I create a rotation matrix ([0-9.-]+) degrees about ([XYZ])$")
   REGEX_PARAM(char, axis);
   ScenarioScope<TestCtx> context;
   context->mat = RotateMatrix(degrees, axis);
-  // printvec("v->", context->pos);
-  // printvec("<-m", context->mat[3]);
+}
+
+GIVEN("^I create a shearing matrix <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)>$")
+{
+    REGEX_PARAM(float, xy);
+    REGEX_PARAM(float, xz);
+    REGEX_PARAM(float, yx);
+    REGEX_PARAM(float, yz);
+    REGEX_PARAM(float, zx);
+    REGEX_PARAM(float, zy);
+    ScenarioScope<TestCtx> context;
+    context->mat = ShearMatrix(xy,xz,yx,yz,zx,zy);
 }
 
 /*#######
