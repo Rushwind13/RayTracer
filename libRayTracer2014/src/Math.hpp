@@ -105,13 +105,13 @@ glm::mat4 TranslateMatrix( const Position translate )
 	return result;
 }
 
-glm::mat4 ScaleMatrix( const Position translate )
+glm::mat4 ScaleMatrix( const Position scale )
 {
 	glm::mat4 result(1.0);
-	result[0][0] = translate.x;
-	result[1][1] = translate.y;
-	result[2][2] = translate.z;
-	result[3][3] = translate.w;
+	result[0][0] = scale.x;
+	result[1][1] = scale.y;
+	result[2][2] = scale.z;
+	result[3][3] = scale.w;
 
 	return result;
 }
