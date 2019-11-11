@@ -15,16 +15,22 @@
 class Object
 {
 public:
-	Object() {};
-	Object( const glm::mat4 o2w ) : objectToWorld(o2w)
+	Object() { SetTransform(glm::mat4(1.0)); };
+	Object( const glm::mat4 o2w )
 	{
-		worldToObject = glm::inverse(objectToWorld);
+		SetTransform(o2w);
 		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
 	virtual ~Object() {}
 	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
-	glm::mat4 objectToWorld, worldToObject;
+    void SetTransform( const glm::mat4 o2w )
+    {
+        objectToWorld = o2w;
+        worldToObject = glm::inverse(objectToWorld);
+        normalToWorld = glm::transpose(worldToObject);
+    }
+	glm::mat4 objectToWorld, worldToObject, normalToWorld;
 	Color color;
 	short oid = -1;
 	std::string name;
@@ -93,16 +99,78 @@ class Sphere : public Object
 public:
     Sphere()
     {
+        std::cout << "Sphere()" << std::endl;
         color = COLOR_RED;
         center = Position(0);
         radius = 1.0;
         radius2 = 1.0;
     }
 
-	Sphere( /*const mat4 o2w,*/ Position c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
+	Sphere( Position c, float r = 1 )
 	{
+        std::cout << "Sphere(c,r)" << std::endl;
 			color = COLOR_RED;
+            glm::mat4 scale = ScaleMatrix(Position(r));
+            glm::mat4 translate = TranslateMatrix(c);
+            SetTransform(translate * scale);
+            center = Position(0);
+            radius = 1.0;
+            radius2 = 1.0;
 	}
+
+    Sphere( const glm::mat4 o2w )
+    {
+        std::cout << "Sphere(o2w)" << std::endl;
+			color = COLOR_RED;
+            SetTransform(o2w);
+            center = Position(0);
+            radius = 1.0;
+            radius2 = 1.0;
+    }
+#define MATRIX
+#ifdef MATRIX
+    bool Intersect( const Ray &world, Intersection &i ) const
+    {
+        Ray object = TransformRay(world, worldToObject);
+
+        Direction eye = object.origin - center;
+        Direction dir = object.direction;
+        float a = glm::dot((glm::vec4)dir, (glm::vec4)dir);
+        float b = 2.0 * glm::dot((glm::vec4)eye, (glm::vec4)dir);
+        float c = glm::dot((glm::vec4)eye, (glm::vec4)eye) - 1.0;
+
+        float b2 = b * b;
+        float ac4 = 4.0 * a * c;
+
+        if( b2 < ac4 )
+        {
+            i.distance = 1e9;
+            i.gothit = false;
+            return false;
+        }
+
+        float discriminant = std::sqrt(b2 - ac4);
+        float root1 = (-b + discriminant) / (2.0 * a);
+        float root2 = (-b - discriminant) / (2.0 * a);
+
+        float distance = std::min(root1, root2);
+        if( distance < 0.0 )
+        {
+            // TODO: deal with internal reflection later
+			i.distance = 1e9;
+			i.gothit = false;
+            return false;
+        }
+
+        i.distance = distance;
+        i.position = world.origin + (world.direction * i.distance);
+        i.normal = glm::normalize((object.origin + (object.direction * i.distance)) - center);
+        i.oid = oid;
+        i.gothit = true;
+
+        return true;
+    }
+#else
 	bool Intersect( const Ray &r, Intersection &i ) const
 	{
 		// std::cout << "Intersect" << std::endl;
@@ -193,6 +261,7 @@ public:
 		// std::cout << "done with Intersect" << std::endl;
 		return true;
 	}
+#endif // MATRIX
 protected:
 	Position center;
 	float radius, radius2;
