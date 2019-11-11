@@ -306,12 +306,21 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
   REGEX_PARAM(float,z);
   Direction expected(x,y,z);
   ScenarioScope<TestCtx> context;
+  Direction actual = context->result_vec;
 
   bool result = false;
   float EPSILON = 0.00001;
-  if( glm::length(expected - context->result_vec) < EPSILON )
+  if( glm::length(expected - actual) < EPSILON )
   {
       result = true;
+  }
+  else
+  {
+      printvec("e", expected);
+      std::cout << std::endl;
+      printvec("a", actual);
+      std::cout << std::endl;
+      result = false;
   }
 
   EXPECT_EQ(result, true);

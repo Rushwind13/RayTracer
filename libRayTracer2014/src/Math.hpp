@@ -122,6 +122,9 @@ glm::mat4 RotateMatrix( const float degrees, const char axis )
 	float angle = degrees * deg2rad;
   float sin = glm::sin(angle);
   float cos = glm::cos(angle);
+  float EPSILON = 0.00001;
+  if( sin < EPSILON ) sin = 0.0;
+  if( cos < EPSILON ) cos = 0.0;
 
 	switch(axis)
 	{
@@ -193,6 +196,8 @@ public:
 	}
 
 	Ray() {};
+
+    Position apply() { return origin + (direction * length); };
 };
 
 Ray TransformRay( const Ray &in, const glm::mat4 transform )
