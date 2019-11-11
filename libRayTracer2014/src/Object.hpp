@@ -110,7 +110,9 @@ public:
 	{
         std::cout << "Sphere(c,r)" << std::endl;
 			color = COLOR_RED;
-            glm::mat4 scale = ScaleMatrix(Position(r));
+            Position scalar(r);
+            // scalar.y /= 2.0;
+            glm::mat4 scale = ScaleMatrix(scalar);
             glm::mat4 translate = TranslateMatrix(c);
             SetTransform(translate * scale);
             center = Position(0);
