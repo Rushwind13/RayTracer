@@ -5,10 +5,20 @@
 using cucumber::ScenarioScope;
 #include "TestContext.hpp"
 
+/*#######
+##
+## GIVEN
+##
+#######*/
 GIVEN("^I have a sphere$")
 {
 }
 
+/*#######
+##
+## WHEN
+##
+#######*/
 WHEN("^I intersect the ray with the sphere$")
 {
     ScenarioScope<TestCtx> context;
@@ -25,6 +35,34 @@ WHEN("^I calculate the normal at ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
   context->result_vec = context->sphere.NormalAt(point_on_sphere);
 }
 
+WHEN("^I set the sphere's transform to ([MABCR])$")
+{
+  REGEX_PARAM(char, name);
+  ScenarioScope<TestCtx> context;
+  glm::mat4 input;
+  switch(name)
+  {
+    case 'M':
+    case 'A':
+      input = context->mat;
+      break;
+    case 'B':
+      input = context->mat_b;
+      break;
+    case 'C':
+      input = context->mat_c;
+      break;
+    case 'R':
+      input = context->result_mat;
+      break;
+  }
+  context->sphere.SetTransform(input);
+}
+/*#######
+##
+## THEN
+##
+#######*/
 THEN("^intersection count = ([0-9]+)$")
 {
     // REGEX_PARAM(int, count);
