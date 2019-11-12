@@ -39,3 +39,29 @@ Feature: Spheres
       And I have a sphere
       When I intersect the ray with the sphere
       Then no intersection occurred
+## Sphere Normals
+  Scenario: The normal on a sphere at a point on the X axis
+      Given I have a sphere
+      When I calculate the normal at 1,0,0
+      Then the result should be 1,0,0 a vector
+
+  Scenario: The normal on a sphere at a point on the Y axis
+      Given I have a sphere
+      When I calculate the normal at 0,1,0
+      Then the result should be 0,1,0 a vector
+
+  Scenario: The normal on a sphere at a point on the Z axis
+      Given I have a sphere
+      When I calculate the normal at 0,0,1
+      Then the result should be 0,0,1 a vector
+
+  Scenario: The normal on a sphere at a non-axial point
+      Given I have a sphere
+      When I calculate the normal at 0.57735,0.57735,0.57735
+      Then the result should be 0.57735,0.57735,0.57735 a vector
+
+  Scenario: The normal is a normalized vector
+      Given I have a sphere
+      When I calculate the normal at 0.57735,0.57735,0.57735
+      Then the result should be 0.57735,0.57735,0.57735 a vector
+      And the vector is normalized
