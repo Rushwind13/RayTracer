@@ -165,8 +165,8 @@ public:
         }
 
         i.distance = distance;
-        i.position = world.origin + (world.direction * i.distance);
-        i.normal = glm::normalize((object.origin + (object.direction * i.distance)) - center);
+        i.position = world.apply(i.distance);
+        i.normal = NormalAt(i.position);
         i.oid = oid;
         i.gothit = true;
 
@@ -264,6 +264,21 @@ public:
 		return true;
 	}
 #endif // MATRIX
+    Direction NormalAt( const Direction world_pos ) const
+    {
+        Direction world_normal;
+        Direction object_normal;
+
+        Position object_pos;
+
+        object_pos = worldToObject * world_pos;
+        object_normal = object_pos - center;
+
+        world_normal = normalToWorld * object_normal;
+        world_normal.w = 0.0;
+
+        return glm::normalize(world_normal);
+    }
 protected:
 	Position center;
 	float radius, radius2;

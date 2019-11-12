@@ -198,6 +198,7 @@ public:
 	Ray() {};
 
     Position apply() { return origin + (direction * length); };
+    Position apply( const float t ) const { return origin + (direction * t); };
 };
 
 Ray TransformRay( const Ray &in, const glm::mat4 transform )
