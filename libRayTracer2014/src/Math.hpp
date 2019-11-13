@@ -16,6 +16,7 @@ const float tau = 6.283185307179586;
 const float deg2rad = tau / 360.0;
 
 
+
 void printvec( const std::string label, const glm::vec3 vec )
 {
 	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  ";
@@ -63,6 +64,50 @@ public:
     Color(float _s){ r=g=b=_s; a=0.0; };
     Color(const Color &c){ r=c.r; g=c.g; b=c.b; w=c.a;/*printvec("<-Color", *(this));/**/};
 };
+
+Direction parseDegrees( const float degrees )
+{
+	// glm::sin() and glm::cos are only defined for 0-90º
+	//
+	// subtract 1/4 rotation, set the output signs:
+	//        | sin    | cos    | -sin   | -cos    |
+	// 0-90   | 0..1   | 1..0   | 0..-1  | -1..0   |
+	// 90-180 | 1..0   | 0..-1  |
+	// 180-270| 0..-1  | -1..0  |
+	// 270-360| -1..0  | 0..1   |
+	Direction result(1.0,1.0,degrees);
+	if( degrees <= 90.0 )
+	{
+		return result;
+	}
+
+	float _degrees = degrees; // Gimme somethin' I can write on, man!
+
+  std::cout << "degrees: " << _degrees << " ";
+  if( _degrees < 0.0 || _degrees >= 360.0 )
+	{
+		_degrees = fmod( _degrees, 360.0); // rotations repeat after a full turn
+		std::cout << "after mod: " << _degrees << " ";
+	}
+
+	if( _degrees > 270.0 ) // Quadrant IV
+	{
+		_degrees -= 270.0; // force to first quadrant
+		result = Direction(-1.0,1.0,_degrees);
+	}
+	else if( _degrees > 180.0 ) // Quadrant III
+	{
+		_degrees -= 180.0;
+		result = Direction(-1.0,-1.0,_degrees);
+	}
+	else if( _degrees > 90.0 ) // Quadrant II
+	{
+		_degrees -= 90.0;
+		result = Direction(1.0,-1.0,_degrees);
+	}
+	printvec("result", result);
+	return result;
+}
 
 Direction ReflectVector(const Direction vIncident, const Direction vNormal) {
 	// vR = vI - [2 * (N . I)]N
@@ -119,9 +164,11 @@ glm::mat4 ScaleMatrix( const Position scale )
 glm::mat4 RotateMatrix( const float degrees, const char axis )
 {
 	glm::mat4 result(1.0);
-	float angle = degrees * deg2rad;
-  float sin = glm::sin(angle);
-  float cos = glm::cos(angle);
+	// x is +/- sin, y is +/- cos, angle now in ok range 0-90
+	Direction _degrees = parseDegrees(degrees);
+	float angle = _degrees.z * deg2rad;
+  float sin = _degrees.x * glm::sin(angle);
+  float cos = _degrees.y * glm::cos(angle);
   float EPSILON = 0.00001;
   if( sin < EPSILON ) sin = 0.0;
   if( cos < EPSILON ) cos = 0.0;

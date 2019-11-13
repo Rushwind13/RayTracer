@@ -100,6 +100,27 @@ Feature: Matrix Transformations
     Then the result should be -1,0,0 a position
     And It is a position
     And The scale did not change
+
+  Scenario: Rotate a point around the Z axis more than 90 degrees
+    Given I create a rotation matrix A 180 degrees about Z
+    When I transform the position 0,1,0 with A
+    Then the result should be 0,-1,0 a position
+    And It is a position
+    And The scale did not change
+
+  Scenario: Rotate a point around the Z axis more than 360 degrees
+    Given I create a rotation matrix A 450 degrees about Z
+    When I transform the position 0,1,0 with A
+    Then the result should be -1,0,0 a position
+    And It is a position
+    And The scale did not change
+
+  Scenario: Rotate a point around the Z axis a negative amount
+    Given I create a rotation matrix A -90 degrees about Z
+    When I transform the position 0,1,0 with A
+    Then the result should be 1,0,0 a position
+    And It is a position
+    And The scale did not change
 ## Shearing
     Scenario: A shearing transformation moves X in proportion to Y
         Given I create a shearing matrix <1,0,0,0,0,0>

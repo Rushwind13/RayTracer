@@ -36,20 +36,51 @@ public:
 		sprintf( filename, "test.png" );
 
 		//	create world object list
-    Position center(-2.5,0.0,-5.0);
-		float radius=2.0;
-		Sphere *sphere = new Sphere(center, radius);
+		Sphere *sphere = new Sphere();
 		sphere->oid = 1;
 		sphere->name = "sphere1";
 
+		Position center(-2.5,0.0,-5.0);
+		Position scale(2.0,1.0,2.0);
+		float degrees = -45.0;
+		char axis = 'Z';
+
+		glm::mat4 translate = TranslateMatrix(center);
+		glm::mat4 scaling = ScaleMatrix(scale);
+		glm::mat4 rotation = RotateMatrix(degrees,axis);
+
+		sphere->SetTransform(translate * rotation * scaling);
+
+		/*Position center(-2.5,0.0,-5.0);
+		float radius=2.0;
+		Sphere *sphere = new Sphere(center, radius);
+		sphere->oid = 1;
+		sphere->name = "sphere1";/**/
+
 		objects.push_back(sphere);
 
+		Sphere *sphere2 = new Sphere();
+		sphere2->color = Color(0.1,0.1,1.0);
+		sphere2->oid = 2;
+		sphere2->name = "sphere2";
+
 		Position center2(2.5,0.0,-10.0);
+		Position scale2(4.0,1.0,4.0);
+		float degrees2 = 135.0;
+		char axis2 = 'Z';
+
+		glm::mat4 translate2 = TranslateMatrix(center2);
+		glm::mat4 scaling2 = ScaleMatrix(scale2);
+		glm::mat4 rotation2 = RotateMatrix(degrees2,axis2);
+
+		sphere2->SetTransform(translate2 * rotation2 * scaling2);
+
+		/*Position center2(2.5,0.0,-10.0);
 		float radius2=4.0;
 		Sphere *sphere2 = new Sphere(center2, radius2);
 		sphere2->color = Color(0.1,0.1,1.0);
 		sphere2->oid = 2;
-		sphere2->name = "sphere2";
+		sphere2->name = "sphere2";/**/
 
 		objects.push_back(sphere2);
 
