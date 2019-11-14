@@ -253,11 +253,11 @@ Color FindColor( Ray ray, World world, Intersection hit, int depth, float weight
 		// shouldn't it sometimes be below the surface during refraction? hmm.
 		Light *light = *it;
 
-		glm::vec3 vL;
+		Direction vL;
 		float light_dist;
 		lighting.vL(*light, hit, vL, light_dist );
 
-		float NdotL = glm::dot( hit.normal, vL );
+		float NdotL = glm::dot( (glm::vec4)hit.normal, (glm::vec4)vL );
 
 		if( NdotL < 0 )
 		{

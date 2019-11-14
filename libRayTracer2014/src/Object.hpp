@@ -15,16 +15,22 @@
 class Object
 {
 public:
-	Object() {};
-	Object( const glm::mat4 o2w ) : objectToWorld(o2w)
+	Object() { SetTransform(glm::mat4(1.0)); };
+	Object( const glm::mat4 o2w )
 	{
-		worldToObject = glm::inverse(objectToWorld);
+		SetTransform(o2w);
 		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
 	virtual ~Object() {}
 	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
-	glm::mat4 objectToWorld, worldToObject;
+    void SetTransform( const glm::mat4 o2w )
+    {
+        objectToWorld = o2w;
+        worldToObject = glm::inverse(objectToWorld);
+        normalToWorld = glm::transpose(worldToObject);
+    }
+	glm::mat4 objectToWorld, worldToObject, normalToWorld;
 	Color color;
 	short oid = -1;
 	std::string name;
@@ -91,13 +97,87 @@ public:
 class Sphere : public Object
 {
 public:
-	Sphere( /*const mat4 o2w,*/ glm::vec3 c, float r = 1 ): /*JObject(o2w),*/ center(c), radius(r), radius2(r*r)
+    Sphere()
+    {
+        std::cout << "Sphere()" << std::endl;
+        color = COLOR_RED;
+        center = Position(0);
+        radius = 1.0;
+        radius2 = 1.0;
+    }
+
+	Sphere( Position c, float r = 1 )
 	{
+        std::cout << "Sphere(c,r)" << std::endl;
 			color = COLOR_RED;
+            Position scalar(r);
+            // scalar.y /= 2.0;
+            glm::mat4 scale = ScaleMatrix(scalar);
+            glm::mat4 translate = TranslateMatrix(c);
+            SetTransform(translate * scale);
+            center = Position(0);
+            radius = 1.0;
+            radius2 = 1.0;
 	}
+
+    Sphere( const glm::mat4 o2w )
+    {
+        std::cout << "Sphere(o2w)" << std::endl;
+			color = COLOR_RED;
+            SetTransform(o2w);
+            center = Position(0);
+            radius = 1.0;
+            radius2 = 1.0;
+    }
+#define MATRIX
+#ifdef MATRIX
+    bool Intersect( const Ray &world, Intersection &i ) const
+    {
+        Ray object = TransformRay(world, worldToObject);
+
+        Direction eye = object.origin - center;
+        Direction dir = object.direction;
+        float a = glm::dot((glm::vec4)dir, (glm::vec4)dir);
+        float b = glm::dot((glm::vec4)eye, (glm::vec4)dir);
+        float c = glm::dot((glm::vec4)eye, (glm::vec4)eye) - 1.0;
+
+        float b2 = b * b;
+        float ac = a * c;
+
+        if( b2 < ac )
+        {
+            i.distance = 1e9;
+            i.gothit = false;
+            return false;
+        }
+
+        float discriminant = std::sqrt(b2 - ac);
+        float root1 = (-b + discriminant) / a;
+        float root2 = (-b - discriminant) / a;
+
+        float distance = std::min(root1, root2);
+        if( distance < 0.0 )
+        {
+            // TODO: deal with internal reflection later
+			i.distance = 1e9;
+			i.gothit = false;
+            return false;
+        }
+
+        i.distance = distance;
+        i.position = world.apply(i.distance);
+        i.normal = NormalAt(i.position);
+				// to remove off-by-ε errors, bump the hit position along the normal by a small amount...
+				// i.position = i.position + (i.normal * epsilon);
+        i.oid = oid;
+        i.gothit = true;
+
+        return true;
+    }
+#else
 	bool Intersect( const Ray &r, Intersection &i ) const
 	{
-		//std::cout << "Intersect" << std::endl;
+		// std::cout << "Intersect" << std::endl;
 		// basic ray equation = o + dt (origin, direction, length)
 		// basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
 		// sub in ray for p:
@@ -129,13 +209,13 @@ public:
 		// h = o + dt and you have o-c calculated already, (h-c) = o + dt - c = (o-c) + dt
 		// which seems counterintuitive (since vec subtraction is not commutative nor associative), but seems to work.
 
-		//printvec( "o", r.origin );
-		//printvec( "d", r.direction );
-		glm::vec3 oc = r.origin - center;
-		float DdotOC = glm::dot( r.direction, oc );
-		float len2 = glm::dot(oc, oc);
+		// printvec( "o", r.origin );
+		// printvec( "d", r.direction );
+		Direction oc = r.origin - center;
+		float DdotOC = glm::dot( (glm::vec4)r.direction, (glm::vec4)oc );
+		float len2 = glm::dot((glm::vec4)oc, (glm::vec4)oc);
 
-		//std::cout << DdotOC << std::endl;
+		// std::cout << DdotOC << std::endl;
 
 		float b = DdotOC;
 		float c = len2 - radius2;
@@ -143,7 +223,7 @@ public:
 		float b2 = b * b;
 
 		// No intersect if miss or tangent
-		if( b2 <= c )
+		if( b2 < c )
 		{
 			i.distance = 1e9;
 			i.gothit = false;
@@ -165,7 +245,7 @@ public:
 			return false;
 		}
 
-		glm::vec3 dt = r.direction * i.distance;
+		Position dt = r.direction * i.distance;
 
 		//i.object = reinterpret_cast<const Object *>(this);
 		i.oid = oid;
@@ -182,11 +262,27 @@ public:
 			texture = array([u,v])
 		 */
 
-		//std::cout << "done with Intersect" << std::endl;
+		// std::cout << "done with Intersect" << std::endl;
 		return true;
 	}
+#endif // MATRIX
+    Direction NormalAt( const Direction world_pos ) const
+    {
+        Direction world_normal;
+        Direction object_normal;
+
+        Position object_pos;
+
+        object_pos = worldToObject * world_pos;
+        object_normal = object_pos - center;
+
+        world_normal = normalToWorld * object_normal;
+        world_normal.w = 0.0;
+
+        return glm::normalize(world_normal);
+    }
 protected:
-	glm::vec3 center;
+	Position center;
 	float radius, radius2;
 };
 

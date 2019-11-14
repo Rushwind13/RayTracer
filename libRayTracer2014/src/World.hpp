@@ -36,36 +36,104 @@ public:
 		sprintf( filename, "test.png" );
 
 		//	create world object list
-		glm::vec3 center(-2.5,0.0,-5.0);
-		float radius=2.0;
-		Sphere *sphere = new Sphere(center, radius);
+		Sphere *sphere = new Sphere();
 		sphere->oid = 1;
 		sphere->name = "sphere1";
 
+		Position center(-2.5,0.0,-5.0);
+		Position scale(2.0,1.0,2.0);
+		float degrees = -135.0;
+		Direction axis(0,0,1);
+
+		glm::mat4 translate = TranslateMatrix(center);
+		glm::mat4 scaling = ScaleMatrix(scale);
+		glm::mat4 rotation = RotateMatrix(axis,degrees);
+
+		sphere->SetTransform(translate * rotation * scaling);
+
+		/*Position center(-2.5,0.0,-5.0);
+		float radius=2.0;
+		Sphere *sphere = new Sphere(center, radius);
+		sphere->oid = 1;
+		sphere->name = "sphere1";/**/
+
 		objects.push_back(sphere);
 
-		glm::vec3 center2(2.5,0.0,-10.0);
-		float radius2=4.0;
-		Sphere *sphere2 = new Sphere(center2, radius2);
+		Position center2(2.5,0.0,-10.0);
+		Position scale2(4.0,1.0,4.0);
+		float degrees2 = 135.0;
+		Direction axis2(0,0,1);
+
+		glm::mat4 translate2 = TranslateMatrix(center2);
+		glm::mat4 scaling2 = ScaleMatrix(scale2);
+		glm::mat4 rotation2 = RotateMatrix(axis2,degrees2);
+
+		Sphere *sphere2 = new Sphere(translate2 * rotation2 * scaling2);
 		sphere2->color = Color(0.1,0.1,1.0);
 		sphere2->oid = 2;
 		sphere2->name = "sphere2";
 
+		/*Position center2(2.5,0.0,-10.0);
+		float radius2=4.0;
+		Sphere *sphere2 = new Sphere(center2, radius2);
+		sphere2->color = Color(0.1,0.1,1.0);
+		sphere2->oid = 2;
+		sphere2->name = "sphere2";/**/
+
 		objects.push_back(sphere2);
 
-		glm::vec3 center3(0.0,8.0,-20.0);
+		Position center3(0.0,8.0,-20.0);
 		float radius3=4.0;
 		Sphere *sphere3 = new Sphere(center3, radius3);
 		sphere3->color = Color(0.1,1.0,0.1);
 		sphere3->oid = 3;
 		sphere3->name = "sphere3";
 
-		objects.push_back(sphere3);
+		objects.push_back(sphere3);/**/
+
+
+		Sphere *sphere_floor = new Sphere();
+		sphere_floor->oid = 100;
+		sphere_floor->color = Color(0.4,0.5,0.5);
+		sphere_floor->name = "sphere_floor";
+
+		Position center_floor(0.0,-10.0,-10.0);
+		Position scale_floor(100.0,0.01,100.0);
+		float degrees_floor = 0.0;
+		Direction axis_floor(0,0,1);
+
+		translate = TranslateMatrix(center_floor);
+		scaling = ScaleMatrix(scale_floor);
+		rotation = RotateMatrix(axis_floor,degrees_floor);
+
+		sphere_floor->SetTransform(translate * rotation * scaling);
+
+		objects.push_back(sphere_floor);
+
+
+		Sphere *sphere_l_wall = new Sphere();
+		sphere_l_wall->oid = 101;
+		sphere_l_wall->color = Color(0.5,0.5,0.4);
+		sphere_l_wall->name = "sphere_l_wall";
+
+		Position center_l_wall(-10.0,0.0,-10.0);
+		Position scale_l_wall(100.0,0.01,100.0);
+		float degrees_l_wall = 90.0;
+		Direction axis_l_wall(0,0,1);
+
+		translate = TranslateMatrix(center_l_wall);
+		scaling = ScaleMatrix(scale_l_wall);
+		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
+
+		sphere_l_wall->SetTransform(translate * rotation * scaling);
+
+		// TODO: put this back in when intersecting objects doesn't blow up the pipeline...
+		// objects.push_back(sphere_l_wall);
 
 		object_count = objects.size();
 
 		// create world light list
-		Position lpos0(-2.5, 0.0, -1.0);
+		Position lpos0(0.0,5.0, -1.0);
 		Light *light0 = new Light(lpos0);
 		light0->color = Color(1.0,1.0,1.0);
 		light0->oid = 0;
@@ -73,13 +141,13 @@ public:
 
 		lights.push_back(light0);
 
-		Position lpos1(2.5, 8.0, -10.0);
+		/*Position lpos1(2.5, 8.0, -10.0);
 		Light *light1 = new Light(lpos1);
 		light1->color = Color(1.0,1.0,1.0);
 		light1->oid = 1;
 		light1->name = "light1";
 
-		lights.push_back(light1);
+		lights.push_back(light1);/**/
 
 		light_count = lights.size();
 	}

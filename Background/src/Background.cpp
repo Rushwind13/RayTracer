@@ -30,7 +30,7 @@ bool Background::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	//pixel.color = Color(0.25,0.25,0.25);
 	//pixel.color = Color(0.0,0.8,0.0);
 
-	float fade = glm::dot( glm::vec3(0,0,-1), pixel.primaryRay.direction );
+	float fade = glm::dot( (glm::vec4)Direction(0,0,-1), (glm::vec4)pixel.primaryRay.direction );
 	// multiply pixel.color by this (you get full color at the horizon, fading to black at zenith)
 	// TODO: only do this if "above" horizon (if ray.direction.y > 0?)
 	pixel.color *= fade;
