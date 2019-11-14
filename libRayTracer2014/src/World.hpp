@@ -91,6 +91,45 @@ public:
 
 		objects.push_back(sphere3);/**/
 
+
+		Sphere *sphere_floor = new Sphere();
+		sphere_floor->oid = 100;
+		sphere_floor->color = Color(0.4,0.5,0.5);
+		sphere_floor->name = "sphere_floor";
+
+		Position center_floor(0.0,-10.0,-10.0);
+		Position scale_floor(100.0,0.01,100.0);
+		float degrees_floor = 0.0;
+		Direction axis_floor(0,0,1);
+
+		translate = TranslateMatrix(center_floor);
+		scaling = ScaleMatrix(scale_floor);
+		rotation = RotateMatrix(axis_floor,degrees_floor);
+
+		sphere_floor->SetTransform(translate * rotation * scaling);
+
+		objects.push_back(sphere_floor);
+
+
+		Sphere *sphere_l_wall = new Sphere();
+		sphere_l_wall->oid = 101;
+		sphere_l_wall->color = Color(0.5,0.5,0.4);
+		sphere_l_wall->name = "sphere_l_wall";
+
+		Position center_l_wall(-10.0,0.0,-10.0);
+		Position scale_l_wall(100.0,0.01,100.0);
+		float degrees_l_wall = 90.0;
+		Direction axis_l_wall(0,0,1);
+
+		translate = TranslateMatrix(center_l_wall);
+		scaling = ScaleMatrix(scale_l_wall);
+		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
+
+		sphere_l_wall->SetTransform(translate * rotation * scaling);
+
+		// TODO: put this back in when intersecting objects doesn't blow up the pipeline...
+		// objects.push_back(sphere_l_wall);
+
 		object_count = objects.size();
 
 		// create world light list
