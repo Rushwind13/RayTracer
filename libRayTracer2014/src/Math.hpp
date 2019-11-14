@@ -13,6 +13,7 @@
 
 const float tau = 6.283185307179586;
 const float deg2rad = tau / 360.0;
+const float epsilon = 0.00001;
 
 
 
@@ -169,9 +170,8 @@ glm::mat4 RotateMatrix( const Direction axis, const float degrees )
 	float _cos = _degrees.x * glm::cos(angle);
 	float _sin = _degrees.y * glm::sin(angle);
 
-  // float EPSILON = 0.00001;
-  // if( glm::abs(_sin - 0.0) < EPSILON ) _sin = 0.0;
-  // if( glm::abs(_cos - 0.0) < EPSILON ) _cos = 0.0;
+  if( glm::abs(_sin - 0.0) < epsilon ) _sin = 0.0;
+  if( glm::abs(_cos - 0.0) < epsilon ) _cos = 0.0;
 
 	glm::mat4 term1 = ScaleMatrix(Position(_cos));
 	glm::mat4 term2;
@@ -205,7 +205,7 @@ glm::mat4 RotateMatrix( const Direction axis, const float degrees )
 	result = term1 + term2 + term3;
 	result[3] = Position(0.0);
 
-	printmat("R(a,theta)", result);
+	// printmat("R(a,theta)", result);
 
 	return result;
 }
@@ -266,12 +266,12 @@ Ray TransformRay( const Ray &in, const glm::mat4 transform )
     result.origin = transform * in.origin;
     result.direction = transform * in.direction;
 
-    printvec("in", in.origin);
-    std::cout << std::endl;
-    printmat("M", transform);
-    printvec("out", result.origin);
-    std::cout << std::endl;
-    std::cout << std::endl;
+    // printvec("in", in.origin);
+    // std::cout << std::endl;
+    // printmat("M", transform);
+    // printvec("out", result.origin);
+    // std::cout << std::endl;
+    // std::cout << std::endl;
 
     return result;
 }

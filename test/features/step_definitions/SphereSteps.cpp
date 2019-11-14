@@ -96,11 +96,11 @@ THEN("^the vector is normalized$")
   Direction actual = context->result_vec;
   Direction expected = glm::normalize(context->result_vec);
 
-  float EPSILON = 0.00001;
+
   bool result = false;
 
-  if( glm::length((glm::vec4)actual) - 1.0 < EPSILON &&
-      glm::length(expected-actual) < EPSILON )
+  if( glm::length((glm::vec4)actual) - 1.0 < epsilon &&
+      glm::length(expected-actual) < epsilon )
   {
       result = true;
   }

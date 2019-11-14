@@ -167,6 +167,8 @@ public:
         i.distance = distance;
         i.position = world.apply(i.distance);
         i.normal = NormalAt(i.position);
+				// to remove off-by-ε errors, bump the hit position along the normal by a small amount...
+				// i.position = i.position + (i.normal * epsilon);
         i.oid = oid;
         i.gothit = true;
 

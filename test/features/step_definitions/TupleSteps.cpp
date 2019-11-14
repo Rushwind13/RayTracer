@@ -269,8 +269,8 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
   Position actual = context->result_pos;
 
   bool result = false;
-  float EPSILON = 0.00001;
-  if( glm::length(expected - actual) < EPSILON )
+
+  if( glm::length(expected - actual) < epsilon )
   {
       result = true;
   }
@@ -298,8 +298,8 @@ THEN("^Results in ([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
   ScenarioScope<TestCtx> context;
 
   bool result = false;
-  float EPSILON = 0.00001;
-  if( glm::length(expected - context->result_pos) < EPSILON )
+
+  if( glm::length(expected - context->result_pos) < epsilon )
   {
       result = true;
   }
@@ -318,8 +318,8 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
   Direction actual = context->result_vec;
 
   bool result = false;
-  float EPSILON = 0.00001;
-  if( glm::length(expected - actual) < EPSILON )
+
+  if( glm::length(expected - actual) < epsilon )
   {
       result = true;
   }
@@ -345,8 +345,8 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a color$")
   ScenarioScope<TestCtx> context;
 
   bool result = false;
-  float EPSILON = 0.00001;
-  if( glm::length(expected - context->result_col) < EPSILON )
+
+  if( glm::length(expected - context->result_col) < epsilon )
   {
       result = true;
   }
@@ -361,8 +361,8 @@ THEN("^the result should be ([0-9.-]+) a float$")
   REGEX_PARAM(float,expected);
   ScenarioScope<TestCtx> context;
   bool result = false;
-  float EPSILON = 0.00001;
-  if( glm::abs(expected - context->result_float) < EPSILON )
+
+  if( glm::abs(expected - context->result_float) < epsilon )
   {
       result = true;
   }
@@ -400,8 +400,8 @@ THEN("^result.([xyzrgb]) should be ([0-9.-]+)$")
         break;
     }
   bool result = false;
-  float EPSILON = 0.00001;
-  if( glm::abs(expected - compare) < EPSILON )
+
+  if( glm::abs(expected - compare) < epsilon )
   {
       result = true;
   }
@@ -435,8 +435,8 @@ THEN("^The scale did not change$")
     float compare = context->result_pos.w;
 
     bool result = false;
-    float EPSILON = 0.00001;
-    if( glm::abs(expected - compare) < EPSILON )
+
+    if( glm::abs(expected - compare) < epsilon )
     {
       result = true;
     }
@@ -452,8 +452,8 @@ THEN("^The scale changed to ([0-9.-]+)$")
     float compare = context->result_pos.w;
 
     bool result = false;
-    float EPSILON = 0.00001;
-    if( glm::abs(expected - compare) < EPSILON )
+
+    if( glm::abs(expected - compare) < epsilon )
     {
       result = true;
     }

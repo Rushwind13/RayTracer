@@ -264,10 +264,9 @@ THEN("^A-1 the inverse of A is the following matrix$")
   glm::mat4 actual = context->result_mat;
 
   bool result = false;
-  float EPSILON = 0.00001;
   for( int i=0; i < 4; i++)
   {
-      if( glm::length(expected[i]-actual[i]) < EPSILON )
+      if( glm::length(expected[i]-actual[i]) < epsilon )
       {
           result = true;
       }
@@ -292,10 +291,10 @@ THEN("^A-1 \\* A = I$")
     glm::mat4 actual = glm::inverse(context->mat) * context->mat;
 
     bool result = false;
-    float EPSILON = 0.00001;
+
     for( int i=0; i < 4; i++)
     {
-        if( glm::length(expected[i]-actual[i]) < EPSILON )
+        if( glm::length(expected[i]-actual[i]) < epsilon )
         {
             result = true;
         }
