@@ -8,16 +8,12 @@
 #ifndef MATH_H_
 #define MATH_H_
 #include <msgpack.hpp>
-#include <cmath>
 
 #include "glm/glm.hpp"
-//using namespace glm;
-/*typedef glm::mat3 mat3 ;
- typedef glm::mat4 mat4 ;
- typedef glm::vec3 vec3 ;
- typedef glm::vec4 vec4 ;/**/
+
 const float tau = 6.283185307179586;
 const float deg2rad = tau / 360.0;
+
 
 
 void printvec( const std::string label, const glm::vec3 vec )
@@ -28,8 +24,15 @@ void printvec( const std::string label, const glm::vec4 vec )
 {
 	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  " << vec.w << "  ";
 }
-// typedef glm::vec3 Color;
-// typedef glm::vec3 Position;
+void printmat( const std::string label, const glm::mat4 mat )
+{
+    glm::mat4 flipper = glm::transpose(mat);
+	printvec(label, flipper[0]); std::cout << std::endl;
+	printvec(label, flipper[1]); std::cout << std::endl;
+	printvec(label, flipper[2]); std::cout << std::endl;
+	printvec(label, flipper[3]); std::cout << std::endl;
+}
+
 class Position : public glm::vec4
 {
 public:
@@ -94,6 +97,138 @@ Direction RefractVector(const Direction vIncident, const Direction vNormal, cons
 	return vRefracted;
 }
 
+glm::mat4 TranslateMatrix( const Position translate )
+{
+	glm::mat4 result(1.0);
+	result[3] = (glm::vec4)translate;
+
+	return result;
+}
+
+glm::mat4 ScaleMatrix( const Position scale )
+{
+	glm::mat4 result(1.0);
+	result[0][0] = scale.x;
+	result[1][1] = scale.y;
+	result[2][2] = scale.z;
+	result[3][3] = scale.w;
+
+	return result;
+}
+
+// glm::sin and glm::cos are only defiend for 0º-90º
+// This function forces all angles to fit within that range,
+// with proper sign-flips to put angles in different Quadrants
+Direction ClampDegreeRange( const float degrees )
+{
+	Direction result;
+	float angle = degrees;
+
+	if( angle < 0.0 )
+	{
+		while( angle < 0.0 ) angle += 360.0;
+	}
+
+	if( angle > 360.0 )
+	{
+		while( angle > 360.0 ) angle -= 360.0;
+	}
+
+	if( angle > 90.0 && angle <= 180.0 )
+	{
+		// std::cout << " QII ";
+		angle -= 90.0;
+		result = Direction(-1.0, 1.0, (90.0 - angle));
+	}
+	else if( angle > 180.0 && angle <= 270.0 )
+	{
+		// std::cout << " QIII ";
+		angle -= 180.0;
+		result = Direction(-1.0, -1.0, angle);
+	}
+	else if( angle > 270.0 )
+	{
+		// std::cout << " QIV ";
+		angle -= 270.0;
+		result = Direction(1.0, -1.0, (90.0 - angle));
+	}
+	else
+	{
+		// std::cout << " QI ";
+		result = Direction(1.0, 1.0, angle);
+	}
+
+	return result;
+}
+
+glm::mat4 RotateMatrix( const Direction axis, const float degrees )
+{
+	glm::mat4 result(1.0);
+	Direction _degrees = ClampDegreeRange(degrees);
+	float angle = _degrees.z * deg2rad;
+	float _cos = _degrees.x * glm::cos(angle);
+	float _sin = _degrees.y * glm::sin(angle);
+
+  // float EPSILON = 0.00001;
+  // if( glm::abs(_sin - 0.0) < EPSILON ) _sin = 0.0;
+  // if( glm::abs(_cos - 0.0) < EPSILON ) _cos = 0.0;
+
+	glm::mat4 term1 = ScaleMatrix(Position(_cos));
+	glm::mat4 term2;
+	glm::mat4 term3;
+
+	float x = axis.x;
+	float y = axis.y;
+	float z = axis.z;
+
+	float x2 = x*x;
+	float y2 = y*y;
+	float z2 = z*z;
+	float xy = x*y;
+	float xz = x*z;
+	float yz = y*z;
+
+	term2[0] = Direction(x2, xy, xz);
+	term2[1] = Direction(xy, y2, yz);
+	term2[2] = Direction(xz, yz, z2);
+	term2[3] = Direction(0.0);
+
+	term3[0] = Direction( 0,  z, -y);
+	term3[1] = Direction(-z,  0,  x);
+	term3[2] = Direction( y, -x,  0);
+	term3[3] = Direction(0.0);
+
+	// term1 *= cos;
+	term2 *= 1.0f - _cos;
+	term3 *= _sin;
+
+	result = term1 + term2 + term3;
+	result[3] = Position(0.0);
+
+	printmat("R(a,theta)", result);
+
+	return result;
+}
+
+glm::mat4 ShearMatrix(
+    const float xy,
+    const float xz,
+    const float yx,
+    const float yz,
+    const float zx,
+    const float zy )
+{
+	glm::mat4 result(1.0);
+	result[1][0] = xy;
+	result[2][0] = xz;
+	result[0][1] = yx;
+	result[2][1] = yz;
+	result[0][2] = zx;
+	result[1][2] = zy;
+
+	return result;
+}
+
 inline float lerp(const float point, const float min, const float max)
 {
 	return point / (max - min);
@@ -110,7 +245,7 @@ public:
 
 	Ray(Position o, Direction d) :
 			direction(d), origin(o) {
-		length = direction.length();
+		length = glm::length((glm::vec4)direction);
 		direction = glm::normalize(direction);
 	}
 
@@ -120,6 +255,24 @@ public:
 	}
 
 	Ray() {};
+
+    Position apply() { return origin + (direction * length); };
+    Position apply( const float t ) const { return origin + (direction * t); };
 };
 
+Ray TransformRay( const Ray &in, const glm::mat4 transform )
+{
+    Ray result;
+    result.origin = transform * in.origin;
+    result.direction = transform * in.direction;
+
+    printvec("in", in.origin);
+    std::cout << std::endl;
+    printmat("M", transform);
+    printvec("out", result.origin);
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    return result;
+}
 #endif /* MATH_H_ */

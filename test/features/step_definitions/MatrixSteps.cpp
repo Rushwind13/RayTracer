@@ -3,16 +3,7 @@
 
 #include <Math.hpp>
 using cucumber::ScenarioScope;
-
-struct MatrixCtx
-{
-  glm::mat4 mat;
-  glm::mat3 mat3;
-  glm::mat2 mat2;
-  glm::mat4 mat_b;
-  glm::vec4 pos;
-  glm::mat4 id = glm::mat4(1);
-};
+#include "TestContext.hpp"
 
 glm::mat4 parseMatrix( const ::cucumber::internal::Table & _table )
 {
@@ -35,12 +26,17 @@ glm::mat4 parseMatrix( const ::cucumber::internal::Table & _table )
     // ...I have to transpose the result *eyeroll*
     return glm::transpose(result);
 }
+/*#######
+##
+## GIVEN
+##
+#######*/
 
 GIVEN("^the following matrix ([MAB]):$")
 {
   REGEX_PARAM(char, name);
   TABLE_PARAM(table);
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
   glm::mat4 input = parseMatrix(table);
   switch(name)
   {
@@ -57,7 +53,7 @@ GIVEN("^the following matrix ([MAB]):$")
 GIVEN("^the following 3x3 matrix M:$")
 {
   TABLE_PARAM(table);
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
 
   const table_hashes_type & rows = table.hashes();
   int col = 0;
@@ -74,7 +70,7 @@ GIVEN("^the following 3x3 matrix M:$")
 GIVEN("^the following 2x2 matrix M:$")
 {
   TABLE_PARAM(table);
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
 
   const table_hashes_type & rows = table.hashes();
   int col = 0;
@@ -87,15 +83,75 @@ GIVEN("^the following 2x2 matrix M:$")
   context->mat2 = glm::transpose(context->mat2);
 }
 
-GIVEN("^the following position <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)>$")
+/*#######
+##
+## WHEN
+##
+#######*/
+WHEN("^I invert the matrix ([MAB])$")
 {
-  REGEX_PARAM(float, x);
-  REGEX_PARAM(float, y);
-  REGEX_PARAM(float, z);
-  REGEX_PARAM(float, w);
-  ScenarioScope<MatrixCtx> context;
-  context->pos = glm::vec4(x,y,z,w);
+    REGEX_PARAM(char, name);
+    ScenarioScope<TestCtx> context;
+    switch(name)
+    {
+      case 'M':
+      case 'A':
+        context->result_mat = glm::inverse(context->mat);
+        break;
+      case 'B':
+        context->result_mat = glm::inverse(context->mat_b);
+        break;
+    }
+
 }
+
+WHEN("^R = ([MABCR]) \\* ([MABCR])$")
+{
+    REGEX_PARAM(char, l);
+    REGEX_PARAM(char, r);
+    ScenarioScope<TestCtx> context;
+    glm::mat4 lhs;
+    glm::mat4 rhs;
+    switch(l)
+    {
+      case 'M':
+      case 'A':
+        lhs = context->mat;
+        break;
+      case 'B':
+        lhs = context->mat_b;
+        break;
+      case 'C':
+        lhs = context->mat_c;
+        break;
+      case 'R':
+        lhs = context->result_mat;
+        break;
+    }
+    switch(r)
+    {
+      case 'M':
+      case 'A':
+        rhs = context->mat;
+        break;
+      case 'B':
+        rhs = context->mat_b;
+        break;
+      case 'C':
+        rhs = context->mat_c;
+        break;
+      case 'R':
+        rhs = context->result_mat;
+        break;
+    }
+    context->result_mat = lhs * rhs;
+}
+
+/*#######
+##
+## THEN
+##
+#######*/
 
 THEN("^M([234])<([0-9]),([0-9])> = ([0-9.-]+)$")
 {
@@ -103,7 +159,7 @@ THEN("^M([234])<([0-9]),([0-9])> = ([0-9.-]+)$")
   REGEX_PARAM(int, row);
   REGEX_PARAM(int, col);
   REGEX_PARAM(float, expected);
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
   float result = 1e9;
   switch(dim)
   {
@@ -123,13 +179,13 @@ THEN("^M([234])<([0-9]),([0-9])> = ([0-9.-]+)$")
 
 THEN("^A = B$")
 {
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
   EXPECT_EQ(context->mat, context->mat_b);
 }
 
 THEN("^A != B$")
 {
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
   EXPECT_NE(context->mat, context->mat_b);
 }
 
@@ -137,7 +193,7 @@ THEN("^A != B$")
 THEN("^A \\* B is the following 4x4 matrix:$")
 {
   TABLE_PARAM(table);
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
   glm::mat4 expected = parseMatrix(table);
   glm::mat4 result = context->mat * context->mat_b;
   // std::cout << result[0][0] << ' ' << result[1][1] << ' ' << result[2][2] << ' ' << result[3][3] << std::endl;
@@ -151,23 +207,35 @@ THEN("^A \\* b = <([0-9.-]+),([0-9.-]+),([0-9.-]+),([0-9.-]+)> is a position$")
   REGEX_PARAM(float, y);
   REGEX_PARAM(float, z);
   REGEX_PARAM(float, w);
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
   glm::vec4 expected(x,y,z,w);
   glm::vec4 result = context->mat * context->pos;
 
   EXPECT_EQ(result, expected);
 }
 
+THEN("^A \\* v = <([0-9.-]+),([0-9.-]+),([0-9.-]+)> is a vector$")
+{
+  REGEX_PARAM(float, x);
+  REGEX_PARAM(float, y);
+  REGEX_PARAM(float, z);
+  ScenarioScope<TestCtx> context;
+  Direction expected(x,y,z);
+  Direction result = context->mat * context->vec;
+
+  EXPECT_EQ(result, expected);
+}
+
 THEN("^A \\* I = A$")
 {
-    ScenarioScope<MatrixCtx> context;
+    ScenarioScope<TestCtx> context;
     glm::mat4 result = context->mat * context->id;
     EXPECT_EQ(result, context->mat);
 }
 
 THEN("^I \\* b = b$")
 {
-    ScenarioScope<MatrixCtx> context;
+    ScenarioScope<TestCtx> context;
     glm::vec4 result = context->id * context->pos;
     EXPECT_EQ(result, context->pos);
 }
@@ -175,7 +243,7 @@ THEN("^I \\* b = b$")
 THEN("^M transpose, MT, is the following matrix")
 {
   TABLE_PARAM(table);
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
   glm::mat4 expected = parseMatrix(table);
   glm::mat4 result = glm::transpose(context->mat);
 
@@ -184,16 +252,16 @@ THEN("^M transpose, MT, is the following matrix")
 
 THEN("^I = IT$")
 {
-    ScenarioScope<MatrixCtx> context;
+    ScenarioScope<TestCtx> context;
     EXPECT_EQ(context->id, glm::transpose(context->id));
 }
 
 THEN("^A-1 the inverse of A is the following matrix$")
 {
   TABLE_PARAM(table);
-  ScenarioScope<MatrixCtx> context;
+  ScenarioScope<TestCtx> context;
   glm::mat4 expected = parseMatrix(table);
-  glm::mat4 actual = glm::inverse(context->mat);
+  glm::mat4 actual = context->result_mat;
 
   bool result = false;
   float EPSILON = 0.00001;
@@ -219,7 +287,7 @@ THEN("^A-1 the inverse of A is the following matrix$")
 
 THEN("^A-1 \\* A = I$")
 {
-    ScenarioScope<MatrixCtx> context;
+    ScenarioScope<TestCtx> context;
     glm::mat4 expected = context->id;
     glm::mat4 actual = glm::inverse(context->mat) * context->mat;
 
