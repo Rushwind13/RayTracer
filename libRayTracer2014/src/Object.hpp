@@ -1,9 +1,9 @@
 /*
- * Object.h
- *
- *  Created on: Mar 25, 2014
- *      Author: jimbo
- */
+* Object.h
+*
+*  Created on: Mar 25, 2014
+*      Author: jimbo
+*/
 
 #ifndef OBJECT_H_
 #define OBJECT_H_
@@ -24,12 +24,12 @@ public:
 	}
 	virtual ~Object() {}
 	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
-    void SetTransform( const glm::mat4 o2w )
-    {
-        objectToWorld = o2w;
-        worldToObject = glm::inverse(objectToWorld);
-        normalToWorld = glm::transpose(worldToObject);
-    }
+	void SetTransform( const glm::mat4 o2w )
+	{
+		objectToWorld = o2w;
+		worldToObject = glm::inverse(objectToWorld);
+		normalToWorld = glm::transpose(worldToObject);
+	}
 	glm::mat4 objectToWorld, worldToObject, normalToWorld;
 	Color color;
 	short oid = -1;
@@ -38,45 +38,45 @@ public:
 };
 
 /**
- * def Intersect( ray, scene, from_object=None, clip_dist=1000000 ):
-	#print "in intersect"
-	# just hardcode sphere intersection for the moment
-	hit = {'gothit':False, 'distance':clip_dist}
-	#print ("a")
-	self_epsilon = .1
+* def Intersect( ray, scene, from_object=None, clip_dist=1000000 ):
+#print "in intersect"
+# just hardcode sphere intersection for the moment
+hit = {'gothit':False, 'distance':clip_dist}
+#print ("a")
+self_epsilon = .1
 
-	for o in scene['object']:
-		self_test = False
-		if from_object:
-			#print hit
-			#print ray
-			# No intersecting with yourself
-			if from_object['id'] == scene['object'][o]['id']: self_test = True #continue
-			# No intersecting with light sources ("emissive" objects)
-			# (only when checking for shadow calc)
-			if 'emissive' in scene['object'][o]['material']: continue
-		try:
-			func = getattr( sys.modules[__name__], scene['object'][o]['type'] )
-		except AttributeError:
-			print 'function not found "%s" (%s)' % (scene['object'][o], scene['object'][o]['type'])
-		else:
-			new_hit = func(ray, scene['object'][o])
-			#print "after func"
-			global camera_dist
-			if new_hit['gothit'] and new_hit['distance'] < hit['distance']:
-				if self_test:
-					if abs(new_hit['distance']) < self_epsilon:
-						#print "epsilon hit"
-						continue
-				hit = deepcopy(new_hit)
-				if from_object:
-					#print "shadow hit"
-					break # shadows only need to have one intersection, not just the closest one.
+for o in scene['object']:
+self_test = False
+if from_object:
+#print hit
+#print ray
+# No intersecting with yourself
+if from_object['id'] == scene['object'][o]['id']: self_test = True #continue
+# No intersecting with light sources ("emissive" objects)
+# (only when checking for shadow calc)
+if 'emissive' in scene['object'][o]['material']: continue
+try:
+func = getattr( sys.modules[__name__], scene['object'][o]['type'] )
+except AttributeError:
+print 'function not found "%s" (%s)' % (scene['object'][o], scene['object'][o]['type'])
+else:
+new_hit = func(ray, scene['object'][o])
+#print "after func"
+global camera_dist
+if new_hit['gothit'] and new_hit['distance'] < hit['distance']:
+if self_test:
+if abs(new_hit['distance']) < self_epsilon:
+#print "epsilon hit"
+continue
+hit = deepcopy(new_hit)
+if from_object:
+#print "shadow hit"
+break # shadows only need to have one intersection, not just the closest one.
 
-	#if hit['gothit']: print hit
-	#else: print 'no hit'
-	return hit
- */
+#if hit['gothit']: print hit
+#else: print 'no hit'
+return hit
+*/
 
 class Light: public Object
 {
@@ -97,84 +97,84 @@ public:
 class Sphere : public Object
 {
 public:
-    Sphere()
-    {
-        std::cout << "Sphere()" << std::endl;
-        color = COLOR_RED;
-        center = Position(0);
-        radius = 1.0;
-        radius2 = 1.0;
-    }
+	Sphere()
+	{
+		std::cout << "Sphere()" << std::endl;
+		color = COLOR_RED;
+		center = Position(0);
+		radius = 1.0;
+		radius2 = 1.0;
+	}
 
 	Sphere( Position c, float r = 1 )
 	{
-        std::cout << "Sphere(c,r)" << std::endl;
-			color = COLOR_RED;
-            Position scalar(r);
-            // scalar.y /= 2.0;
-            glm::mat4 scale = ScaleMatrix(scalar);
-            glm::mat4 translate = TranslateMatrix(c);
-            SetTransform(translate * scale);
-            center = Position(0);
-            radius = 1.0;
-            radius2 = 1.0;
+		std::cout << "Sphere(c,r)" << std::endl;
+		color = COLOR_RED;
+		Position scalar(r);
+		// scalar.y /= 2.0;
+		glm::mat4 scale = ScaleMatrix(scalar);
+		glm::mat4 translate = TranslateMatrix(c);
+		SetTransform(translate * scale);
+		center = Position(0);
+		radius = 1.0;
+		radius2 = 1.0;
 	}
 
-    Sphere( const glm::mat4 o2w )
-    {
-        std::cout << "Sphere(o2w)" << std::endl;
-			color = COLOR_RED;
-            SetTransform(o2w);
-            center = Position(0);
-            radius = 1.0;
-            radius2 = 1.0;
-    }
-#define MATRIX
-#ifdef MATRIX
-    bool Intersect( const Ray &world, Intersection &i ) const
-    {
-        Ray object = TransformRay(world, worldToObject);
+	Sphere( const glm::mat4 o2w )
+	{
+		std::cout << "Sphere(o2w)" << std::endl;
+		color = COLOR_RED;
+		SetTransform(o2w);
+		center = Position(0);
+		radius = 1.0;
+		radius2 = 1.0;
+	}
+	#define MATRIX
+	#ifdef MATRIX
+	bool Intersect( const Ray &world, Intersection &i ) const
+	{
+		Ray object = TransformRay(world, worldToObject);
 
-        Direction eye = object.origin - center;
-        Direction dir = object.direction;
-        float a = glm::dot((glm::vec4)dir, (glm::vec4)dir);
-        float b = glm::dot((glm::vec4)eye, (glm::vec4)dir);
-        float c = glm::dot((glm::vec4)eye, (glm::vec4)eye) - 1.0;
+		Direction eye = object.origin - center;
+		Direction dir = object.direction;
+		float a = glm::dot((glm::vec4)dir, (glm::vec4)dir);
+		float b = glm::dot((glm::vec4)eye, (glm::vec4)dir);
+		float c = glm::dot((glm::vec4)eye, (glm::vec4)eye) - 1.0;
 
-        float b2 = b * b;
-        float ac = a * c;
+		float b2 = b * b;
+		float ac = a * c;
 
-        if( b2 < ac )
-        {
-            i.distance = 1e9;
-            i.gothit = false;
-            return false;
-        }
-
-        float discriminant = std::sqrt(b2 - ac);
-        float root1 = (-b + discriminant) / a;
-        float root2 = (-b - discriminant) / a;
-
-        float distance = std::min(root1, root2);
-        if( distance < 0.0 )
-        {
-            // TODO: deal with internal reflection later
+		if( b2 < ac )
+		{
 			i.distance = 1e9;
 			i.gothit = false;
-            return false;
-        }
+			return false;
+		}
 
-        i.distance = distance;
-        i.position = world.apply(i.distance);
-        i.normal = NormalAt(i.position);
-				// to remove off-by-ε errors, bump the hit position along the normal by a small amount...
-				// i.position = i.position + (i.normal * epsilon);
-        i.oid = oid;
-        i.gothit = true;
+		float discriminant = std::sqrt(b2 - ac);
+		float root1 = (-b + discriminant) / a;
+		float root2 = (-b - discriminant) / a;
 
-        return true;
-    }
-#else
+		float distance = std::min(root1, root2);
+		if( distance < 0.0 )
+		{
+			// TODO: deal with internal reflection later
+			i.distance = 1e9;
+			i.gothit = false;
+			return false;
+		}
+
+		i.distance = distance;
+		i.position = world.apply(i.distance);
+		i.normal = NormalAt(i.position);
+		// to remove off-by-ε errors, bump the hit position along the normal by a small amount...
+		// i.position = i.position + (i.normal * epsilon);
+		i.oid = oid;
+		i.gothit = true;
+
+		return true;
+	}
+	#else
 	bool Intersect( const Ray &r, Intersection &i ) const
 	{
 		// std::cout << "Intersect" << std::endl;
@@ -257,30 +257,30 @@ public:
 
 		// TODO: texture coordinates
 		/*
-		 * 	u = sqrt( normal[0]*normal[0] + normal[2]*normal[2] ) * 2. # multiply by 2 because X goes 360 where Y goes 180
-			v = arctan2(normal[2],normal[0])
-			texture = array([u,v])
-		 */
+		* 	u = sqrt( normal[0]*normal[0] + normal[2]*normal[2] ) * 2. # multiply by 2 because X goes 360 where Y goes 180
+		v = arctan2(normal[2],normal[0])
+		texture = array([u,v])
+		*/
 
 		// std::cout << "done with Intersect" << std::endl;
 		return true;
 	}
-#endif // MATRIX
-    Direction NormalAt( const Direction world_pos ) const
-    {
-        Direction world_normal;
-        Direction object_normal;
+	#endif // MATRIX
+	Direction NormalAt( const Direction world_pos ) const
+	{
+		Direction world_normal;
+		Direction object_normal;
 
-        Position object_pos;
+		Position object_pos;
 
-        object_pos = worldToObject * world_pos;
-        object_normal = object_pos - center;
+		object_pos = worldToObject * world_pos;
+		object_normal = object_pos - center;
 
-        world_normal = normalToWorld * object_normal;
-        world_normal.w = 0.0;
+		world_normal = normalToWorld * object_normal;
+		world_normal.w = 0.0;
 
-        return glm::normalize(world_normal);
-    }
+		return glm::normalize(world_normal);
+	}
 protected:
 	Position center;
 	float radius, radius2;
@@ -290,20 +290,20 @@ class Box : public Object
 {
 public:
 	Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
-		bool Intersect( const Ray &r, Intersection &i ) const
-		{
-			return false;
-/**
- * def box( ray, object ):
-	#print "in box"
-	p1 = object['p1']
-	p2 = object['p2']
+	bool Intersect( const Ray &r, Intersection &i ) const
+	{
+		return false;
+		/**
+		* def box( ray, object ):
+		#print "in box"
+		p1 = object['p1']
+		p2 = object['p2']
 
-	Tnear = -1000000.
-	Tfar = 1000000.
+		Tnear = -1000000.
+		Tfar = 1000000.
 
-	hitp1=[False,False,False]
-	for axis in (0,1,2):
+		hitp1=[False,False,False]
+		for axis in (0,1,2):
 		# generalized axis check
 		d = ray[1][axis] # direction of ray for this axis
 		o = ray[0][axis] # origin of ray for this axis
@@ -314,94 +314,94 @@ public:
 		#print("2")
 		#print d
 		if d == 0.0: # parallel to axis, so just check origin between planes
-			if o < l or o > h:
-				#print "o not between planes on axis: " + str(axis)+ " " + str(l) + " "+ str(o) + " "  + str(h)
-				return {'gothit':False}
-			else:
-				D = 1.
+		if o < l or o > h:
+		#print "o not between planes on axis: " + str(axis)+ " " + str(l) + " "+ str(o) + " "  + str(h)
+		return {'gothit':False}
 		else:
-			D = 1. / d
+		D = 1.
+		else:
+		D = 1. / d
 		#print("3")
 		T1 = (l - o) * D
 		T2 = (h - o) * D
 		if T1 > T2: (T1,T2, hitp1[axis])=(T2,T1, hitp1[axis]) # T1 is intersection with near plane
 		if T1 > Tnear:
-			#print T1
-			Tnear = T1 # want largest Tnear
-			nearaxis = axis # if you move Tnear, then you know which axis you hit
+		#print T1
+		Tnear = T1 # want largest Tnear
+		nearaxis = axis # if you move Tnear, then you know which axis you hit
 		if T2 < Tfar:
-			#print T2
-			Tfar  = T2 # want smallest Tfar
+		#print T2
+		Tfar  = T2 # want smallest Tfar
 		if Tnear > Tfar:
-			#print "Tnear > Tfar on axis: " + str(axis) + " "+ str(Tnear) + " "  + str(Tfar)
-			return {'gothit':False} # box missed
+		#print "Tnear > Tfar on axis: " + str(axis) + " "+ str(Tnear) + " "  + str(Tfar)
+		return {'gothit':False} # box missed
 		#print("4")
 		if Tfar < 0:
-			#print "Tfar < 0 on axis: " + str(axis) + " "+ str(Tfar)
-			return {'gothit':False} # ray behind box
+		#print "Tfar < 0 on axis: " + str(axis) + " "+ str(Tfar)
+		return {'gothit':False} # ray behind box
 
-	# if you get here, you hit the box at Tnear (and exited at Tfar)
-	# also, with hitp1 and nearaxis, you can figure out which of the 6 sides you hit (assume axis-aligned for now, transformations later):
-	distance = Tnear
+		# if you get here, you hit the box at Tnear (and exited at Tfar)
+		# also, with hitp1 and nearaxis, you can figure out which of the 6 sides you hit (assume axis-aligned for now, transformations later):
+		distance = Tnear
 
-	#print "distance: " + str(distance)
+		#print "distance: " + str(distance)
 
-	if distance < 0.: # you are inside object, don't intersect with it (until you do bounding boxes later)
+		if distance < 0.: # you are inside object, don't intersect with it (until you do bounding boxes later)
 		return {'gothit':False}
 
-	#distance = distance + camera_dist
-	intersection = ray[0] + (ray[1] * distance)
+		#distance = distance + camera_dist
+		intersection = ray[0] + (ray[1] * distance)
 
-	# create a normal
-	# Except for the Z axis (because we're looking down -Z), if you hit the "lower" value, the normal goes more negative.
-	normal = array([0.,0.,0.])
-	epsilon = 0.1
-	if intersection[nearaxis] - p1[nearaxis] < epsilon:
+		# create a normal
+		# Except for the Z axis (because we're looking down -Z), if you hit the "lower" value, the normal goes more negative.
+		normal = array([0.,0.,0.])
+		epsilon = 0.1
+		if intersection[nearaxis] - p1[nearaxis] < epsilon:
 		normal[nearaxis] = p1[nearaxis]-p2[nearaxis]
-	elif intersection[nearaxis] - p2[nearaxis] < epsilon:
+		elif intersection[nearaxis] - p2[nearaxis] < epsilon:
 		normal[nearaxis] = p2[nearaxis]-p1[nearaxis]
-	else:
+		else:
 		d1 = intersection[nearaxis] - p1[nearaxis]
 		d2 = intersection[nearaxis] - p2[nearaxis]
 		print array([nearaxis, intersection[nearaxis], p1[nearaxis], p2[nearaxis], d1, d2])
-	if la.norm(normal) == 0.:
+		if la.norm(normal) == 0.:
 		print intersection
 		print nearaxis
 		print p1
 		print p2
 		print '\n'
-	normal = normal / la.norm(normal)
-	#if hitp1[nearaxis]: normal[nearaxis] = -1.
-	#else: normal[nearaxis] = 1.
+		normal = normal / la.norm(normal)
+		#if hitp1[nearaxis]: normal[nearaxis] = -1.
+		#else: normal[nearaxis] = 1.
 
-	# create texture coordinates
-	# lerp between min/max on the face (note you know which axis you hit, so just use the other axes)
-	u = 0.
-	v = 0.
-	if nearaxis == 0: # hit x axis, use y,z
+		# create texture coordinates
+		# lerp between min/max on the face (note you know which axis you hit, so just use the other axes)
+		u = 0.
+		v = 0.
+		if nearaxis == 0: # hit x axis, use y,z
 		u = lerp(intersection[2], p2[2], p1[2])
 		v = lerp(intersection[1], p2[1], p1[1])
-	elif nearaxis == 1: # hit y axis, use x,z
+		elif nearaxis == 1: # hit y axis, use x,z
 		u = lerp(intersection[0], p2[0], p1[0])
 		v = lerp(intersection[2], p2[2], p1[2])
-	else: # hit z axis, use x,y
+		else: # hit z axis, use x,y
 		u = lerp(intersection[0], p2[0], p1[0])
 		v = lerp(intersection[1], p2[1], p1[1])
-	texture = array([u,v])
-	#print hitp1
-	#print array([nearaxis, Tnear, Tfar])
-	#print array([ray[1], intersection])
-	#print distance
-	#print intersection
-	#print normal
-	#print '\n'
+		texture = array([u,v])
+		#print hitp1
+		#print array([nearaxis, Tnear, Tfar])
+		#print array([ray[1], intersection])
+		#print distance
+		#print intersection
+		#print normal
+		#print '\n'
 
-	return {'gothit':True, 'object': object, 'distance':distance, 'intersection': intersection, 'normal':normal, 'texture':texture}
- *
- */
-		}
+		return {'gothit':True, 'object': object, 'distance':distance, 'intersection': intersection, 'normal':normal, 'texture':texture}
+		*
+		*/
+	}
 protected:
-		Position corner1, corner2;
+	Position corner1, corner2;
 };
 
 // TODO: Comments about parametric equations
@@ -418,87 +418,87 @@ enum eFunction
 class ParametricEquation: public Object
 {
 public:
-        ParametricEquation(
+	ParametricEquation(
 		Position pos,
 		eFunction xFunction = FUNCTION_IDENTITY,
 		eFunction yFunction = FUNCTION_IDENTITY,
 		eFunction zFunction = FUNCTION_IDENTITY )
-	: position(pos), x(xFunction), y(yFunction), z(zFunction)
+		: position(pos), x(xFunction), y(yFunction), z(zFunction)
+		{
+			color = COLOR_RED;
+		}
+		~ParametricEquation() {}
+
+		bool Intersect( const Ray &r, Intersection &i ) const
+		{
+			// TODO: write Intersect function
+			// To intersect a ray with a function, need to solve the following:
+			// ray = o + dt , where o (vector) is the ray's origin, d (vector) is the direction, and t is the length(scalar)
+			// function = (e.g.) cos x
+			// so we need o + dt = cos x, solve for t
+			// dt = cos x - o
+			// t = ( cos x - o ) / d
+			// NOTE: After further research, I have found out that thsi can't be directly computed, and Newton's method
+			//       should be used. There was a nice paper presented at SIGGRAPH 1985 by Daniel Toth on the algorithm,
+			//       and it devolves to iteratively finding bounding boxes (axis aligned and defined as the inverse Jacobian)
+			//       that are closer and closer to the accuracy desired. For now (9/9/2019), I am giving up on parametric equations,
+			//       because both axis-aligned box intersection needs to be done, and then the algorithm needs to be implemented.
+			return false;
+		}
+
+		Position position;
+		eFunction x, y, z;
+	};
+
+	class Cylinder: public Object
 	{
-		color = COLOR_RED;
-	}
-        ~ParametricEquation() {}
+	public:
+		Cylinder(Position pos) : position(pos) {}
+		//Cylinder() {}
+		~Cylinder() {}
 
-        bool Intersect( const Ray &r, Intersection &i ) const
-        {
-// TODO: write Intersect function
-		// To intersect a ray with a function, need to solve the following:
-		// ray = o + dt , where o (vector) is the ray's origin, d (vector) is the direction, and t is the length(scalar)
-		// function = (e.g.) cos x
-		// so we need o + dt = cos x, solve for t
-		// dt = cos x - o
-		// t = ( cos x - o ) / d
-// NOTE: After further research, I have found out that thsi can't be directly computed, and Newton's method
-//       should be used. There was a nice paper presented at SIGGRAPH 1985 by Daniel Toth on the algorithm,
-//       and it devolves to iteratively finding bounding boxes (axis aligned and defined as the inverse Jacobian)
-//       that are closer and closer to the accuracy desired. For now (9/9/2019), I am giving up on parametric equations,
-//       because both axis-aligned box intersection needs to be done, and then the algorithm needs to be implemented.
-                return false;
-        }
+		bool Intersect( const Ray &r, Intersection &i ) const
+		{
+			// TODO: Implement cylinder intersection
+			return false;
+		}
 
-        Position position;
-	eFunction x, y, z;
-};
+		Position position;
+	};
 
-class Cylinder: public Object
-{
-public:
-        Cylinder(Position pos) : position(pos) {}
-        //Cylinder() {}
-        ~Cylinder() {}
+	class Cone: public Object
+	{
+	public:
+		Cone(Position pos) : position(pos) {}
+		//Cone() {}
+		~Cone() {}
 
-        bool Intersect( const Ray &r, Intersection &i ) const
-        {
-                // TODO: Implement cylinder intersection
-                return false;
-        }
+		bool Intersect( const Ray &r, Intersection &i ) const
+		{
+			// TODO: Implement Cone intersection
+			return false;
+		}
 
-        Position position;
-};
-
-class Cone: public Object
-{
-public:
-        Cone(Position pos) : position(pos) {}
-        //Cone() {}
-        ~Cone() {}
-
-        bool Intersect( const Ray &r, Intersection &i ) const
-        {
-                // TODO: Implement Cone intersection
-                return false;
-        }
-
-        Position position;
-};
+		Position position;
+	};
 
 
-class Torus: public Object
-{
-public:
-        Torus(Position pos) : position(pos) {}
-        //Torus() {}
-        ~Torus() {}
+	class Torus: public Object
+	{
+	public:
+		Torus(Position pos) : position(pos) {}
+		//Torus() {}
+		~Torus() {}
 
-        bool Intersect( const Ray &r, Intersection &i ) const
-        {
-                // TODO: Implement Torus intersection
-                return false;
-        }
+		bool Intersect( const Ray &r, Intersection &i ) const
+		{
+			// TODO: Implement Torus intersection
+			return false;
+		}
 
-        Position position;
-};
+		Position position;
+	};
 
 
-// TODO: Deal with rotation / scaling / translation of primitives (instead of only axis-aligned and centered at origin)
-#endif /* OBJECT_H_ */
+	// TODO: Deal with rotation / scaling / translation of primitives (instead of only axis-aligned and centered at origin)
+	#endif /* OBJECT_H_ */
