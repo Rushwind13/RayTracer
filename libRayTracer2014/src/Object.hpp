@@ -138,22 +138,22 @@ public:
         Direction eye = object.origin - center;
         Direction dir = object.direction;
         float a = glm::dot((glm::vec4)dir, (glm::vec4)dir);
-        float b = 2.0 * glm::dot((glm::vec4)eye, (glm::vec4)dir);
+        float b = glm::dot((glm::vec4)eye, (glm::vec4)dir);
         float c = glm::dot((glm::vec4)eye, (glm::vec4)eye) - 1.0;
 
         float b2 = b * b;
-        float ac4 = 4.0 * a * c;
+        float ac = a * c;
 
-        if( b2 < ac4 )
+        if( b2 < ac )
         {
             i.distance = 1e9;
             i.gothit = false;
             return false;
         }
 
-        float discriminant = std::sqrt(b2 - ac4);
-        float root1 = (-b + discriminant) / (2.0 * a);
-        float root2 = (-b - discriminant) / (2.0 * a);
+        float discriminant = std::sqrt(b2 - ac);
+        float root1 = (-b + discriminant) / a;
+        float root2 = (-b - discriminant) / a;
 
         float distance = std::min(root1, root2);
         if( distance < 0.0 )
