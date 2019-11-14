@@ -73,14 +73,14 @@ Feature: Matrix Transformations
     And The scale did not change
 ## Rotation
   Scenario: Rotate a point around the X axis
-    Given I create a rotation matrix A 90 degrees about X
+    Given I create a rotation matrix A 90 degrees about 1,0,0
     When I transform the position 0,1,0 with A
     Then the result should be 0,0,1 a position
     And It is a position
     And The scale did not change
 
   Scenario: The inverse of a rotation rotates in the opposite direction
-    Given I create a rotation matrix A 90 degrees about X
+    Given I create a rotation matrix A 90 degrees about 1,0,0
     When I invert the matrix A
     When I transform the position 0,1,0 with R
     Then the result should be 0,0,-1 a position
@@ -88,16 +88,37 @@ Feature: Matrix Transformations
     And The scale did not change
 
   Scenario: Rotate a point around the Y axis
-    Given I create a rotation matrix A 90 degrees about Y
+    Given I create a rotation matrix A 90 degrees about 0,1,0
     When I transform the position 0,0,1 with A
     Then the result should be 1,0,0 a position
     And It is a position
     And The scale did not change
 
   Scenario: Rotate a point around the Z axis
-    Given I create a rotation matrix A 90 degrees about Z
+    Given I create a rotation matrix A 90 degrees about 0,0,1
     When I transform the position 0,1,0 with A
     Then the result should be -1,0,0 a position
+    And It is a position
+    And The scale did not change
+
+  Scenario: Rotate a point around the Z axis more than 90 degrees
+    Given I create a rotation matrix A 180 degrees about 0,0,1
+    When I transform the position 0,1,0 with A
+    Then the result should be 0,-1,0 a position
+    And It is a position
+    And The scale did not change
+
+  Scenario: Rotate a point around the Z axis more than 360 degrees
+    Given I create a rotation matrix A 450 degrees about 0,0,1
+    When I transform the position 0,1,0 with A
+    Then the result should be -1,0,0 a position
+    And It is a position
+    And The scale did not change
+
+  Scenario: Rotate a point around the Z axis a negative amount
+    Given I create a rotation matrix A -90 degrees about 0,0,1
+    When I transform the position 0,1,0 with A
+    Then the result should be 1,0,0 a position
     And It is a position
     And The scale did not change
 ## Shearing
@@ -144,7 +165,7 @@ Feature: Matrix Transformations
         And The scale did not change
 ## Chaining transformations
     Scenario: Individual transformations are applied in sequence
-        Given I create a rotation matrix A 90 degrees about X
+        Given I create a rotation matrix A 90 degrees about 1,0,0
         Given I have a position 5,5,5 in the data
         And I create a scaling matrix B
         Given I have a position 10,5,7 in the data
@@ -159,7 +180,7 @@ Feature: Matrix Transformations
         And The scale did not change
 
     Scenario: Chained transformations must be applied in reverse
-        Given I create a rotation matrix A 90 degrees about X
+        Given I create a rotation matrix A 90 degrees about 1,0,0
         Given I have a position 5,5,5 in the data
         And I create a scaling matrix B
         Given I have a position 10,5,7 in the data

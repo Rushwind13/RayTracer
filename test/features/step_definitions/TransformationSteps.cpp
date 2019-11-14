@@ -56,13 +56,15 @@ GIVEN("^I create a scaling matrix ([MABCR])$")
   }
 }
 
-GIVEN("^I create a rotation matrix ([MABCR]) ([0-9.-]+) degrees about ([XYZ])$")
+GIVEN("^I create a rotation matrix ([MABCR]) ([0-9.-]+) degrees about ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
 {
   REGEX_PARAM(char, name);
   REGEX_PARAM(float, degrees);
-  REGEX_PARAM(char, axis);
+  REGEX_PARAM(float, x);
+  REGEX_PARAM(float, y);
+  REGEX_PARAM(float, z);
   ScenarioScope<TestCtx> context;
-  glm::mat4 input = RotateMatrix(degrees, axis);
+  glm::mat4 input = RotateMatrix(Direction(x,y,z), degrees);
   switch(name)
   {
       case 'M':

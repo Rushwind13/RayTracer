@@ -86,7 +86,7 @@ Feature: Spheres
     Given I have a sphere
     And I have a position 1,0.5,1 in the data
     And I create a scaling matrix A
-    And I create a rotation matrix B 36 degrees about Z
+    And I create a rotation matrix B 36 degrees about 0,0,1
     When R = A * B
     And I set the sphere's transform to R
     And I calculate the normal at 0,0.70711,-0.70711

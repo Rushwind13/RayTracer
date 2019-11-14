@@ -8,12 +8,12 @@
 #ifndef MATH_H_
 #define MATH_H_
 #include <msgpack.hpp>
-#include <cmath>
 
 #include "glm/glm.hpp"
 
 const float tau = 6.283185307179586;
 const float deg2rad = tau / 360.0;
+
 
 
 void printvec( const std::string label, const glm::vec3 vec )
@@ -116,37 +116,96 @@ glm::mat4 ScaleMatrix( const Position scale )
 	return result;
 }
 
-glm::mat4 RotateMatrix( const float degrees, const char axis )
+// glm::sin and glm::cos are only defiend for 0º-90º
+// This function forces all angles to fit within that range,
+// with proper sign-flips to put angles in different Quadrants
+Direction ClampDegreeRange( const float degrees )
+{
+	Direction result;
+	float angle = degrees;
+
+	if( angle < 0.0 )
+	{
+		while( angle < 0.0 ) angle += 360.0;
+	}
+
+	if( angle > 360.0 )
+	{
+		while( angle > 360.0 ) angle -= 360.0;
+	}
+
+	if( angle > 90.0 && angle <= 180.0 )
+	{
+		// std::cout << " QII ";
+		angle -= 90.0;
+		result = Direction(-1.0, 1.0, (90.0 - angle));
+	}
+	else if( angle > 180.0 && angle <= 270.0 )
+	{
+		// std::cout << " QIII ";
+		angle -= 180.0;
+		result = Direction(-1.0, -1.0, angle);
+	}
+	else if( angle > 270.0 )
+	{
+		// std::cout << " QIV ";
+		angle -= 270.0;
+		result = Direction(1.0, -1.0, (90.0 - angle));
+	}
+	else
+	{
+		// std::cout << " QI ";
+		result = Direction(1.0, 1.0, angle);
+	}
+
+	return result;
+}
+
+glm::mat4 RotateMatrix( const Direction axis, const float degrees )
 {
 	glm::mat4 result(1.0);
-	float angle = degrees * deg2rad;
-  float sin = glm::sin(angle);
-  float cos = glm::cos(angle);
-  float EPSILON = 0.00001;
-  if( sin < EPSILON ) sin = 0.0;
-  if( cos < EPSILON ) cos = 0.0;
+	Direction _degrees = ClampDegreeRange(degrees);
+	float angle = _degrees.z * deg2rad;
+	float _cos = _degrees.x * glm::cos(angle);
+	float _sin = _degrees.y * glm::sin(angle);
 
-	switch(axis)
-	{
-		case 'X':
-			result[1][1] = cos;
-			result[2][1] = -sin;
-			result[1][2] = sin;
-			result[2][2] = cos;
-			break;
-		case 'Y':
-			result[0][0] = cos;
-			result[2][0] = sin;
-			result[0][2] = -sin;
-			result[2][2] = cos;
-			break;
-		case 'Z':
-			result[0][0] = cos;
-			result[1][0] = -sin;
-			result[0][1] = sin;
-			result[1][1] = cos;
-			break;
-	}
+  // float EPSILON = 0.00001;
+  // if( glm::abs(_sin - 0.0) < EPSILON ) _sin = 0.0;
+  // if( glm::abs(_cos - 0.0) < EPSILON ) _cos = 0.0;
+
+	glm::mat4 term1 = ScaleMatrix(Position(_cos));
+	glm::mat4 term2;
+	glm::mat4 term3;
+
+	float x = axis.x;
+	float y = axis.y;
+	float z = axis.z;
+
+	float x2 = x*x;
+	float y2 = y*y;
+	float z2 = z*z;
+	float xy = x*y;
+	float xz = x*z;
+	float yz = y*z;
+
+	term2[0] = Direction(x2, xy, xz);
+	term2[1] = Direction(xy, y2, yz);
+	term2[2] = Direction(xz, yz, z2);
+	term2[3] = Direction(0.0);
+
+	term3[0] = Direction( 0,  z, -y);
+	term3[1] = Direction(-z,  0,  x);
+	term3[2] = Direction( y, -x,  0);
+	term3[3] = Direction(0.0);
+
+	// term1 *= cos;
+	term2 *= 1.0f - _cos;
+	term3 *= _sin;
+
+	result = term1 + term2 + term3;
+	result[3] = Position(0.0);
+
+	printmat("R(a,theta)", result);
 
 	return result;
 }
