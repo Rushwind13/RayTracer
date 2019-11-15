@@ -1,3 +1,4 @@
+#include "MaterialSteps.cpp"
 #include "MatrixSteps.cpp"
 #include "RaySteps.cpp"
 #include "SphereSteps.cpp"

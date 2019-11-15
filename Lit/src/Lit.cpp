@@ -35,7 +35,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	// Diffuse
 	Color diffuse;
-	diffuse = obj->color * pixel.NdotL;
+	diffuse = obj->material.color * pixel.NdotL;
 
 	float s = 100.0f; // TODO: shininess should come from the object definition
 	Direction vV = glm::normalize(pixel.primaryRay.origin - pixel.position);
@@ -66,7 +66,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	if( cosTheta < 0.0 ) cosTheta = 0.0;
 
 	Color specular;
-	specular = light->color * pow(cosTheta, s); // TODO: different colors for specular vs diffuse?
+	specular = light->material.color * pow(cosTheta, s); // TODO: different colors for specular vs diffuse?
 
 #ifdef DEBUG
 	if( specular.x > 0.3 )

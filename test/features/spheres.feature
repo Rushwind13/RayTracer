@@ -91,3 +91,15 @@ Feature: Spheres
     And I set the sphere's transform to R
     And I calculate the normal at 0,0.70711,-0.70711
     Then the result should be 0,0.97014,-0.24254 a vector
+## Materials
+  Scenario: A sphere has a default material
+    Given I have a sphere
+    And I have a material
+    Then the sphere's material is the default
+
+  Scenario: A sphere may be assigned a material
+    Given I have a sphere
+    And I have a material
+    When I set m.ambient = 1
+    And I set the sphere's material
+    Then S ambient = 1

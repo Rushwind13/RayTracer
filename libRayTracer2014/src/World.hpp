@@ -69,14 +69,14 @@ public:
 		glm::mat4 rotation2 = RotateMatrix(axis2,degrees2);
 
 		Sphere *sphere2 = new Sphere(translate2 * rotation2 * scaling2);
-		sphere2->color = Color(0.1,0.1,1.0);
+		sphere2->material.color = Color(0.1,0.1,1.0);
 		sphere2->oid = 2;
 		sphere2->name = "sphere2";
 
 		/*Position center2(2.5,0.0,-10.0);
 		float radius2=4.0;
 		Sphere *sphere2 = new Sphere(center2, radius2);
-		sphere2->color = Color(0.1,0.1,1.0);
+		sphere2->material.color = Color(0.1,0.1,1.0);
 		sphere2->oid = 2;
 		sphere2->name = "sphere2";/**/
 
@@ -85,7 +85,7 @@ public:
 		Position center3(0.0,8.0,-20.0);
 		float radius3=4.0;
 		Sphere *sphere3 = new Sphere(center3, radius3);
-		sphere3->color = Color(0.1,1.0,0.1);
+		sphere3->material.color = Color(0.1,1.0,0.1);
 		sphere3->oid = 3;
 		sphere3->name = "sphere3";
 
@@ -94,7 +94,7 @@ public:
 
 		Sphere *sphere_floor = new Sphere();
 		sphere_floor->oid = 100;
-		sphere_floor->color = Color(0.4,0.5,0.5);
+		sphere_floor->material.color = Color(0.4,0.5,0.5);
 		sphere_floor->name = "sphere_floor";
 
 		Position center_floor(0.0,-10.0,-10.0);
@@ -113,7 +113,7 @@ public:
 
 		Sphere *sphere_l_wall = new Sphere();
 		sphere_l_wall->oid = 101;
-		sphere_l_wall->color = Color(0.5,0.5,0.4);
+		sphere_l_wall->material.color = Color(0.5,0.5,0.4);
 		sphere_l_wall->name = "sphere_l_wall";
 
 		Position center_l_wall(-10.0,0.0,-10.0);
@@ -135,7 +135,7 @@ public:
 		// create world light list
 		Position lpos0(0.0,5.0, -1.0);
 		Light *light0 = new Light(lpos0);
-		light0->color = Color(1.0,1.0,1.0);
+		light0->material.color = Color(1.0,1.0,1.0);
 		light0->oid = 0;
 		light0->name = "light0";
 
@@ -143,7 +143,7 @@ public:
 
 		/*Position lpos1(2.5, 8.0, -10.0);
 		Light *light1 = new Light(lpos1);
-		light1->color = Color(1.0,1.0,1.0);
+		light1->material.color = Color(1.0,1.0,1.0);
 		light1->oid = 1;
 		light1->name = "light1";
 

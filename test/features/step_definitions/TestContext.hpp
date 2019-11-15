@@ -27,6 +27,9 @@ struct TestCtx
   Color col;
   Color col_b;
 
+  Material mtl;
+  Material mtl_b;
+
   Position origin;
   Direction direction;
   Ray ray;
@@ -38,6 +41,7 @@ struct TestCtx
   Position result_pos;
   Direction result_vec;
   Color result_col;
+  Material result_mtl;
   float result_float;
   Ray result_ray;
 };

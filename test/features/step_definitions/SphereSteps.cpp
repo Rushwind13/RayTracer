@@ -58,6 +58,12 @@ WHEN("^I set the sphere's transform to ([MABCR])$")
   }
   context->sphere.SetTransform(input);
 }
+
+WHEN("^I set the sphere's material$")
+{
+  ScenarioScope<TestCtx> context;
+  context->sphere.material = context->mtl;
+}
 /*#######
 ##
 ## THEN
@@ -114,4 +120,25 @@ THEN("^the vector is normalized$")
   }
 
   EXPECT_EQ(result, true);
+}
+
+THEN("^the sphere's material is the default$")
+{
+  ScenarioScope<TestCtx> context;
+  Material expected = context->mtl;
+  Material compare = context->sphere.material;
+
+  bool result = false;
+
+  if( glm::abs(expected.ambient - compare.ambient) < epsilon &&
+      glm::abs(expected.diffuse - compare.diffuse) < epsilon &&
+      glm::abs(expected.specular - compare.specular) < epsilon &&
+      glm::abs(expected.shininess - compare.shininess) < epsilon &&
+      glm::length(expected.color - compare.color) < epsilon )
+  {
+    result = true;
+  }
+
+  EXPECT_EQ(result, true);
+  // EXPECT_EQ(expected, compare);
 }

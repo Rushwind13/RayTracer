@@ -57,14 +57,14 @@ int main(int argc, char** argv)
 	glm::vec3 center2(2.5,0.0,-10.0);
 	float radius2=4.0;
 	Sphere sphere2(center2, radius2);
-	sphere2.color = Color(0.0,0.0,1.0);
+	sphere2.material.color = Color(0.0,0.0,1.0);
 	sphere2.oid = 2;
 	sphere.name = "sphere2";
 	world.objects.push_back(&sphere2);
 
 	Position lpos0(-2.5, 0.0, -1.0);
 	Light light0(lpos0);
-	light0.color = Color(1.0,1.0,1.0);
+	light0.material.color = Color(1.0,1.0,1.0);
 	light0.oid = 0;
 	light0.name = "light0";
 	world.lights.push_back(&light0);

@@ -12,15 +12,38 @@
 #include "Intersection.hpp"
 
 #define COLOR_RED Color(1.0,0.1,0.1);
+
+class Material
+{
+public:
+	Material()
+	{
+		std::cout << "Material()...";
+		color = COLOR_RED;
+		ambient = 0.1;
+		diffuse = 0.9;
+		specular = 0.9;
+		shininess = 200.0;
+	}
+	Color color;
+	float ambient;
+	float diffuse;
+	float specular;
+	float shininess;
+};
+
 class Object
 {
 public:
-	Object() { std::cout << "Object()" << std::endl; SetTransform(glm::mat4(1.0)); };
+	Object()
+	{
+		std::cout << "Object()...";
+		SetTransform(glm::mat4(1.0));
+	};
 	Object( const glm::mat4 o2w )
 	{
-		std::cout << "Object(o2w)" << std::endl;
+		std::cout << "Object(o2w)...";
 		SetTransform(o2w);
-		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
 	virtual ~Object() {}
@@ -57,10 +80,9 @@ public:
 	}
 
 	glm::mat4 objectToWorld, worldToObject, normalToWorld;
-	Color color;
+	Material material;
 	short oid = -1;
 	std::string name;
-	//Position worldpos;
 };
 
 class Light: public Object
@@ -90,7 +112,6 @@ public:
 	Sphere()
 	{
 		std::cout << "Sphere()" << std::endl;
-		color = COLOR_RED;
 		center = Position(0);
 		radius = 1.0;
 		radius2 = 1.0;
@@ -99,7 +120,6 @@ public:
 	Sphere( Position c, float r = 1 )
 	{
 		std::cout << "Sphere(c,r)" << std::endl;
-		color = COLOR_RED;
 		Position scalar(r);
 		// scalar.y /= 2.0;
 		glm::mat4 scale = ScaleMatrix(scalar);
@@ -113,7 +133,6 @@ public:
 	Sphere( const glm::mat4 o2w )
 	{
 		std::cout << "Sphere(o2w)" << std::endl;
-		color = COLOR_RED;
 		SetTransform(o2w);
 		center = Position(0);
 		radius = 1.0;
@@ -403,9 +422,7 @@ public:
 		eFunction yFunction = FUNCTION_IDENTITY,
 		eFunction zFunction = FUNCTION_IDENTITY )
 		: position(pos), x(xFunction), y(yFunction), z(zFunction)
-		{
-			color = COLOR_RED;
-		}
+		{}
 		~ParametricEquation() {}
 
 		bool local_intersect( const Ray &object, Intersection &i ) const
