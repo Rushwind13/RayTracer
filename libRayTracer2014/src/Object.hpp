@@ -15,68 +15,53 @@
 class Object
 {
 public:
-	Object() { SetTransform(glm::mat4(1.0)); };
+	Object() { std::cout << "Object()" << std::endl; SetTransform(glm::mat4(1.0)); };
 	Object( const glm::mat4 o2w )
 	{
+		std::cout << "Object(o2w)" << std::endl;
 		SetTransform(o2w);
 		//color
 		//material (diffuse, specular, transparency, translucency)
 	}
 	virtual ~Object() {}
-	virtual bool Intersect( const Ray &r, Intersection &i ) const = 0;
+	virtual bool local_intersect( const Ray &object, Intersection &i ) const = 0;
+	virtual Direction local_normal_at( const Position object_pos ) const = 0;
+
+	bool Intersect( const Ray &world, Intersection &i ) const
+	{
+		const Ray object = TransformRay(world, worldToObject);
+		return local_intersect(object,i);
+	}
+
 	void SetTransform( const glm::mat4 o2w )
 	{
 		objectToWorld = o2w;
 		worldToObject = glm::inverse(objectToWorld);
 		normalToWorld = glm::transpose(worldToObject);
 	}
+
+	Direction NormalAt( const Direction world_pos ) const
+	{
+		Direction world_normal;
+		Direction object_normal;
+
+		Position object_pos;
+
+		object_pos = worldToObject * world_pos;
+		object_normal = local_normal_at(object_pos);
+
+		world_normal = normalToWorld * object_normal;
+		world_normal.w = 0.0;
+
+		return glm::normalize(world_normal);
+	}
+
 	glm::mat4 objectToWorld, worldToObject, normalToWorld;
 	Color color;
 	short oid = -1;
 	std::string name;
 	//Position worldpos;
 };
-
-/**
-* def Intersect( ray, scene, from_object=None, clip_dist=1000000 ):
-#print "in intersect"
-# just hardcode sphere intersection for the moment
-hit = {'gothit':False, 'distance':clip_dist}
-#print ("a")
-self_epsilon = .1
-
-for o in scene['object']:
-self_test = False
-if from_object:
-#print hit
-#print ray
-# No intersecting with yourself
-if from_object['id'] == scene['object'][o]['id']: self_test = True #continue
-# No intersecting with light sources ("emissive" objects)
-# (only when checking for shadow calc)
-if 'emissive' in scene['object'][o]['material']: continue
-try:
-func = getattr( sys.modules[__name__], scene['object'][o]['type'] )
-except AttributeError:
-print 'function not found "%s" (%s)' % (scene['object'][o], scene['object'][o]['type'])
-else:
-new_hit = func(ray, scene['object'][o])
-#print "after func"
-global camera_dist
-if new_hit['gothit'] and new_hit['distance'] < hit['distance']:
-if self_test:
-if abs(new_hit['distance']) < self_epsilon:
-#print "epsilon hit"
-continue
-hit = deepcopy(new_hit)
-if from_object:
-#print "shadow hit"
-break # shadows only need to have one intersection, not just the closest one.
-
-#if hit['gothit']: print hit
-#else: print 'no hit'
-return hit
-*/
 
 class Light: public Object
 {
@@ -85,10 +70,15 @@ public:
 	//Light() {}
 	~Light() {}
 
-	bool Intersect( const Ray &r, Intersection &i ) const
+	bool local_intersect( const Ray &object, Intersection &i ) const
 	{
 		// lights don't intersect as geometry
 		return false;
+	}
+	Direction local_normal_at( const Position object_pos ) const
+	{
+		// lights don't have normals
+		return Direction(0);
 	}
 
 	Position position;
@@ -131,10 +121,8 @@ public:
 	}
 	#define MATRIX
 	#ifdef MATRIX
-	bool Intersect( const Ray &world, Intersection &i ) const
+	bool local_intersect( const Ray &object, Intersection &i ) const
 	{
-		Ray object = TransformRay(world, worldToObject);
-
 		Direction eye = object.origin - center;
 		Direction dir = object.direction;
 		float a = glm::dot((glm::vec4)dir, (glm::vec4)dir);
@@ -165,7 +153,7 @@ public:
 		}
 
 		i.distance = distance;
-		i.position = world.apply(i.distance);
+		i.position = objectToWorld * object.apply(i.distance);
 		i.normal = NormalAt(i.position);
 		// to remove off-by-ε errors, bump the hit position along the normal by a small amount...
 		// i.position = i.position + (i.normal * epsilon);
@@ -174,10 +162,16 @@ public:
 
 		return true;
 	}
-	#else
-	bool Intersect( const Ray &r, Intersection &i ) const
+
+	Direction local_normal_at( const Position object_pos ) const
 	{
-		// std::cout << "Intersect" << std::endl;
+		return object_pos - center;
+	}
+
+	#else
+	bool local_intersect( const Ray &object, Intersection &i ) const
+	{
+		// std::cout << "local_intersect" << std::endl;
 		// basic ray equation = o + dt (origin, direction, length)
 		// basic sphere equation = (p-c)^2-r^2 = 0 (point on sphere, center, radius)
 		// sub in ray for p:
@@ -262,25 +256,10 @@ public:
 		texture = array([u,v])
 		*/
 
-		// std::cout << "done with Intersect" << std::endl;
+		// std::cout << "done with local_intersect" << std::endl;
 		return true;
 	}
 	#endif // MATRIX
-	Direction NormalAt( const Direction world_pos ) const
-	{
-		Direction world_normal;
-		Direction object_normal;
-
-		Position object_pos;
-
-		object_pos = worldToObject * world_pos;
-		object_normal = object_pos - center;
-
-		world_normal = normalToWorld * object_normal;
-		world_normal.w = 0.0;
-
-		return glm::normalize(world_normal);
-	}
 protected:
 	Position center;
 	float radius, radius2;
@@ -290,7 +269,7 @@ class Box : public Object
 {
 public:
 	Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
-	bool Intersect( const Ray &r, Intersection &i ) const
+	bool local_intersect( const Ray &object, Intersection &i ) const
 	{
 		return false;
 		/**
@@ -429,9 +408,9 @@ public:
 		}
 		~ParametricEquation() {}
 
-		bool Intersect( const Ray &r, Intersection &i ) const
+		bool local_intersect( const Ray &object, Intersection &i ) const
 		{
-			// TODO: write Intersect function
+			// TODO: write local_intersect function
 			// To intersect a ray with a function, need to solve the following:
 			// ray = o + dt , where o (vector) is the ray's origin, d (vector) is the direction, and t is the length(scalar)
 			// function = (e.g.) cos x
@@ -457,7 +436,7 @@ public:
 		//Cylinder() {}
 		~Cylinder() {}
 
-		bool Intersect( const Ray &r, Intersection &i ) const
+		bool local_intersect( const Ray &object, Intersection &i ) const
 		{
 			// TODO: Implement cylinder intersection
 			return false;
@@ -473,7 +452,7 @@ public:
 		//Cone() {}
 		~Cone() {}
 
-		bool Intersect( const Ray &r, Intersection &i ) const
+		bool local_intersect( const Ray &object, Intersection &i ) const
 		{
 			// TODO: Implement Cone intersection
 			return false;
@@ -490,7 +469,7 @@ public:
 		//Torus() {}
 		~Torus() {}
 
-		bool Intersect( const Ray &r, Intersection &i ) const
+		bool local_intersect( const Ray &object, Intersection &i ) const
 		{
 			// TODO: Implement Torus intersection
 			return false;
