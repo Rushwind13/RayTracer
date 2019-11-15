@@ -18,7 +18,7 @@ using namespace std;
 
 void ColorResults::local_setup()
 {
-	std::cout << "IntersectResults starting up... ";
+	std::cout << "ColorResults starting up... ";
 }
 
 bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)

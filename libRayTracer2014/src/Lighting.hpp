@@ -36,10 +36,10 @@ public:
 		// if an intersect is found, shadow returns true (and no other lighting calls get made for this light/hit)
 		// if no intersect, then calls get made to diffuse / specular / reflection / refraction calculations for this light/hit.
 	}
-	Color Diffuse();
-	Color Specular();
-	Color Emissive();
-	Color Ambient();
+	// Color Diffuse();
+	// Color Specular();
+	// Color Emissive();
+	// Color Ambient();
 	/**
 	 *
 def Lighting( ray, depth, weight, n1, hit, scene ):

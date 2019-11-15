@@ -176,7 +176,7 @@ void IntersectResults::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	IntersectResults iw("IntersectWith", "RESULT", "ipc:///tmp/feeds/broadcast", "SHADE", "ipc:///tmp/feeds/control");
+	IntersectResults ir("IntersectResults", "RESULT", "ipc:///tmp/feeds/broadcast", "SHADE", "ipc:///tmp/feeds/control");
 
 	if( argc > 1 )
 	{
@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
 		//iw.world_object = argv[1];
 	}
 	cout << "running" << endl;
-	iw.run();
+	ir.run();
 
 	cout << "shutting down" << endl;
 	return 0;
