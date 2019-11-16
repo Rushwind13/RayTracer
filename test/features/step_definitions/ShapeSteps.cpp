@@ -40,10 +40,7 @@ WHEN("^I set the shape's transform to ([MABCR])$")
       input = context->result_mat;
       break;
   }
-
-  printmat("input", input);
   context->shape.SetTransform(input);
-  printmat("o2w",context->shape.objectToWorld);
 }
 
 WHEN("^I set the shape's material$")
