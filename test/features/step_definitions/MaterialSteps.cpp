@@ -35,7 +35,7 @@ WHEN("^I set m.ambient = ([0-9.-]+)$")
 ## THEN
 ##
 #######*/
-THEN("^([MS]) ambient = ([0-9.-]+)$")
+THEN("^([MSO]) ambient = ([0-9.-]+)$")
 {
   REGEX_PARAM(char, name);
   REGEX_PARAM(float, expected);
@@ -49,6 +49,9 @@ THEN("^([MS]) ambient = ([0-9.-]+)$")
       break;
     case 'S':
       compare = context->sphere.material.ambient;
+      break;
+    case 'O':
+      compare = context->shape.material.ambient;
       break;
   }
 

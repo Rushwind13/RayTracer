@@ -3,6 +3,16 @@
 
 #include <Object.hpp>
 #include <Intersection.hpp>
+
+class Shape : public Object
+{
+public:
+  Shape() {};
+
+	bool local_intersect( const Ray &object, Intersection &i ) const {return false;};
+	Direction local_normal_at( const Position object_pos ) const {return Direction(0);};
+};
+
 /*#######
 ##
 ## CONTEXT
@@ -34,6 +44,7 @@ struct TestCtx
   Direction direction;
   Ray ray;
 
+  Shape shape;
   Sphere sphere;
   Intersection intersection;
 

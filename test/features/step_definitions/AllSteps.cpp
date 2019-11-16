@@ -1,6 +1,7 @@
 #include "MaterialSteps.cpp"
 #include "MatrixSteps.cpp"
 #include "RaySteps.cpp"
+#include "ShapeSteps.cpp"
 #include "SphereSteps.cpp"
 #include "TransformationSteps.cpp"
 #include "TupleSteps.cpp"
