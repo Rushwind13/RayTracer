@@ -39,6 +39,7 @@ public:
 		Sphere *sphere = new Sphere();
 		sphere->oid = 1;
 		sphere->name = "sphere1";
+		sphere->material.isReflective = false;
 
 		Position center(-2.5,0.0,-5.0);
 		Position scale(2.0,1.0,2.0);
@@ -70,6 +71,7 @@ public:
 
 		Sphere *sphere2 = new Sphere(translate2 * rotation2 * scaling2);
 		sphere2->material.color = Color(0.1,0.1,1.0);
+		sphere2->material.specular = 0.0;
 		sphere2->oid = 2;
 		sphere2->name = "sphere2";
 

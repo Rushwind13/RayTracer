@@ -24,12 +24,14 @@ public:
 		diffuse = 0.9;
 		specular = 0.9;
 		shininess = 200.0;
+		isReflective = true;
 	}
 	Color color;
 	float ambient;
 	float diffuse;
 	float specular;
 	float shininess;
+	bool isReflective;
 };
 
 class Object

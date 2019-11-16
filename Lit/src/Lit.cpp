@@ -37,7 +37,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Color diffuse;
 	diffuse = obj->material.color * pixel.NdotL;
 
-	float s = 100.0f; // TODO: shininess should come from the object definition
+	float s = obj->material.shininess;
 	Direction vV = glm::normalize(pixel.primaryRay.origin - pixel.position);
 	Direction vL = glm::normalize(light->position - pixel.position);
 	float cosTheta = 0.0;
@@ -74,7 +74,8 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		printvec("s", specular); std::cout << std::endl;
 	}
 #endif /* DEBUG */
-	pixel.color = specular + diffuse;
+	pixel.color = (obj->material.specular * specular) +
+								(obj->material.diffuse * diffuse);
 
 	//printvec("c", pixel.color);
 	header->clear();
