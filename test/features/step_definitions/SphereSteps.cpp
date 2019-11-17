@@ -22,7 +22,7 @@ GIVEN("^I have a sphere$")
 WHEN("^I intersect the ray with the sphere$")
 {
     ScenarioScope<TestCtx> context;
-    context->sphere.Intersect(context->ray, context->intersection);
+    context->sphere.local_intersect(context->ray, context->intersection);
 }
 
 WHEN("^I calculate the normal at ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
@@ -32,38 +32,9 @@ WHEN("^I calculate the normal at ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
   REGEX_PARAM(float, z);
   ScenarioScope<TestCtx> context;
   Position point_on_sphere(x,y,z);
-  context->result_vec = context->sphere.NormalAt(point_on_sphere);
+  context->result_vec = context->sphere.local_normal_at(point_on_sphere);
 }
 
-WHEN("^I set the sphere's transform to ([MABCR])$")
-{
-  REGEX_PARAM(char, name);
-  ScenarioScope<TestCtx> context;
-  glm::mat4 input;
-  switch(name)
-  {
-    case 'M':
-    case 'A':
-      input = context->mat;
-      break;
-    case 'B':
-      input = context->mat_b;
-      break;
-    case 'C':
-      input = context->mat_c;
-      break;
-    case 'R':
-      input = context->result_mat;
-      break;
-  }
-  context->sphere.SetTransform(input);
-}
-
-WHEN("^I set the sphere's material$")
-{
-  ScenarioScope<TestCtx> context;
-  context->sphere.material = context->mtl;
-}
 /*#######
 ##
 ## THEN
@@ -120,25 +91,4 @@ THEN("^the vector is normalized$")
   }
 
   EXPECT_EQ(result, true);
-}
-
-THEN("^the sphere's material is the default$")
-{
-  ScenarioScope<TestCtx> context;
-  Material expected = context->mtl;
-  Material compare = context->sphere.material;
-
-  bool result = false;
-
-  if( glm::abs(expected.ambient - compare.ambient) < epsilon &&
-      glm::abs(expected.diffuse - compare.diffuse) < epsilon &&
-      glm::abs(expected.specular - compare.specular) < epsilon &&
-      glm::abs(expected.shininess - compare.shininess) < epsilon &&
-      glm::length(expected.color - compare.color) < epsilon )
-  {
-    result = true;
-  }
-
-  EXPECT_EQ(result, true);
-  // EXPECT_EQ(expected, compare);
 }

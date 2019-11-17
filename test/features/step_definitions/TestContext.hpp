@@ -7,10 +7,20 @@
 class Shape : public Object
 {
 public:
-  Shape() {};
+  Shape() {std::cout << "Shape()" << std::endl;};
 
-	bool local_intersect( const Ray &object, Intersection &i ) const {return false;};
-	Direction local_normal_at( const Position object_pos ) const {return Direction(0);};
+	bool local_intersect( const Ray &object, Intersection &i )
+  {
+    object_ray = object;
+    return false;
+  };
+	Direction local_normal_at( const Position object_pos ) const
+  {
+    Direction normal(object_pos.x, object_pos.y, object_pos.z);
+    return normal;
+  };
+
+  Ray object_ray;
 };
 
 /*#######

@@ -49,10 +49,10 @@ public:
 		//material (diffuse, specular, transparency, translucency)
 	}
 	virtual ~Object() {}
-	virtual bool local_intersect( const Ray &object, Intersection &i ) const = 0;
+	virtual bool local_intersect( const Ray &object, Intersection &i ) = 0;
 	virtual Direction local_normal_at( const Position object_pos ) const = 0;
 
-	bool Intersect( const Ray &world, Intersection &i ) const
+	bool Intersect( const Ray &world, Intersection &i )
 	{
 		const Ray object = TransformRay(world, worldToObject);
 		return local_intersect(object,i);
@@ -142,7 +142,7 @@ public:
 	}
 	#define MATRIX
 	#ifdef MATRIX
-	bool local_intersect( const Ray &object, Intersection &i ) const
+	bool local_intersect( const Ray &object, Intersection &i )
 	{
 		Direction eye = object.origin - center;
 		Direction dir = object.direction;
@@ -190,7 +190,7 @@ public:
 	}
 
 	#else
-	bool local_intersect( const Ray &object, Intersection &i ) const
+	bool local_intersect( const Ray &object, Intersection &i )
 	{
 		// std::cout << "local_intersect" << std::endl;
 		// basic ray equation = o + dt (origin, direction, length)
@@ -290,7 +290,7 @@ class Box : public Object
 {
 public:
 	Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
-	bool local_intersect( const Ray &object, Intersection &i ) const
+	bool local_intersect( const Ray &object, Intersection &i )
 	{
 		return false;
 		/**
@@ -427,7 +427,7 @@ public:
 		{}
 		~ParametricEquation() {}
 
-		bool local_intersect( const Ray &object, Intersection &i ) const
+		bool local_intersect( const Ray &object, Intersection &i )
 		{
 			// TODO: write local_intersect function
 			// To intersect a ray with a function, need to solve the following:
@@ -455,7 +455,7 @@ public:
 		//Cylinder() {}
 		~Cylinder() {}
 
-		bool local_intersect( const Ray &object, Intersection &i ) const
+		bool local_intersect( const Ray &object, Intersection &i )
 		{
 			// TODO: Implement cylinder intersection
 			return false;
@@ -471,7 +471,7 @@ public:
 		//Cone() {}
 		~Cone() {}
 
-		bool local_intersect( const Ray &object, Intersection &i ) const
+		bool local_intersect( const Ray &object, Intersection &i )
 		{
 			// TODO: Implement Cone intersection
 			return false;
@@ -488,7 +488,7 @@ public:
 		//Torus() {}
 		~Torus() {}
 
-		bool local_intersect( const Ray &object, Intersection &i ) const
+		bool local_intersect( const Ray &object, Intersection &i )
 		{
 			// TODO: Implement Torus intersection
 			return false;

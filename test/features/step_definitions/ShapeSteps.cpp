@@ -49,6 +49,23 @@ WHEN("^I set the shape's material$")
   context->shape.material = context->mtl;
 }
 
+WHEN("^I intersect the ray with the shape$")
+{
+    ScenarioScope<TestCtx> context;
+    context->shape.Intersect(context->ray, context->intersection);
+    context->result_ray = context->shape.object_ray;
+}
+
+WHEN("^I calculate the shape normal at ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
+{
+  REGEX_PARAM(float, x);
+  REGEX_PARAM(float, y);
+  REGEX_PARAM(float, z);
+  ScenarioScope<TestCtx> context;
+  Position point_on_shape(x,y,z);
+  context->result_vec = context->shape.NormalAt(point_on_shape);
+}
+
 /*#######
 ##
 ## THEN
