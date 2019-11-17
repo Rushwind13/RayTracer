@@ -56,6 +56,7 @@ struct TestCtx
 
   Shape shape;
   Sphere sphere;
+  Plane plane;
   Intersection intersection;
 
   glm::mat4 result_mat;
