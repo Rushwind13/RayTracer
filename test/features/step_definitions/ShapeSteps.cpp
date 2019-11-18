@@ -91,3 +91,37 @@ THEN("^the shape's material is the default$")
   EXPECT_EQ(result, true);
   // EXPECT_EQ(expected, compare);
 }
+
+THEN("^intersection count = ([0-9]+)$")
+{
+    // REGEX_PARAM(int, count);
+    // ScenarioScope<TestCtx> context;
+    // EXPECT_EQ(context->intersection.count, count);
+}
+
+THEN("^an intersection occurred$")
+{
+    ScenarioScope<TestCtx> context;
+    EXPECT_EQ(context->intersection.gothit, true);
+}
+
+THEN("^no intersection occurred$")
+{
+    ScenarioScope<TestCtx> context;
+    EXPECT_EQ(context->intersection.gothit, false);
+}
+
+THEN("^intersection object = ([P])$")
+{
+  REGEX_PARAM(char,name);
+  ScenarioScope<TestCtx> context;
+  EXPECT_EQ(context->intersection.oid, context->plane.oid);
+}
+
+THEN("^intersection distance ([0-9]+) = ([0-9.-]+)$")
+{
+    REGEX_PARAM(int, index);
+    REGEX_PARAM(float, distance);
+    ScenarioScope<TestCtx> context;
+    EXPECT_EQ(context->intersection.distance, distance);
+}

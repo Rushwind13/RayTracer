@@ -286,6 +286,36 @@ protected:
 	float radius, radius2;
 };
 
+class Plane : public Object
+{
+public:
+	Plane() {};
+	bool local_intersect( const Ray &object, Intersection &i )
+	{
+		if( glm::abs( object.direction.y - 0.0 ) < epsilon )
+		{
+			i.distance = 1e9;
+			i.gothit = false;
+			return false;
+		}
+
+    i.distance = -object.origin.y / object.direction.y;
+    if( i.distance < 0.0 )
+    {
+        i.distance = 1e9;
+        i.gothit = false;
+        return false;
+    }
+
+    i.gothit = true;
+		return true;
+	}
+	Direction local_normal_at( const Position object_pos ) const
+	{
+		return Direction(0,1,0);
+	}
+};
+
 class Box : public Object
 {
 public:
