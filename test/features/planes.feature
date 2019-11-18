@@ -1,5 +1,5 @@
 # language: en
-Feature: Shapes
+Feature: Planes
   So that I can use Planes in my world
   As a Ray Tracer
   I want to create and test a Plane class

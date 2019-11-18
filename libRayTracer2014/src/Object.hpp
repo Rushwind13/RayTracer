@@ -299,15 +299,15 @@ public:
 			return false;
 		}
 
-        i.distance = -object.origin.y / object.direction.y;
-        if( i.distance < 0.0 )
-        {
-            i.distance = 1e9;
-            i.gothit = false;
-            return false;
-        }
-        
-        i.gothit = true;
+    i.distance = -object.origin.y / object.direction.y;
+    if( i.distance < 0.0 )
+    {
+        i.distance = 1e9;
+        i.gothit = false;
+        return false;
+    }
+
+    i.gothit = true;
 		return true;
 	}
 	Direction local_normal_at( const Position object_pos ) const
