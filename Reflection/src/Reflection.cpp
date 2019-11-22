@@ -25,8 +25,16 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &obj );
 	obj.convert( pixel );
 #ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+	std::cout << "(" << pixel.x << "," << pixel.y << ") " << pixel.oid << " ";
 #endif /* DEBUG */
+	Object *hit_obj = world.FindObject(pixel.oid);
+	if( hit_obj && hit_obj->material.isReflective == false )
+	{
+#ifdef DEBUG
+		std::cout << "no reflection from " << hit_obj->name << std::endl;
+#endif
+		return false;
+	}
 
 	// We know we have at least one hit now, so...
 	pixel.gothit = true;
@@ -54,7 +62,9 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	pixel.depth++;
 	pixel.weight *= 0.5f;
 
+#ifdef DEBUG
 	std::cout << pixel.depth << " " << pixel.weight << " ";
+#endif // DEBUG
 	// depth ++
 	// weight / 2
 	// type = iReflect ... or just iPrimary?

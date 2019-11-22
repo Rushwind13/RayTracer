@@ -46,8 +46,11 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 		// grab the best result...
 		int64_t key = hash( pixel );
 		i = nearest[key];
+		if( pixel.type == iPrimary ) pixel.oid = i.oid;
 
 		// Prepare payload for sending to next stage...
+		header->clear();
+		msgpack::pack( header, pixel );
 		payload->clear();
 		msgpack::pack( payload, i );
 
