@@ -28,7 +28,8 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	std::cout << "(" << pixel.x << "," << pixel.y << ") " << pixel.oid << " ";
 #endif /* DEBUG */
 	Object *hit_obj = world.FindObject(pixel.oid);
-	if( hit_obj && hit_obj->material.isReflective == false )
+	assert(hit_obj); // you shouldn't be getting into Reflection without hitting something first...
+	if( hit_obj->material.reflective < epsilon )
 	{
 #ifdef DEBUG
 		std::cout << "no reflection from " << hit_obj->name << std::endl;
@@ -60,7 +61,8 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	rReflect.direction = ReflectVector( -pixel.r.direction , i.normal );
 	pixel.r = rReflect;
 	pixel.depth++;
-	pixel.weight *= 0.5f;
+	assert(hit_obj);
+	pixel.weight *= hit_obj->material.reflective * 0.5;
 
 #ifdef DEBUG
 	std::cout << pixel.depth << " " << pixel.weight << " ";

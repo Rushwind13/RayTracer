@@ -39,7 +39,7 @@ public:
 		Sphere *sphere = new Sphere();
 		sphere->oid = 1;
 		sphere->name = "sphere1";
-		sphere->material.isReflective = false;
+		sphere->material.reflective = 0.0;
 
 		Position center(-2.5,0.0,-5.0);
 		Position scale(2.0,1.0,2.0);
@@ -88,6 +88,7 @@ public:
 		float radius3=4.0;
 		Sphere *sphere3 = new Sphere(center3, radius3);
 		sphere3->material.color = Color(0.1,1.0,0.1);
+		sphere3->material.reflective = 0.5;
 		sphere3->oid = 3;
 		sphere3->name = "sphere3";
 
@@ -110,7 +111,19 @@ public:
 
 		sphere_floor->SetTransform(translate * rotation * scaling);
 
-		objects.push_back(sphere_floor);
+		objects.push_back(sphere_floor);/**/
+
+		/*Plane *plane_floor = new Plane();
+		plane_floor->oid = 100;
+		plane_floor->material.color = Color(0.4,0.5,0.5);
+		plane_floor->material.reflective = 1.0;
+		plane_floor->name = "plane_floor";
+
+		Position origin_floor(0.0,-10.0,0.0);
+		translate = TranslateMatrix(origin_floor);
+		plane_floor->SetTransform(translate);
+
+		objects.push_back(plane_floor);/**/
 
 
 		Sphere *sphere_l_wall = new Sphere();

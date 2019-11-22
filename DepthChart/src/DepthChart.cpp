@@ -90,7 +90,7 @@ bool DepthChart::storeColor( Pixel pixel )
 		// std::cout << " BKG hit at layer " << pixel.depth << ". set layers to " << maxlayers[key] << " ";
 #endif
 	}
-	else if( obj && !obj->material.isReflective )
+	else if( obj && obj->material.reflective < epsilon )
 	{
 		maxlayers[key] = pixel.depth + 1;
 

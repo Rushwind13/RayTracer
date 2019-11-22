@@ -20,18 +20,18 @@ public:
 	{
 		std::cout << "Material()...";
 		color = COLOR_RED;
-		ambient = 0.1;
-		diffuse = 0.9;
-		specular = 0.9;
-		shininess = 200.0;
-		isReflective = true;
+		ambient = 0.1; // 0..1 for "how strong is the ambient light response for this object"
+		diffuse = 0.9; // 0..1 this is "the color" of the object
+		specular = 0.9; // 0..1 to turn off specular spot, set to 0.0
+		shininess = 200.0; // bigger number = smaller specular spot size
+		reflective = 1.0; // 0..1 how reflective is the object?
 	}
 	Color color;
 	float ambient;
 	float diffuse;
 	float specular;
 	float shininess;
-	bool isReflective;
+	float reflective;
 };
 
 class Object
@@ -289,7 +289,7 @@ protected:
 class Plane : public Object
 {
 public:
-	Plane() {};
+	Plane() {std::cout << "Plane()" << std::endl;};
 	bool local_intersect( const Ray &object, Intersection &i )
 	{
 		if( glm::abs( object.direction.y - 0.0 ) < epsilon )
@@ -308,6 +308,7 @@ public:
     }
 
     i.gothit = true;
+		i.oid = oid;
 		return true;
 	}
 	Direction local_normal_at( const Position object_pos ) const
