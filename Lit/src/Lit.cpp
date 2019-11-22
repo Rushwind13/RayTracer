@@ -13,7 +13,7 @@ using namespace std;
 
 void Lit::local_setup()
 {
-
+// #define DEBUG
 }
 
 // You will get here if a Shadow test registers a miss with an object between the intersection and a particular light
@@ -25,7 +25,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &mpobj );
 	mpobj.convert( pixel );
 #ifdef DEBUG
-	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 #endif /* DEBUG */
 
 	Object *obj = world.FindObject(pixel.oid);
@@ -82,7 +82,9 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	msgpack::pack( header, pixel );
 	payload->clear();
 
-	//std::cout << std::endl;
+#ifdef DEBUG
+	std::cout << std::endl;
+#endif
 	return true; // send an outbound message as a result of local_work()
 }
 
