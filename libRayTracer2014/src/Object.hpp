@@ -94,7 +94,7 @@ public:
 	//Light() {}
 	~Light() {}
 
-	bool local_intersect( const Ray &object, Intersection &i ) const
+	bool local_intersect( const Ray &object, Intersection &i )
 	{
 		// lights don't intersect as geometry
 		return false;
