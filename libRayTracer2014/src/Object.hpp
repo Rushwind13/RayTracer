@@ -11,7 +11,33 @@
 #include "Math.hpp"
 #include "Intersection.hpp"
 
-#define COLOR_RED Color(1.0,0.1,0.1);
+#define COLOR_RED Color(1.0,0.1,0.1)
+#define COLOR_BLACK Color(0.1)
+#define COLOR_WHITE Color(1.0)
+#define COLOR_ZERO Color(0.0)
+
+class Pattern
+{
+public:
+	Pattern()
+	{
+		std::cout << "Pattern()...";
+		a = COLOR_ZERO;
+		b = COLOR_ZERO;
+	}
+
+	Pattern( Color _a, Color _b ) : a(_a), b(_b)
+	{
+		std::cout << "Pattern(a,b)...";
+	}
+
+	Color StripeAt( const Position world_pos )
+	{
+		int result = (int)(glm::floor(world_pos.x)) % 2;
+		return (result == 0) ? a : b;
+	}
+	Color a, b;
+};
 
 class Material
 {
@@ -20,6 +46,7 @@ public:
 	{
 		std::cout << "Material()...";
 		color = COLOR_RED;
+		usePattern = false;
 		ambient = 0.1; // 0..1 for "how strong is the ambient light response for this object"
 		diffuse = 0.9; // 0..1 this is "the color" of the object
 		specular = 0.9; // 0..1 to turn off specular spot, set to 0.0
@@ -27,12 +54,15 @@ public:
 		reflective = 1.0; // 0..1 how reflective is the object?
 	}
 	Color color;
+	Pattern pattern;
+	bool usePattern;
 	float ambient;
 	float diffuse;
 	float specular;
 	float shininess;
 	float reflective;
 };
+
 
 class Object
 {
