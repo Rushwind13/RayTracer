@@ -39,20 +39,71 @@ public:
 		objectToPattern = glm::inverse(patternToObject);
 	}
 
-	Color PatternAt( const Position object_pos )
+	Color PatternAtObject( const Position object_pos )
 	{
 		Position pattern_pos = objectToPattern * object_pos;
-		return stripe_at_object(pattern_pos);
+		return PatternAt(pattern_pos);
 	}
 
-	Color stripe_at_object( const Position pattern_pos )
-	{
-		int result = (int)(glm::floor(pattern_pos.x)) % 2;
-		std::cout << result << std::endl;
-		return (result == 0) ? a : b;
-	}
+	virtual Color PatternAt( const Position pattern_pos ) =0;
+
 	Color a, b;
 	glm::mat4 patternToObject, objectToPattern;
+};
+
+class Stripe : public Pattern
+{
+public:
+	Stripe()
+	{
+		std::cout << "Stripe()...";
+		a = COLOR_ZERO;
+		b = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Stripe( Color _a, Color _b )
+	{
+		std::cout << "Stripe(a,b)...";
+		a = _a;
+		b = _b;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Color PatternAt( const Position pattern_pos )
+	{
+		int result = (int)(glm::floor(pattern_pos.x)) % 2;
+		return (result == 0) ? a : b;
+	}
+};
+
+class Gradient : public Pattern
+{
+public:
+	Gradient()
+	{
+		std::cout << "Gradient()...";
+		a = COLOR_ZERO;
+		b = COLOR_ZERO;
+		distance = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Gradient( Color _a, Color _b )
+	{
+		std::cout << "Gradient(a,b)...";
+		a = _a;
+		b = _b;
+		distance = b - a;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Color PatternAt( const Position pattern_pos )
+	{
+		float fraction = pattern_pos.x - glm::floor(pattern_pos.x);
+		return a + (distance * fraction);
+	}
+	Color distance;
 };
 
 class Material
@@ -63,14 +114,21 @@ public:
 		std::cout << "Material()...";
 		color = COLOR_RED;
 		usePattern = false;
+		pattern = NULL;
 		ambient = 0.1; // 0..1 for "how strong is the ambient light response for this object"
 		diffuse = 0.9; // 0..1 this is "the color" of the object
 		specular = 0.9; // 0..1 to turn off specular spot, set to 0.0
 		shininess = 200.0; // bigger number = smaller specular spot size
 		reflective = 1.0; // 0..1 how reflective is the object?
 	}
+
+	~Material()
+	{
+		if( pattern != NULL ) delete pattern; 
+	}
+	
 	Color color;
-	Pattern pattern;
+	Pattern *pattern;
 	bool usePattern;
 	float ambient;
 	float diffuse;
@@ -133,7 +191,7 @@ public:
 		if( material.usePattern == false ) return material.color;
 		
 		Position object_pos = worldToObject * world_pos;
-		return material.pattern.PatternAt(object_pos);
+		return material.pattern->PatternAtObject(object_pos);
 	}
 
 	glm::mat4 objectToWorld, worldToObject, normalToWorld;
