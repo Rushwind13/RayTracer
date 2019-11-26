@@ -24,19 +24,35 @@ public:
 		std::cout << "Pattern()...";
 		a = COLOR_ZERO;
 		b = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
 	}
 
 	Pattern( Color _a, Color _b ) : a(_a), b(_b)
 	{
 		std::cout << "Pattern(a,b)...";
+		SetTransform(glm::mat4(1.0));
 	}
 
-	Color StripeAt( const Position world_pos )
+	void SetTransform( const glm::mat4 p2o )
 	{
-		int result = (int)(glm::floor(world_pos.x)) % 2;
+		patternToObject = p2o;
+		objectToPattern = glm::inverse(patternToObject);
+	}
+
+	Color PatternAt( const Position object_pos )
+	{
+		Position pattern_pos = objectToPattern * object_pos;
+		return stripe_at_object(pattern_pos);
+	}
+
+	Color stripe_at_object( const Position pattern_pos )
+	{
+		int result = (int)(glm::floor(pattern_pos.x)) % 2;
+		std::cout << result << std::endl;
 		return (result == 0) ? a : b;
 	}
 	Color a, b;
+	glm::mat4 patternToObject, objectToPattern;
 };
 
 class Material
@@ -109,6 +125,15 @@ public:
 		world_normal.w = 0.0;
 
 		return glm::normalize(world_normal);
+	}
+
+	// TODO: this tight coupling, two classes deep, makes me feel deeply icky.
+	Color ColorAt( const Position world_pos )
+	{
+		if( material.usePattern == false ) return material.color;
+		
+		Position object_pos = worldToObject * world_pos;
+		return material.pattern.PatternAt(object_pos);
 	}
 
 	glm::mat4 objectToWorld, worldToObject, normalToWorld;
