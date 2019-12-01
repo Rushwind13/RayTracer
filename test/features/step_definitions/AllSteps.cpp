@@ -1,5 +1,6 @@
 #include "MaterialSteps.cpp"
 #include "MatrixSteps.cpp"
+#include "PatternSteps.cpp"
 #include "PlaneSteps.cpp"
 #include "RaySteps.cpp"
 #include "ShapeSteps.cpp"
