@@ -34,3 +34,37 @@ Feature: Patterns
     And stripe_at -1,0,0 is black
     And stripe_at -1.1,0,0 is white
 
+  Scenario: Stripes with an object transformation
+    Given I have a shape
+    And I have a position 2,2,2 in the data
+    And I create a scaling matrix A
+    And I have a stripe pattern
+    When I set the shape's transform to A
+    And I set the shape's pattern to stripe
+    Then stripe_at_shape 1.5,0,0 is white
+    And pointer cleanup occurred
+
+  Scenario: Stripes with a pattern transformation
+    Given I have a shape
+    And I have a position 2,2,2 in the data
+    And I create a scaling matrix A
+    And I have a stripe pattern
+    When I set the stripe's transform to A
+    And I set the shape's pattern to stripe
+    Then stripe_at_shape 1.5,0,0 is white
+    And pointer cleanup occurred
+
+  Scenario: Stripes with both an object and a pattern transformation
+    Given I have a shape
+    And I have a stripe pattern
+    And I have a position 2,2,2 in the data
+    And I create a scaling matrix A
+    And I have a position 0.5,0,0 in the data
+    And I create a translation matrix B
+    When I set the shape's transform to A
+    And I set the stripe's transform to B
+    And I set the shape's pattern to stripe
+    Then stripe_at_shape 2.5,0,0 is white
+    And pointer cleanup occurred
+
+
