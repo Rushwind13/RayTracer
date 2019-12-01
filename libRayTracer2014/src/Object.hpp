@@ -11,7 +11,127 @@
 #include "Math.hpp"
 #include "Intersection.hpp"
 
-#define COLOR_RED Color(1.0,0.1,0.1);
+#define COLOR_RED Color(1.0,0.1,0.1)
+#define COLOR_BLACK Color(0.1)
+#define COLOR_WHITE Color(1.0)
+#define COLOR_ZERO Color(0.0)
+
+class Pattern
+{
+public:
+	Pattern()
+	{
+		std::cout << "Pattern()...";
+		a = COLOR_ZERO;
+		b = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Pattern( Color _a, Color _b ) : a(_a), b(_b)
+	{
+		std::cout << "Pattern(a,b)...";
+		SetTransform(glm::mat4(1.0));
+	}
+
+	void SetTransform( const glm::mat4 p2o )
+	{
+		patternToObject = p2o;
+		objectToPattern = glm::inverse(patternToObject);
+	}
+
+	Color PatternAtObject( const Position object_pos )
+	{
+		Position pattern_pos = objectToPattern * object_pos;
+		return PatternAt(pattern_pos);
+	}
+
+	virtual Color PatternAt( const Position pattern_pos ) =0;
+
+	Color a, b;
+	glm::mat4 patternToObject, objectToPattern;
+};
+
+class Stripe : public Pattern
+{
+public:
+	Stripe()
+	{
+		std::cout << "Stripe()...";
+		a = COLOR_ZERO;
+		b = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Stripe( Color _a, Color _b )
+	{
+		std::cout << "Stripe(a,b)...";
+		a = _a;
+		b = _b;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Color PatternAt( const Position pattern_pos )
+	{
+		int result = (int)(glm::floor(pattern_pos.x)) % 2;
+		return (result == 0) ? a : b;
+	}
+};
+
+class Gradient : public Pattern
+{
+public:
+	Gradient()
+	{
+		std::cout << "Gradient()...";
+		a = COLOR_ZERO;
+		b = COLOR_ZERO;
+		distance = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Gradient( Color _a, Color _b )
+	{
+		std::cout << "Gradient(a,b)...";
+		a = _a;
+		b = _b;
+		distance = b - a;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Color PatternAt( const Position pattern_pos )
+	{
+		float fraction = pattern_pos.x - glm::floor(pattern_pos.x);
+		return a + (distance * fraction);
+	}
+	Color distance;
+};
+
+class Ring : public Pattern
+{
+public:
+	Ring()
+	{
+		std::cout << "Ring()...";
+		a = COLOR_ZERO;
+		b = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Ring( Color _a, Color _b )
+	{
+		std::cout << "Ring(a,b)...";
+		a = _a;
+		b = _b;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Color PatternAt( const Position pattern_pos )
+	{
+		glm::vec2 ring(pattern_pos.x, pattern_pos.z);
+		int result = (int)(glm::floor(glm::length(ring))) % 2;
+		return (result == 0) ? a : b;
+	}
+};
 
 class Material
 {
@@ -20,19 +140,30 @@ public:
 	{
 		std::cout << "Material()...";
 		color = COLOR_RED;
+		usePattern = false;
+		pattern = NULL;
 		ambient = 0.1; // 0..1 for "how strong is the ambient light response for this object"
 		diffuse = 0.9; // 0..1 this is "the color" of the object
 		specular = 0.9; // 0..1 to turn off specular spot, set to 0.0
 		shininess = 200.0; // bigger number = smaller specular spot size
 		reflective = 1.0; // 0..1 how reflective is the object?
 	}
+
+	~Material()
+	{
+		if( pattern != NULL ) delete pattern; 
+	}
+	
 	Color color;
+	Pattern *pattern;
+	bool usePattern;
 	float ambient;
 	float diffuse;
 	float specular;
 	float shininess;
 	float reflective;
 };
+
 
 class Object
 {
@@ -79,6 +210,15 @@ public:
 		world_normal.w = 0.0;
 
 		return glm::normalize(world_normal);
+	}
+
+	// TODO: this tight coupling, two classes deep, makes me feel deeply icky.
+	Color ColorAt( const Position world_pos )
+	{
+		if( material.usePattern == false ) return material.color;
+		
+		Position object_pos = worldToObject * world_pos;
+		return material.pattern->PatternAtObject(object_pos);
 	}
 
 	glm::mat4 objectToWorld, worldToObject, normalToWorld;
