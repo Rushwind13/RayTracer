@@ -89,8 +89,20 @@ public:
 		Sphere *sphere3 = new Sphere(center3, radius3);
 		sphere3->material.color = Color(0.1,1.0,0.1);
 		sphere3->material.reflective = 0.5;
+		sphere3->material.pattern = new Gradient(Color(0.1,1.0,0.1), COLOR_RED);
+		sphere3->material.usePattern = true;
 		sphere3->oid = 3;
 		sphere3->name = "sphere3";
+
+		float scalar = 0.2;
+		scaling = ScaleMatrix(Position(scalar,1.0,1.0));
+
+		Direction axis3(0,1,1);
+		float angle3 = 60.0;
+
+		rotation = RotateMatrix(axis3, angle3);
+
+		sphere3->material.pattern->SetTransform(rotation * scaling);
 
 		objects.push_back(sphere3);/**/
 

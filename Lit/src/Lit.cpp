@@ -35,7 +35,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	// Diffuse
 	Color diffuse;
-	diffuse = obj->material.color * pixel.NdotL;
+	diffuse = obj->ColorAt(pixel.position) * pixel.NdotL;
 
 	float s = obj->material.shininess;
 	Direction vV = glm::normalize(pixel.primaryRay.origin - pixel.position);
