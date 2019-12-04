@@ -23,6 +23,24 @@ public:
   Ray object_ray;
 };
 
+class TestPattern : public Pattern
+{
+public:
+  TestPattern() {std::cout << "TestPattern()" << std::endl;};
+  TestPattern( Color _a, Color _b )
+	{
+		std::cout << "TestPattern(a,b)...";
+    a = _a;
+    b = _b;
+		SetTransform(glm::mat4(1.0));
+	}
+
+  Color PatternAt( const Position pattern_pos )
+  {
+    return COLOR_ZERO;
+  }
+};
+
 /*#######
 ##
 ## CONTEXT
@@ -49,6 +67,11 @@ struct TestCtx
 
   Material mtl;
   Material mtl_b;
+
+  TestPattern pattern = TestPattern(COLOR_WHITE,COLOR_BLACK);
+  Stripe stripe = Stripe(COLOR_WHITE,COLOR_BLACK);
+  Gradient gradient = Gradient(COLOR_WHITE, COLOR_BLACK);
+  Ring ring = Ring(COLOR_WHITE,COLOR_BLACK);
 
   Position origin;
   Direction direction;

@@ -106,6 +106,33 @@ public:
 	Color distance;
 };
 
+class Ring : public Pattern
+{
+public:
+	Ring()
+	{
+		std::cout << "Ring()...";
+		a = COLOR_ZERO;
+		b = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Ring( Color _a, Color _b )
+	{
+		std::cout << "Ring(a,b)...";
+		a = _a;
+		b = _b;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Color PatternAt( const Position pattern_pos )
+	{
+		glm::vec2 ring(pattern_pos.x, pattern_pos.z);
+		int result = (int)(glm::floor(glm::length(ring))) % 2;
+		return (result == 0) ? a : b;
+	}
+};
+
 class Material
 {
 public:
