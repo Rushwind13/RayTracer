@@ -68,10 +68,10 @@ struct TestCtx
   Material mtl;
   Material mtl_b;
 
-  TestPattern pattern = TestPattern(COLOR_WHITE,COLOR_BLACK);
-  Stripe stripe = Stripe(COLOR_WHITE,COLOR_BLACK);
-  Gradient gradient = Gradient(COLOR_WHITE, COLOR_BLACK);
-  Ring ring = Ring(COLOR_WHITE,COLOR_BLACK);
+  TestPattern pattern = TestPattern(COLOR_WHITE,COLOR_ZERO);
+  Stripe stripe = Stripe(COLOR_WHITE,COLOR_ZERO);
+  Gradient gradient = Gradient(COLOR_WHITE, COLOR_ZERO);
+  Ring ring = Ring(COLOR_WHITE,COLOR_ZERO);
 
   Position origin;
   Direction direction;

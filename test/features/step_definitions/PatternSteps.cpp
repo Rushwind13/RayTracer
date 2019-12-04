@@ -11,10 +11,10 @@ using cucumber::ScenarioScope;
 ## GIVEN
 ##
 #######*/
-GIVEN("^Black is the color 0\\.1,0\\.1,0\\.1$")
+GIVEN("^Black is the color 0\\.0,0\\.0,0\\.0$")
 {
-    Color compare = COLOR_BLACK;
-    Color expected(0.1,0.1,0.1);
+    Color compare = COLOR_ZERO;
+    Color expected(0.0,0.0,0.0);
     bool result = false;
     if( glm::length(expected - compare) < epsilon )
     {
@@ -35,15 +35,11 @@ GIVEN("^White is the color 1\\.0,1\\.0,1\\.0$")
     EXPECT_EQ(result, true);
 }
 
-GIVEN("^I have a stripe pattern$")
+GIVEN("^I have a (stripe|gradient|ring|test) pattern$")
 {
     ScenarioScope<TestCtx> context;
 }
 
-GIVEN("^I have a pattern$")
-{
-    ScenarioScope<TestCtx> context;
-}
 /*#######
 ##
 ## WHEN
@@ -133,41 +129,7 @@ THEN("^pattern.b = black$")
 {
     ScenarioScope<TestCtx> context;
     Color compare = context->stripe.b;
-    Color expected = COLOR_BLACK;
-    bool result = false;
-    if( glm::length(expected - compare) < epsilon )
-    {
-        result = true;
-    }
-    EXPECT_EQ(result, true);
-}
-
-THEN("^stripe_at ([0-9.-]+),([0-9.-]+),([0-9.-]+) is white$")
-{
-    REGEX_PARAM(float, x);
-    REGEX_PARAM(float, y);
-    REGEX_PARAM(float, z);
-    ScenarioScope<TestCtx> context;
-    Position pattern_pos(x,y,z);
-    Color compare = context->stripe.PatternAt(pattern_pos);
-    Color expected = COLOR_WHITE;
-    bool result = false;
-    if( glm::length(expected - compare) < epsilon )
-    {
-        result = true;
-    }
-    EXPECT_EQ(result, true);
-}
-
-THEN("^stripe_at ([0-9.-]+),([0-9.-]+),([0-9.-]+) is black$")
-{
-    REGEX_PARAM(float, x);
-    REGEX_PARAM(float, y);
-    REGEX_PARAM(float, z);
-    ScenarioScope<TestCtx> context;
-    Position pattern_pos(x,y,z);
-    Color compare = context->stripe.PatternAt(pattern_pos);
-    Color expected = COLOR_BLACK;
+    Color expected = COLOR_ZERO;
     bool result = false;
     if( glm::length(expected - compare) < epsilon )
     {
@@ -205,6 +167,48 @@ THEN("^pattern_at_shape ([0-9.-]+),([0-9.-]+),([0-9.-]+) is ([0-9.-]+),([0-9.-]+
     Position world_pos(wx,wy,wz);
     Color compare = context->shape.ColorAt(world_pos);
     Color expected = Color(px,py,pz);
+    bool result = false;
+    if( glm::length(expected - compare) < epsilon )
+    {
+        result = true;
+    }
+    else
+    {
+        printvec("compare", compare);
+        printvec("expected", expected);
+    }
+    EXPECT_EQ(result, true);
+}
+
+THEN("^([SGRT]) pattern_at ([0-9.-]+),([0-9.-]+),([0-9.-]+) is ([0-9.-]+),([0-9.-]+),([0-9.-]+)$")
+{
+    REGEX_PARAM(char,type);
+    REGEX_PARAM(float, x);
+    REGEX_PARAM(float, y);
+    REGEX_PARAM(float, z);
+    REGEX_PARAM(float, r);
+    REGEX_PARAM(float, g);
+    REGEX_PARAM(float, b);
+    ScenarioScope<TestCtx> context;
+    Position pattern_pos(x,y,z);
+    Pattern *pattern = NULL;
+    switch(type)
+    {
+        case 'T':
+            pattern = &context->pattern;
+            break;
+        case 'S':
+            pattern = &context->stripe;
+            break;
+        case 'G':
+            pattern = &context->gradient;
+            break;
+        case 'R':
+            pattern = &context->ring;
+            break;
+    }
+    Color compare = pattern->PatternAt(pattern_pos);
+    Color expected = Color(r,g,b);
     bool result = false;
     if( glm::length(expected - compare) < epsilon )
     {
