@@ -66,5 +66,47 @@ Feature: Patterns
     And I set the shape's pattern to stripe
     Then stripe_at_shape 2.5,0,0 is white
     And pointer cleanup occurred
+### Pattern Transforms
+    Scenario: The default pattern transformation
+        Given I have a pattern
+        Then pattern.transform = I
 
+    Scenario: Assigning a transformation
+        Given I have a pattern
+        And I have a position 1,2,3 in the data
+        And I create a translation matrix A
+        When I set the pattern's transform to A
+        Then pattern.transform = translation<1,2,3>
 
+    Scenario: Patterns with an object transformation
+        Given I have a shape
+        And I have a position 2,2,2 in the data
+        And I create a scaling matrix A
+        And I have a pattern
+        When I set the shape's transform to A
+        And I set the shape's pattern to pattern
+        Then pattern_at_shape 2,3,4 is 1,1.5,2
+        And pointer cleanup occurred
+
+    Scenario: Patterns with a pattern transformation
+        Given I have a shape
+        And I have a position 2,2,2 in the data
+        And I create a scaling matrix A
+        And I have a pattern
+        When I set the pattern's transform to A
+        And I set the shape's pattern to pattern
+        Then pattern_at_shape 2,3,4 is 1,1.5,2
+        And pointer cleanup occurred
+
+    Scenario: Patterns with both an object and a pattern transformation
+        Given I have a shape
+        And I have a pattern
+        And I have a position 2,2,2 in the data
+        And I create a scaling matrix A
+        And I have a position 0.5,1,1.5 in the data
+        And I create a translation matrix B
+        When I set the shape's transform to A
+        And I set the pattern's transform to B
+        And I set the shape's pattern to pattern
+        Then pattern_at_shape 2.5,3,3.5 is 0.75,0.5,0.25
+        And pointer cleanup occurred

@@ -37,7 +37,7 @@ public:
 
   Color PatternAt( const Position pattern_pos )
   {
-    return COLOR_ZERO;
+    return Color(pattern_pos.x, pattern_pos.y, pattern_pos.z);
   }
 };
 
