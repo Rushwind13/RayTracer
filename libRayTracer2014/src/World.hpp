@@ -23,6 +23,7 @@ public:
 	std::list<Light *> lights;
 	int object_count;
 	int light_count;
+	Pattern *vert, *horz;
 
 protected:
 private:
@@ -35,6 +36,19 @@ public:
 	{
 		sprintf( filename, "test.png" );
 
+		vert = new Stripe(PATTERN_RED, PATTERN_GREEN);
+		horz = new Stripe(PATTERN_BLUE, PATTERN_WHITE);
+
+		float scalar = 0.2;
+		Direction axis(0,0,1);
+		float degrees = 90.0;
+
+		glm::mat4 scaling = ScaleMatrix(Position(scalar));
+		glm::mat4 rotation = RotateMatrix(axis,degrees);
+
+		vert->SetTransform(scaling);
+		horz->SetTransform(rotation * scaling);
+
 		//	create world object list
 		Sphere *sphere = new Sphere();
 		sphere->oid = 1;
@@ -43,12 +57,11 @@ public:
 
 		Position center(-2.5,0.0,-5.0);
 		Position scale(2.0,1.0,2.0);
-		float degrees = -135.0;
-		Direction axis(0,0,1);
+		degrees = -135.0;
 
 		glm::mat4 translate = TranslateMatrix(center);
-		glm::mat4 scaling = ScaleMatrix(scale);
-		glm::mat4 rotation = RotateMatrix(axis,degrees);
+		rotation = RotateMatrix(axis,degrees);
+		scaling = ScaleMatrix(scale);
 
 		sphere->SetTransform(translate * rotation * scaling);
 
@@ -87,15 +100,15 @@ public:
 		Position center3(0.0,8.0,-20.0);
 		float radius3=4.0;
 		Sphere *sphere3 = new Sphere(center3, radius3);
-		sphere3->material.color = Color(0.1,1.0,0.1);
+		sphere3->material.color = COLOR_GREEN;
 		sphere3->material.reflective = 0.5;
-		sphere3->material.pattern = new Ring(Color(0.1,1.0,0.1), COLOR_RED);
+		// sphere3->material.pattern = new Ring(PATTERN_GREEN, PATTERN_RED);
+		sphere3->material.pattern = new Stripe(vert, horz);
 		sphere3->material.usePattern = true;
 		sphere3->oid = 3;
 		sphere3->name = "sphere3";
 
-		float scalar = 0.1;
-		scaling = ScaleMatrix(Position(scalar));
+		scaling = ScaleMatrix(Position(0.25));
 
 		Direction axis3(0,1,1);
 		float angle3 = 30.0;

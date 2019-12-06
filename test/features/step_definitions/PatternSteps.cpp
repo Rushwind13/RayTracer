@@ -115,27 +115,17 @@ WHEN("^I set the pattern's transform to ([MABCR])$")
 THEN("^pattern.a = white$")
 {
     ScenarioScope<TestCtx> context;
-    Color compare = context->stripe.a;
-    Color expected = COLOR_WHITE;
-    bool result = false;
-    if( glm::length(expected - compare) < epsilon )
-    {
-        result = true;
-    }
-    EXPECT_EQ(result, true);
+    Pattern *compare = context->stripe.a;
+    Pattern *expected = PATTERN_WHITE;
+    EXPECT_EQ(compare,expected);
 }
 
 THEN("^pattern.b = black$")
 {
     ScenarioScope<TestCtx> context;
-    Color compare = context->stripe.b;
-    Color expected = COLOR_ZERO;
-    bool result = false;
-    if( glm::length(expected - compare) < epsilon )
-    {
-        result = true;
-    }
-    EXPECT_EQ(result, true);
+    Pattern *compare = context->stripe.b;
+    Pattern *expected = PATTERN_ZERO;
+    EXPECT_EQ(compare,expected);
 }
 
 THEN("^stripe_at_shape ([0-9.-]+),([0-9.-]+),([0-9.-]+) is white$")

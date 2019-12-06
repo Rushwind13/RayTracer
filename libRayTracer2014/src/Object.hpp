@@ -12,6 +12,8 @@
 #include "Intersection.hpp"
 
 #define COLOR_RED Color(1.0,0.1,0.1)
+#define COLOR_GREEN Color(0.1,1.0,0.1)
+#define COLOR_BLUE Color(0.1,0.1,1.0)
 #define COLOR_BLACK Color(0.1)
 #define COLOR_WHITE Color(1.0)
 #define COLOR_ZERO Color(0.0)
@@ -22,12 +24,12 @@ public:
 	Pattern()
 	{
 		std::cout << "Pattern()...";
-		a = COLOR_ZERO;
-		b = COLOR_ZERO;
+		a = NULL;
+		b = NULL;
 		SetTransform(glm::mat4(1.0));
 	}
 
-	Pattern( Color _a, Color _b ) : a(_a), b(_b)
+	Pattern( Pattern *_a, Pattern *_b ) : a(_a), b(_b)
 	{
 		std::cout << "Pattern(a,b)...";
 		SetTransform(glm::mat4(1.0));
@@ -39,17 +41,53 @@ public:
 		objectToPattern = glm::inverse(patternToObject);
 	}
 
-	Color PatternAtObject( const Position object_pos )
-	{
-		Position pattern_pos = objectToPattern * object_pos;
-		return PatternAt(pattern_pos);
-	}
+	virtual Color PatternAt( const Position object_pos ) =0;
 
-	virtual Color PatternAt( const Position pattern_pos ) =0;
-
-	Color a, b;
+	Pattern *a, *b;
 	glm::mat4 patternToObject, objectToPattern;
 };
+
+class Solid : public Pattern
+{
+public:
+	Solid()
+	{
+		std::cout << "Solid()...";
+		a = NULL;
+		b = NULL;
+		color = COLOR_ZERO;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Solid( Color _color ) : color(_color)
+	{
+		std::cout << "Solid(c)...";
+		a = NULL;
+		b = NULL;
+		SetTransform(glm::mat4(1.0));
+	}
+
+	Color PatternAt( const Position object_pos )
+	{
+		return color;
+	}
+
+	Color color;
+};
+
+static Solid black(COLOR_BLACK);
+static Solid white(COLOR_WHITE);
+static Solid red(COLOR_RED);
+static Solid green(COLOR_GREEN);
+static Solid blue(COLOR_BLUE);
+static Solid zero(COLOR_ZERO);
+
+#define PATTERN_BLACK &black
+#define PATTERN_WHITE &white
+#define PATTERN_RED &red
+#define PATTERN_GREEN &green
+#define PATTERN_BLUE &blue
+#define PATTERN_ZERO &zero
 
 class Stripe : public Pattern
 {
@@ -57,12 +95,12 @@ public:
 	Stripe()
 	{
 		std::cout << "Stripe()...";
-		a = COLOR_ZERO;
-		b = COLOR_ZERO;
+		a = NULL;
+		b = NULL;
 		SetTransform(glm::mat4(1.0));
 	}
 
-	Stripe( Color _a, Color _b )
+	Stripe( Pattern *_a, Pattern *_b )
 	{
 		std::cout << "Stripe(a,b)...";
 		a = _a;
@@ -70,10 +108,12 @@ public:
 		SetTransform(glm::mat4(1.0));
 	}
 
-	Color PatternAt( const Position pattern_pos )
+	Color PatternAt( const Position object_pos )
 	{
+		Position pattern_pos = objectToPattern * object_pos;
 		int result = (int)(glm::floor(pattern_pos.x)) % 2;
-		return (result == 0) ? a : b;
+		Pattern *next = (result == 0) ? a : b;
+		return next->PatternAt(object_pos);
 	}
 };
 
@@ -83,27 +123,28 @@ public:
 	Gradient()
 	{
 		std::cout << "Gradient()...";
-		a = COLOR_ZERO;
-		b = COLOR_ZERO;
-		distance = COLOR_ZERO;
+		a = NULL;
+		b = NULL;
 		SetTransform(glm::mat4(1.0));
 	}
 
-	Gradient( Color _a, Color _b )
+	Gradient( Pattern *_a, Pattern *_b )
 	{
 		std::cout << "Gradient(a,b)...";
 		a = _a;
 		b = _b;
-		distance = b - a;
 		SetTransform(glm::mat4(1.0));
 	}
 
-	Color PatternAt( const Position pattern_pos )
+	Color PatternAt( const Position object_pos )
 	{
+		Position pattern_pos = objectToPattern * object_pos;
 		float fraction = pattern_pos.x - glm::floor(pattern_pos.x);
-		return a + (distance * fraction);
+		Color color_a = a->PatternAt(object_pos);
+		Color color_b = b->PatternAt(object_pos);
+		Color distance = color_b - color_a;
+		return color_a + (distance * fraction);
 	}
-	Color distance;
 };
 
 class Ring : public Pattern
@@ -112,12 +153,12 @@ public:
 	Ring()
 	{
 		std::cout << "Ring()...";
-		a = COLOR_ZERO;
-		b = COLOR_ZERO;
+		a = NULL;
+		b = NULL;
 		SetTransform(glm::mat4(1.0));
 	}
 
-	Ring( Color _a, Color _b )
+	Ring( Pattern *_a, Pattern *_b )
 	{
 		std::cout << "Ring(a,b)...";
 		a = _a;
@@ -125,11 +166,13 @@ public:
 		SetTransform(glm::mat4(1.0));
 	}
 
-	Color PatternAt( const Position pattern_pos )
+	Color PatternAt( const Position object_pos )
 	{
+		Position pattern_pos = objectToPattern * object_pos;
 		glm::vec2 ring(pattern_pos.x, pattern_pos.z);
 		int result = (int)(glm::floor(glm::length(ring))) % 2;
-		return (result == 0) ? a : b;
+		Pattern *next = (result == 0) ? a : b;
+		return next->PatternAt(object_pos);
 	}
 };
 
@@ -151,9 +194,9 @@ public:
 
 	~Material()
 	{
-		if( pattern != NULL ) delete pattern; 
+		if( pattern != NULL ) delete pattern;
 	}
-	
+
 	Color color;
 	Pattern *pattern;
 	bool usePattern;
@@ -216,9 +259,9 @@ public:
 	Color ColorAt( const Position world_pos )
 	{
 		if( material.usePattern == false ) return material.color;
-		
+
 		Position object_pos = worldToObject * world_pos;
-		return material.pattern->PatternAtObject(object_pos);
+		return material.pattern->PatternAt(object_pos);
 	}
 
 	glm::mat4 objectToWorld, worldToObject, normalToWorld;
