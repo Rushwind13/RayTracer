@@ -177,6 +177,7 @@ public:
 	}
 };
 
+#define NOISE_SCALAR 5.0
 class Perturb : public Pattern
 {
 public:
@@ -185,8 +186,8 @@ public:
     Color PatternAt( const Position object_pos )
     {
         // Position pattern_pos = objectToPattern * object_pos;
-        float perturbed = perlin.Noise(object_pos);
-        return a->PatternAt(object_pos * perturbed);
+        float perturbed = perlin.Noise(object_pos) * NOISE_SCALAR;
+        return a->PatternAt(object_pos + (object_pos * perturbed));
     }
     Perlin perlin;
 };
