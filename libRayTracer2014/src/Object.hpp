@@ -181,8 +181,13 @@ public:
 class Perturb : public Pattern
 {
 public:
-    Perturb(){};
-    Perturb( Pattern *_a ) { a = _a; };
+    Perturb(){ std::cout << "Perturb()..."; };
+    Perturb( Pattern *_a )
+		{
+			std::cout << "Perturb(a)...";
+			a = _a;
+		};
+
     Color PatternAt( const Position object_pos )
     {
         // Position pattern_pos = objectToPattern * object_pos;
@@ -191,6 +196,44 @@ public:
     }
     Perlin perlin;
 };
+
+static float lo, hi;
+class NoisySolid : public Pattern
+{
+public:
+	NoisySolid()
+	{
+		std::cout << "NoisySolid()...";
+		color = COLOR_WHITE;
+		lo = 10.0; hi = -10.0;
+	};
+	NoisySolid( Color _color )
+	{
+		std::cout << "NoisySolid(c)...";
+		color = _color;
+		lo = 10.0; hi = -10.0;
+	}
+
+	Color PatternAt( const Position object_pos )
+	{
+		Position pattern_pos = objectToPattern * object_pos;
+		float perturbed = perlin.Noise(pattern_pos);
+		perturbed++; // range -0.5..0.5 -> 0..1
+		perturbed -= 0.38085; // why does this seem to be the floor?!
+		if( perturbed < lo ) lo = perturbed;
+		if( perturbed > hi ) hi = perturbed;
+		Direction printme(lo, perturbed, hi);
+		printvec("perturbed", printme); std::cout << std::endl;
+		return color * perturbed;
+	}
+
+	Perlin perlin;
+	Color color;
+};
+
+static NoisySolid noisy(COLOR_WHITE);
+
+#define PATTERN_NOISE &noisy
 
 class Material
 {
