@@ -103,7 +103,8 @@ public:
 		sphere3->material.color = COLOR_GREEN;
 		sphere3->material.reflective = 0.5;
 		// sphere3->material.pattern = new Ring(PATTERN_GREEN, PATTERN_RED);
-		sphere3->material.pattern = new Stripe(vert, horz);
+		// sphere3->material.pattern = new Stripe(new Perturb(vert), new Perturb(horz));
+		sphere3->material.pattern = new Perturb(vert);
 		sphere3->material.usePattern = true;
 		sphere3->oid = 3;
 		sphere3->name = "sphere3";

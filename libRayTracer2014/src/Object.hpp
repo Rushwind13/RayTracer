@@ -10,6 +10,7 @@
 #include <iostream>
 #include "Math.hpp"
 #include "Intersection.hpp"
+#include "Perlin.hpp"
 
 #define COLOR_RED Color(1.0,0.1,0.1)
 #define COLOR_GREEN Color(0.1,1.0,0.1)
@@ -174,6 +175,20 @@ public:
 		Pattern *next = (result == 0) ? a : b;
 		return next->PatternAt(object_pos);
 	}
+};
+
+class Perturb : public Pattern
+{
+public:
+    Perturb(){};
+    Perturb( Pattern *_a ) { a = _a; };
+    Color PatternAt( const Position object_pos )
+    {
+        // Position pattern_pos = objectToPattern * object_pos;
+        float perturbed = perlin.Noise(object_pos);
+        return a->PatternAt(object_pos * perturbed);
+    }
+    Perlin perlin;
 };
 
 class Material
