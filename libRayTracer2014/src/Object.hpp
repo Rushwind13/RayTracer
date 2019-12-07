@@ -580,8 +580,17 @@ public:
         float tmin = glm::max(x.x, glm::max(y.x, z.x));
         float tmax = glm::min(x.y, glm::min(y.y, z.y));
 
-        if( tmin < 0.0 || tmin == 1e9 )
+        if( tmin < 0.0 )
         {
+            std::cout << " inside ";
+            i.distance = 1e9;
+            i.gothit = false;
+            return false;
+        }
+
+        if( tmin > tmax )
+        {
+            std::cout << " min>max ";
             i.distance = 1e9;
             i.gothit = false;
             return false;
@@ -604,6 +613,12 @@ public:
         if( glm::abs(direction) >= epsilon )
         {
             result = compare / direction;
+        }
+        else if( origin > 1.0 || origin < -1.0 )
+        {
+            // if no direction in this axis, and outside box, then miss?
+            printvec("result", result);
+            return Range(1e9,-1e9);
         }
 
         if( result.x > result.y )

@@ -66,3 +66,46 @@ Scenario: A ray intersects a box inside
   #And intersection count = 2
   # And intersection distance 0 = -1
   #And intersection distance 1 = 1
+
+Scenario: A ray misses a box
+  Given I have a box
+  And I have a Ray with origin -2,0,0 and direction 0.2673,0.5345,0.8018
+  When I intersect the ray with the box
+  Then no intersection occurred
+
+Scenario: A ray misses a box
+  Given I have a box
+  And I have a Ray with origin 0,-2,0 and direction 0.8018,0.2673,0.5345
+  When I intersect the ray with the box
+  Then no intersection occurred
+
+Scenario: A ray misses a box
+  Given I have a box
+  And I have a Ray with origin 0,0,-2 and direction 0.5345,0.8018,0.2673
+  When I intersect the ray with the box
+  Then no intersection occurred
+
+Scenario: A ray misses a box
+  Given I have a box
+  And I have a Ray with origin 2,0,2 and direction 0,0,-1
+  When I intersect the ray with the box
+  Then no intersection occurred
+
+Scenario: A ray misses a box
+  Given I have a box
+  And I have a Ray with origin 0,2,2 and direction 0,-1,0
+  When I intersect the ray with the box
+  Then no intersection occurred
+
+Scenario: A ray misses a box
+  Given I have a box
+  And I have a Ray with origin 2,2,0 and direction -1,0,0
+  When I intersect the ray with the box
+  Then no intersection occurred
+
+
+Scenario: A ray misses a box
+  Given I have a box
+  And I have a Ray with origin 2,2,0 and direction -1,-0.1,0
+  When I intersect the ray with the box
+  Then no intersection occurred
