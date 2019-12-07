@@ -202,30 +202,43 @@ public:
 	NoisySolid()
 	{
 		std::cout << "NoisySolid()...";
-		color = COLOR_WHITE;
+		color_a = COLOR_WHITE;
+		color_b = COLOR_BLACK;
+		distance = color_b - color_a;
 	};
 	NoisySolid( Color _color )
 	{
 		std::cout << "NoisySolid(c)...";
-		color = _color;
+		color_a = _color;
+		color_b = COLOR_BLACK;
+		distance = color_b - color_a;
+	}
+	NoisySolid( Color _a, Color _b )
+	{
+		std::cout << "NoisySolid(c,c)...";
+		color_a = _a;
+		color_b = _b;
+		distance = color_b - color_a;
 	}
 
 	Color PatternAt( const Position object_pos )
 	{
 		Position pattern_pos = objectToPattern * object_pos;
 		float perturbed = perlin.ScaledNoise(pattern_pos, 0.0, 1.0);
-		Color result = color * perturbed;
+		Color result = color_a + (distance * perturbed);
 		printvec("result", result); std::cout << std::endl;
 		return result;
 	}
 
 	Perlin perlin;
-	Color color;
+	Color color_a, color_b, distance;
 };
 
 static NoisySolid noisy(COLOR_WHITE);
+static NoisySolid noisylerp(COLOR_BLUE, COLOR_GREEN);
 
 #define PATTERN_NOISE &noisy
+#define PATTERN_NOISELERP &noisylerp
 
 class Material
 {
