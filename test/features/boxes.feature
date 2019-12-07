@@ -109,3 +109,8 @@ Scenario: A ray misses a box
   And I have a Ray with origin 2,2,0 and direction -1,-0.1,0
   When I intersect the ray with the box
   Then no intersection occurred
+#### Normals
+  Scenario: The normal on the surface of a box
+    Given I have a box
+    When I calculate the box normal at 1,0.5,-0.8
+    Then the result should be 1,0,0 a vector

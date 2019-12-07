@@ -740,7 +740,15 @@ public:
 
 	virtual Direction local_normal_at( const Position object_pos ) const
 	{
-		return Direction(0.0);
+        float _x = glm::abs(object_pos.x);
+        float _y = glm::abs(object_pos.y);
+        float _z = glm::abs(object_pos.z);
+
+        float _max = glm::max(_x, glm::max(_y,_z));
+
+        if( _max == _x ) return Direction(object_pos.x,0.0,0.0);
+        else if ( _max == _y ) return Direction(0.0,object_pos.y,0.0);
+		return Direction(0.0,0.0,object_pos.z);
 	}
 protected:
 	Position corner1, corner2;
