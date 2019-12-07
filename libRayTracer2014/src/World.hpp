@@ -49,6 +49,10 @@ public:
 		vert->SetTransform(scaling);
 		horz->SetTransform(rotation * scaling);
 
+		scalar = 0.1;
+		scaling = ScaleMatrix(Position(scalar));
+		noisy.SetTransform(scaling);
+
 		//	create world object list
 		Sphere *sphere = new Sphere();
 		sphere->oid = 1;
@@ -108,23 +112,24 @@ public:
 		sphere3->material.reflective = 0.5;
 		// sphere3->material.pattern = new Ring(PATTERN_GREEN, PATTERN_RED);
 		// sphere3->material.pattern = new Stripe(new Perturb(vert), new Perturb(horz));
-		sphere3->material.pattern = new Perturb(horz);
+		// sphere3->material.pattern = new Perturb(horz); scaling = ScaleMatrix(Position(1.5));
 		// sphere3->material.pattern = new NoisySolid(COLOR_WHITE);
 		// sphere3->material.pattern = new Stripe(new NoisySolid(COLOR_GREEN), PATTERN_RED);
+		sphere3->material.pattern = new Gradient(PATTERN_NOISE, PATTERN_RED);
 
 		sphere3->material.usePattern = true;
 		sphere3->oid = 3;
 		sphere3->name = "sphere3";
 
-		scaling = ScaleMatrix(Position(1.5));
+		scaling = ScaleMatrix(Position(1.0));
 
 		Direction axis3(0,1,1);
 		float angle3 = 30.0;
 
 		rotation = RotateMatrix(axis3, angle3);
 
-		sphere3->material.pattern->SetTransform(scaling);
-		// sphere3->material.pattern->SetTransform(rotation * scaling);
+		// sphere3->material.pattern->SetTransform(scaling);
+		sphere3->material.pattern->SetTransform(rotation * scaling);
 
 		objects.push_back(sphere3);/**/
 
