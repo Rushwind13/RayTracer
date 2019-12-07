@@ -554,8 +554,10 @@ public:
         return false;
     }
 
-    i.gothit = true;
+        i.gothit = true;
 		i.oid = oid;
+        i.position = objectToWorld * object.apply(i.distance);
+		i.normal = NormalAt(i.position);
 		return true;
 	}
 	Direction local_normal_at( const Position object_pos ) const
@@ -567,10 +569,79 @@ public:
 class Box : public Object
 {
 public:
-	Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
+	Box(){std::cout << "Box()" << std::endl;};
+	// Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
+	Box( const glm::mat4 o2w )
+	{
+		std::cout << "Box(o2w)" << std::endl;
+		SetTransform(o2w);
+	}
 	bool local_intersect( const Ray &object, Intersection &i )
 	{
-		return false;
+        // printvec("origin", object.origin);
+        // printvec("direction", object.direction);
+        Range x = CheckAxis(object.origin.x, object.direction.x);
+        Range y = CheckAxis(object.origin.y, object.direction.y);
+        Range z = CheckAxis(object.origin.z, object.direction.z);
+
+        float tmin = glm::max(x.x, glm::max(y.x, z.x));
+        float tmax = glm::min(x.y, glm::min(y.y, z.y));
+
+        if( tmin < 0.0 )
+        {
+            // std::cout << " inside " << std::endl;
+            i.distance = 1e9;
+            i.gothit = false;
+            return false;
+        }
+
+        if( tmin > tmax )
+        {
+            // std::cout << " min>max " << std::endl;
+            i.distance = 1e9;
+            i.gothit = false;
+            return false;
+        }
+
+        i.distance = tmin;
+        i.position = objectToWorld * object.apply(i.distance);
+		i.normal = NormalAt(i.position);
+        i.gothit = true;
+        i.oid = oid;
+
+        printvec("p",i.position);
+        printvec("n", i.normal);
+        std::cout << " distance: " << i.distance << std::endl;
+
+		return true;
+    }
+
+    Range CheckAxis( const float origin, const float direction )
+    {
+        Range compare(-1.0 - origin,1.0 - origin);
+        Range result(-1e9,1e9);
+
+        if( glm::abs(direction) >= epsilon )
+        {
+            result = compare / direction;
+        }
+        else if( origin > 1.0 || origin < -1.0 )
+        {
+            // if no direction in this axis, and outside box, then miss?
+            // printvec("result", result);
+            return Range(1e9,-1e9);
+        }
+
+        if( result.x > result.y )
+        {
+            float temp = result.x;
+            result.x = result.y;
+            result.y = temp;
+        }
+
+        // printvec("result", result);
+        return result;
+    }
 		/**
 		* def box( ray, object ):
 		#print "in box"
@@ -677,9 +748,21 @@ public:
 		return {'gothit':True, 'object': object, 'distance':distance, 'intersection': intersection, 'normal':normal, 'texture':texture}
 		*
 		*/
+
+	virtual Direction local_normal_at( const Position object_pos ) const
+	{
+        float _x = glm::abs(object_pos.x);
+        float _y = glm::abs(object_pos.y);
+        float _z = glm::abs(object_pos.z);
+
+        float _max = glm::max(_x, glm::max(_y,_z));
+
+        if( _max == _x ) return Direction(object_pos.x,0.0,0.0);
+        else if ( _max == _y ) return Direction(0.0,object_pos.y,0.0);
+		return Direction(0.0,0.0,object_pos.z);
 	}
 protected:
-	Position corner1, corner2;
+	// Position corner1, corner2;
 };
 
 // TODO: Comments about parametric equations

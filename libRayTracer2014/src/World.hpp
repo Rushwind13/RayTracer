@@ -55,7 +55,7 @@ public:
 		noisylerp.SetTransform(scaling);
 
 		//	create world object list
-		Sphere *sphere = new Sphere();
+		Box *sphere = new Box();
 		sphere->oid = 1;
 		sphere->name = "sphere1";
 		sphere->material.reflective = 0.0;
@@ -135,7 +135,7 @@ public:
 		objects.push_back(sphere3);/**/
 
 
-		Sphere *sphere_floor = new Sphere();
+		Box *sphere_floor = new Box();
 		sphere_floor->oid = 100;
 		sphere_floor->material.color = Color(0.4,0.5,0.5);
 		sphere_floor->name = "sphere_floor";
@@ -155,8 +155,8 @@ public:
 
 		/*Plane *plane_floor = new Plane();
 		plane_floor->oid = 100;
-		plane_floor->material.color = Color(0.4,0.5,0.5);
-		plane_floor->material.reflective = 1.0;
+		plane_floor->material.color = Color(0.3,0.5,0.5);
+		plane_floor->material.reflective = 0.0;
 		plane_floor->name = "plane_floor";
 
 		Position origin_floor(0.0,-10.0,0.0);
