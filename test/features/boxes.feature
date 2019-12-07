@@ -114,3 +114,17 @@ Scenario: A ray misses a box
     Given I have a box
     When I calculate the box normal at 1,0.5,-0.8
     Then the result should be 1,0,0 a vector
+    When I calculate the box normal at -1,-0.2,0.9
+    Then the result should be -1,0,0 a vector
+    When I calculate the box normal at -0.4,1,-0.1
+    Then the result should be 0,1,0 a vector
+    When I calculate the box normal at 0.3,-1,-0.7
+    Then the result should be 0,-1,0 a vector
+    When I calculate the box normal at -0.6,0.3,1
+    Then the result should be 0,0,1 a vector
+    When I calculate the box normal at 0.4,0.4,-1
+    Then the result should be 0,0,-1 a vector
+    When I calculate the box normal at 1,1,1
+    Then the result should be 1,0,0 a vector
+    When I calculate the box normal at -1,-1,-1
+    Then the result should be -1,0,0 a vector
