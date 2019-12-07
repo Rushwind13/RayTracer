@@ -17,6 +17,10 @@ const float epsilon = 0.00001;
 
 
 
+void printvec( const std::string label, const glm::vec2 vec )
+{
+	std::cout << label << ": " << vec.x << " " << vec.y << "  ";
+}
 void printvec( const std::string label, const glm::vec3 vec )
 {
 	std::cout << label << ": " << vec.x << " " << vec.y << " " << vec.z << "  ";
@@ -63,6 +67,15 @@ public:
     Color(){ r=g=b=0.0; a=0.0; };
     Color(float _s){ r=g=b=_s; a=0.0; };
     Color(const Color &c){ r=c.r; g=c.g; b=c.b; w=c.a;/*printvec("<-Color", *(this));/**/};
+};
+class Range : public glm::vec2
+{
+public:
+    Range(float _lo, float _hi){ x=_lo; y=_hi; };
+    Range(glm::vec2 v){ x=v.x; y=v.y; };
+    Range(){ x=1e9; y=-1e9; };
+    Range(float _s){ x=-s; y=_s; };
+    Range(const Range &r){ x=r.x; y=r.y; };
 };
 
 Direction ReflectVector(const Direction vIncident, const Direction vNormal) {

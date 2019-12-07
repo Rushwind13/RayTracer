@@ -571,7 +571,51 @@ public:
 	Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
 	bool local_intersect( const Ray &object, Intersection &i )
 	{
-		return false;
+        printvec("origin", object.origin);
+        printvec("direction", object.direction);
+        Range x = CheckAxis(object.origin.x, object.direction.x);
+        Range y = CheckAxis(object.origin.y, object.direction.y);
+        Range z = CheckAxis(object.origin.z, object.direction.z);
+
+        float tmin = glm::max(x.x, glm::max(y.x, z.x));
+        float tmax = glm::min(x.y, glm::min(y.y, z.y));
+
+        if( tmin < 0.0 || tmin == 1e9 )
+        {
+            i.distance = 1e9;
+            i.gothit = false;
+            return false;
+        }
+
+        i.distance = tmin;
+        i.gothit = true;
+        i.oid = oid;
+
+        std::cout << std::endl;
+
+		return true;
+    }
+
+    Range CheckAxis( const float origin, const float direction )
+    {
+        Range compare(-1.0 - origin,1.0 - origin);
+        Range result(-1e9,1e9);
+
+        if( glm::abs(direction) >= epsilon )
+        {
+            result = compare / direction;
+        }
+
+        if( result.x > result.y )
+        {
+            float temp = result.x;
+            result.x = result.y;
+            result.y = temp;
+        }
+
+        printvec("result", result);
+        return result;
+    }
 		/**
 		* def box( ray, object ):
 		#print "in box"
@@ -678,7 +722,6 @@ public:
 		return {'gothit':True, 'object': object, 'distance':distance, 'intersection': intersection, 'normal':normal, 'texture':texture}
 		*
 		*/
-	}
 
 	virtual Direction local_normal_at( const Position object_pos ) const
 	{
