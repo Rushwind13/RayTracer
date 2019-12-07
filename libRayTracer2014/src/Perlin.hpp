@@ -12,6 +12,7 @@
 #ifndef __PERLIN_HPP__
 #define __PERLIN_HPP__
 
+static float lo, hi;
 class Perlin
 {
 public:
@@ -33,6 +34,7 @@ public:
             138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180 };
     	// Duplicate the permutation vector
     	p.insert(p.end(), p.begin(), p.end());
+			lo = 10.0; hi = -10.0;
     };
 
 	// Generate a new permutation vector based on the value of seed
@@ -51,6 +53,7 @@ public:
 
     	// Duplicate the permutation vector
     	p.insert(p.end(), p.begin(), p.end());
+			lo = 10.0; hi = -10.0;
     };
 
 	// Get a noise value, for 2D images z can have any value
@@ -94,6 +97,22 @@ public:
 
     float Noise( const Position in ) { return Noise(in.x, in.y, in.z); };
 
+		float ScaledNoise( const Position in, const float _lo, const float _hi )
+		{
+			float scalar = Noise(in);
+			float output_range = _hi - _lo;
+			scalar -= -0.866;
+			scalar *= output_range;
+			scalar /= 1.732;
+			scalar += _lo;
+
+			if( scalar < lo ) lo = scalar;
+			if( scalar > hi ) hi = scalar;
+			Direction seen_range(lo, scalar, hi);
+			printvec("perturbed", seen_range);
+
+			return scalar;
+		}
 private:
 	float fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); };
 	float lerp(float t, float a, float b) { return a + t * (b - a); };

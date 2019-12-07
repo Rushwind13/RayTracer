@@ -177,7 +177,6 @@ public:
 	}
 };
 
-#define NOISE_SCALAR 5.0
 class Perturb : public Pattern
 {
 public:
@@ -190,14 +189,13 @@ public:
 
     Color PatternAt( const Position object_pos )
     {
-        // Position pattern_pos = objectToPattern * object_pos;
-        float perturbed = perlin.Noise(object_pos) * NOISE_SCALAR;
+        Position pattern_pos = objectToPattern * object_pos;
+        float perturbed = perlin.ScaledNoise(pattern_pos, -1.0, 1.0);
         return a->PatternAt(object_pos + (object_pos * perturbed));
     }
     Perlin perlin;
 };
 
-static float lo, hi;
 class NoisySolid : public Pattern
 {
 public:
@@ -205,29 +203,18 @@ public:
 	{
 		std::cout << "NoisySolid()...";
 		color = COLOR_WHITE;
-		lo = 10.0; hi = -10.0;
 	};
 	NoisySolid( Color _color )
 	{
 		std::cout << "NoisySolid(c)...";
 		color = _color;
-		lo = 10.0; hi = -10.0;
 	}
 
 	Color PatternAt( const Position object_pos )
 	{
 		Position pattern_pos = objectToPattern * object_pos;
-		float perturbed = perlin.Noise(pattern_pos);
-		// perturbed -= -0.866;
-		// perturbed /= 1.732;
-		// for some reason, this Perlin noise seems to follow a 2D range, not 3D?
-		perturbed -= -0.7071;
-		perturbed /= 1.414;
+		float perturbed = perlin.ScaledNoise(pattern_pos, 0.0, 1.0);
 		Color result = color * perturbed;
-		if( perturbed < lo ) lo = perturbed;
-		if( perturbed > hi ) hi = perturbed;
-		Direction printme(lo, perturbed, hi);
-		printvec("perturbed", printme);
 		printvec("result", result); std::cout << std::endl;
 		return result;
 	}
