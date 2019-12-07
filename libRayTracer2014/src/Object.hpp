@@ -554,8 +554,10 @@ public:
         return false;
     }
 
-    i.gothit = true;
+        i.gothit = true;
 		i.oid = oid;
+        i.position = objectToWorld * object.apply(i.distance);
+		i.normal = NormalAt(i.position);
 		return true;
 	}
 	Direction local_normal_at( const Position object_pos ) const
@@ -568,11 +570,16 @@ class Box : public Object
 {
 public:
 	Box(){std::cout << "Box()" << std::endl;};
-	Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
+	// Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
+	Box( const glm::mat4 o2w )
+	{
+		std::cout << "Box(o2w)" << std::endl;
+		SetTransform(o2w);
+	}
 	bool local_intersect( const Ray &object, Intersection &i )
 	{
-        printvec("origin", object.origin);
-        printvec("direction", object.direction);
+        // printvec("origin", object.origin);
+        // printvec("direction", object.direction);
         Range x = CheckAxis(object.origin.x, object.direction.x);
         Range y = CheckAxis(object.origin.y, object.direction.y);
         Range z = CheckAxis(object.origin.z, object.direction.z);
@@ -582,7 +589,7 @@ public:
 
         if( tmin < 0.0 )
         {
-            std::cout << " inside ";
+            // std::cout << " inside " << std::endl;
             i.distance = 1e9;
             i.gothit = false;
             return false;
@@ -590,17 +597,21 @@ public:
 
         if( tmin > tmax )
         {
-            std::cout << " min>max ";
+            // std::cout << " min>max " << std::endl;
             i.distance = 1e9;
             i.gothit = false;
             return false;
         }
 
         i.distance = tmin;
+        i.position = objectToWorld * object.apply(i.distance);
+		i.normal = NormalAt(i.position);
         i.gothit = true;
         i.oid = oid;
 
-        std::cout << std::endl;
+        printvec("p",i.position);
+        printvec("n", i.normal);
+        std::cout << " distance: " << i.distance << std::endl;
 
 		return true;
     }
@@ -617,7 +628,7 @@ public:
         else if( origin > 1.0 || origin < -1.0 )
         {
             // if no direction in this axis, and outside box, then miss?
-            printvec("result", result);
+            // printvec("result", result);
             return Range(1e9,-1e9);
         }
 
@@ -628,7 +639,7 @@ public:
             result.y = temp;
         }
 
-        printvec("result", result);
+        // printvec("result", result);
         return result;
     }
 		/**
@@ -751,7 +762,7 @@ public:
 		return Direction(0.0,0.0,object_pos.z);
 	}
 protected:
-	Position corner1, corner2;
+	// Position corner1, corner2;
 };
 
 // TODO: Comments about parametric equations
