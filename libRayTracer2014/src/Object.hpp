@@ -218,13 +218,18 @@ public:
 	{
 		Position pattern_pos = objectToPattern * object_pos;
 		float perturbed = perlin.Noise(pattern_pos);
-		perturbed++; // range -0.5..0.5 -> 0..1
-		perturbed -= 0.38085; // why does this seem to be the floor?!
+		// perturbed -= -0.866;
+		// perturbed /= 1.732;
+		// for some reason, this Perlin noise seems to follow a 2D range, not 3D?
+		perturbed -= -0.7071;
+		perturbed /= 1.414;
+		Color result = color * perturbed;
 		if( perturbed < lo ) lo = perturbed;
 		if( perturbed > hi ) hi = perturbed;
 		Direction printme(lo, perturbed, hi);
-		printvec("perturbed", printme); std::cout << std::endl;
-		return color * perturbed;
+		printvec("perturbed", printme);
+		printvec("result", result); std::cout << std::endl;
+		return result;
 	}
 
 	Perlin perlin;

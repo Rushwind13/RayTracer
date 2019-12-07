@@ -56,7 +56,7 @@ public:
 		sphere->material.reflective = 0.0;
 		sphere->material.usePattern = true;
 		sphere->material.pattern = new NoisySolid(COLOR_RED);
-		scaling = ScaleMatrix(Position(0.25));
+		scaling = ScaleMatrix(Position(0.2));
 		sphere->material.pattern->SetTransform(scaling);
 
 		Position center(-2.5,0.0,-5.0);
