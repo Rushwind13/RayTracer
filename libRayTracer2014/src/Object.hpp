@@ -567,6 +567,7 @@ public:
 class Box : public Object
 {
 public:
+	Box(){std::cout << "Box()" << std::endl;};
 	Box( /*const mat4 o2w,*/ const Position c1, const Position c2 ): /*JObject(o2w),*/ corner1(c1), corner2(c2) {}
 	bool local_intersect( const Ray &object, Intersection &i )
 	{
@@ -677,6 +678,11 @@ public:
 		return {'gothit':True, 'object': object, 'distance':distance, 'intersection': intersection, 'normal':normal, 'texture':texture}
 		*
 		*/
+	}
+
+	virtual Direction local_normal_at( const Position object_pos ) const
+	{
+		return Direction(0.0);
 	}
 protected:
 	Position corner1, corner2;
