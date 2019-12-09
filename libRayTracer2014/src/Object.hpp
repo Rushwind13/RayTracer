@@ -536,7 +536,11 @@ protected:
 class Plane : public Object
 {
 public:
-	Plane() {std::cout << "Plane()" << std::endl;};
+	Plane()
+	{
+		std::cout << "Plane()" << std::endl;
+		SetTransform(glm::mat4(1.0));
+	};
 	bool local_intersect( const Ray &object, Intersection &i )
 	{
 		if( glm::abs( object.direction.y - 0.0 ) < epsilon )
@@ -554,15 +558,16 @@ public:
         return false;
     }
 
-        i.gothit = true;
+    i.gothit = true;
 		i.oid = oid;
-        i.position = objectToWorld * object.apply(i.distance);
+    i.position = objectToWorld * object.apply(i.distance);
 		i.normal = NormalAt(i.position);
+
 		return true;
 	}
 	Direction local_normal_at( const Position object_pos ) const
 	{
-		return Direction(0,1,0);
+		return Direction(0.0,1.0,0.0);
 	}
 };
 

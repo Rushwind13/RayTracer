@@ -45,6 +45,7 @@ public:
 
 		glm::mat4 scaling = ScaleMatrix(Position(scalar));
 		glm::mat4 rotation = RotateMatrix(axis,degrees);
+		glm::mat4 translate = TranslateMatrix(Position(0.0));
 
 		vert->SetTransform(scaling);
 		horz->SetTransform(rotation * scaling);
@@ -68,11 +69,11 @@ public:
 		Position scale(2.0,1.0,2.0);
 		degrees = -135.0;
 
-		glm::mat4 translate = TranslateMatrix(center);
+		translate = TranslateMatrix(center);
 		rotation = RotateMatrix(axis,degrees);
 		scaling = ScaleMatrix(scale);
 
-		sphere->SetTransform(translate * rotation * scaling);
+		sphere->SetTransform(translate * rotation * scaling);/**/
 
 		/*Position center(-2.5,0.0,-5.0);
 		float radius=2.0;
@@ -82,7 +83,7 @@ public:
 
 		objects.push_back(sphere);
 
-		Position center2(2.5,0.0,-10.0);
+		/*Position center2(2.5,0.0,-10.0);
 		Position scale2(4.0,1.0,4.0);
 		float degrees2 = 135.0;
 		Direction axis2(0,0,1);
@@ -95,7 +96,7 @@ public:
 		sphere2->material.color = Color(0.1,0.1,1.0);
 		sphere2->material.specular = 0.0;
 		sphere2->oid = 2;
-		sphere2->name = "sphere2";
+		sphere2->name = "sphere2";/**/
 
 		/*Position center2(2.5,0.0,-10.0);
 		float radius2=4.0;
@@ -104,7 +105,7 @@ public:
 		sphere2->oid = 2;
 		sphere2->name = "sphere2";/**/
 
-		objects.push_back(sphere2);
+		/*objects.push_back(sphere2);
 
 		Position center3(0.0,8.0,-20.0);
 		float radius3=4.0;
@@ -135,7 +136,7 @@ public:
 		objects.push_back(sphere3);/**/
 
 
-		Box *sphere_floor = new Box();
+		/*Box *sphere_floor = new Box();
 		sphere_floor->oid = 100;
 		sphere_floor->material.color = Color(0.4,0.5,0.5);
 		sphere_floor->name = "sphere_floor";
@@ -153,20 +154,22 @@ public:
 
 		objects.push_back(sphere_floor);/**/
 
-		/*Plane *plane_floor = new Plane();
+		Plane *plane_floor = new Plane();
 		plane_floor->oid = 100;
 		plane_floor->material.color = Color(0.3,0.5,0.5);
 		plane_floor->material.reflective = 0.0;
+		plane_floor->material.usePattern = false;
 		plane_floor->name = "plane_floor";
 
 		Position origin_floor(0.0,-10.0,0.0);
 		translate = TranslateMatrix(origin_floor);
 		plane_floor->SetTransform(translate);
+		// plane_floor->SetTransform(glm::mat4(1.0));
 
 		objects.push_back(plane_floor);/**/
 
 
-		Sphere *sphere_l_wall = new Sphere();
+		/*Sphere *sphere_l_wall = new Sphere();
 		sphere_l_wall->oid = 101;
 		sphere_l_wall->material.color = Color(0.5,0.5,0.4);
 		sphere_l_wall->name = "sphere_l_wall";
@@ -180,7 +183,7 @@ public:
 		scaling = ScaleMatrix(scale_l_wall);
 		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
 
-		sphere_l_wall->SetTransform(translate * rotation * scaling);
+		sphere_l_wall->SetTransform(translate * rotation * scaling);/**/
 
 		// TODO: put this back in when intersecting objects doesn't blow up the pipeline...
 		// objects.push_back(sphere_l_wall);
