@@ -59,7 +59,7 @@ public:
 		Box *sphere = new Box();
 		sphere->oid = 1;
 		sphere->name = "sphere1";
-		sphere->material.reflective = 0.0;
+		sphere->material.reflective = 1.0;
 		sphere->material.usePattern = true;
 		sphere->material.pattern = new NoisySolid(COLOR_RED);
 		scaling = ScaleMatrix(Position(0.2));
@@ -83,7 +83,7 @@ public:
 
 		objects.push_back(sphere);
 
-		/*Position center2(2.5,0.0,-10.0);
+		Position center2(2.5,0.0,-10.0);
 		Position scale2(4.0,1.0,4.0);
 		float degrees2 = 135.0;
 		Direction axis2(0,0,1);
@@ -105,7 +105,7 @@ public:
 		sphere2->oid = 2;
 		sphere2->name = "sphere2";/**/
 
-		/*objects.push_back(sphere2);
+		objects.push_back(sphere2);
 
 		Position center3(0.0,8.0,-20.0);
 		float radius3=4.0;
@@ -158,7 +158,8 @@ public:
 		plane_floor->oid = 100;
 		plane_floor->material.color = Color(0.3,0.5,0.5);
 		plane_floor->material.reflective = 0.0;
-		plane_floor->material.usePattern = false;
+		// plane_floor->material.usePattern = true;
+		// plane_floor->material.pattern = new Stripe(PATTERN_NOISELERP, PATTERN_GREEN);
 		plane_floor->name = "plane_floor";
 
 		Position origin_floor(0.0,-10.0,0.0);
@@ -187,6 +188,37 @@ public:
 
 		// TODO: put this back in when intersecting objects doesn't blow up the pipeline...
 		// objects.push_back(sphere_l_wall);
+
+		Plane *plane_l_wall = new Plane();
+		plane_l_wall->oid = 101;
+		plane_l_wall->material.color = Color(0.5,0.5,0.4);
+		plane_l_wall->name = "plane_l_wall";
+
+		Position center_l_wall(-10.0,0.0,0.0);
+		float degrees_l_wall = -90.0;
+		Direction axis_l_wall(0,0,1);
+
+		translate = TranslateMatrix(center_l_wall);
+		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
+
+		plane_l_wall->SetTransform(translate * rotation);
+		objects.push_back(plane_l_wall);
+
+		Plane *plane_r_wall = new Plane();
+		plane_r_wall->oid = 102;
+		plane_r_wall->material.color = Color(0.5,0.5,0.4);
+		plane_floor->material.reflective = 0.0;
+		plane_r_wall->name = "plane_r_wall";
+
+		Position center_r_wall(10.0,0.0,0.0);
+		float degrees_r_wall = 90.0;
+		Direction axis_r_wall(0,0,1);
+
+		translate = TranslateMatrix(center_r_wall);
+		rotation = RotateMatrix(axis_r_wall,degrees_r_wall);
+
+		plane_r_wall->SetTransform(translate * rotation);
+		// objects.push_back(plane_r_wall);
 
 		object_count = objects.size();
 
