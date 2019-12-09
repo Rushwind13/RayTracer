@@ -56,7 +56,7 @@ bool Reflection::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	// Need new ray. Origin = intersect point. Direction = reflect( primary dir, intersect normal )
 	Ray rReflect;
-	rReflect.origin = i.position;
+	rReflect.origin = i.position + (i.normal * epsilon);
 	// My ReflectVector code assumes vIncident points at eye pos, this requires points at hit pos (reversed direction)
 	rReflect.direction = ReflectVector( -pixel.r.direction , i.normal );
 	pixel.r = rReflect;
