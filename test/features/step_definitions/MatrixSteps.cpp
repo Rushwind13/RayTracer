@@ -153,7 +153,7 @@ WHEN("^R = ([MABCR]) \\* ([MABCR])$")
 ##
 #######*/
 
-THEN("^M([234])<([0-9]),([0-9])> = ([0-9.-]+)$")
+THEN("^M([234O])<([0-9]),([0-9])> = ([0-9.-]+)$")
 {
   REGEX_PARAM(char, dim);
   REGEX_PARAM(int, row);
@@ -171,6 +171,9 @@ THEN("^M([234])<([0-9]),([0-9])> = ([0-9.-]+)$")
       break;
     case '4':
       result = context->mat[col][row];
+      break;
+    case 'O':
+      result = context->shape.objectToWorld[col][row];
       break;
   }
 

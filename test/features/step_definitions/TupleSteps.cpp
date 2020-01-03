@@ -343,12 +343,20 @@ THEN("^the result should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a color$")
   REGEX_PARAM(float,b);
   Color expected(r,g,b);
   ScenarioScope<TestCtx> context;
-
+  Color actual = context->result_col;
   bool result = false;
 
-  if( glm::length(expected - context->result_col) < epsilon )
+  if( glm::length(expected - actual) < epsilon )
   {
       result = true;
+  }
+  else
+  {
+      printvec("e", expected);
+      std::cout << std::endl;
+      printvec("a", actual);
+      std::cout << std::endl;
+      result = false;
   }
 
   EXPECT_EQ(result, true);
@@ -460,4 +468,30 @@ THEN("^The scale changed to ([0-9.-]+)$")
 
     EXPECT_EQ(result, true);
     // EXPECT_EQ(expected, compare);
+}
+
+THEN("^the vector is normalized$")
+{
+  ScenarioScope<TestCtx> context;
+  Direction actual = context->result_vec;
+  Direction expected = glm::normalize(context->result_vec);
+
+
+  bool result = false;
+
+  if( glm::length((glm::vec4)actual) - 1.0 < epsilon &&
+      glm::length(expected-actual) < epsilon )
+  {
+      result = true;
+  }
+  else
+  {
+      printvec("e", expected);
+      std::cout << std::endl;
+      printvec("a", actual);
+      std::cout << std::endl;
+      result = false;
+  }
+
+  EXPECT_EQ(result, true);
 }

@@ -43,12 +43,21 @@ THEN("^the origin should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a position$")
   REGEX_PARAM(double,z);
   Position expected(x,y,z);
   ScenarioScope<TestCtx> context;
+  Position actual = context->result_ray.origin;
 
   bool result = false;
-  
-  if( glm::length(expected - context->result_ray.origin) < epsilon )
+
+  if( glm::length(expected - actual) < epsilon )
   {
       result = true;
+  }
+  else
+  {
+      printvec("e", expected);
+      std::cout << std::endl;
+      printvec("a", actual);
+      std::cout << std::endl;
+      result = false;
   }
 
   EXPECT_EQ(result, true);
@@ -63,7 +72,7 @@ THEN("^the direction should be ([0-9.-]+),([0-9.-]+),([0-9.-]+) a vector$")
   ScenarioScope<TestCtx> context;
 
   bool result = false;
-  
+
   if( glm::length((glm::vec4)expected - (glm::vec4)context->result_ray.direction) < epsilon )
   {
       result = true;
@@ -78,7 +87,7 @@ THEN("^the length should be ([0-9.-]+) a float$")
   REGEX_PARAM(float,expected);
   ScenarioScope<TestCtx> context;
   bool result = false;
-  
+
   if( glm::abs(expected - context->result_ray.length) < epsilon )
   {
       result = true;

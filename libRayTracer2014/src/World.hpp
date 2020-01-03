@@ -23,6 +23,7 @@ public:
 	std::list<Light *> lights;
 	int object_count;
 	int light_count;
+	Pattern *vert, *horz;
 
 protected:
 private:
@@ -35,21 +36,44 @@ public:
 	{
 		sprintf( filename, "test.png" );
 
+		vert = new Stripe(PATTERN_RED, PATTERN_GREEN);
+		horz = new Stripe(PATTERN_BLUE, PATTERN_WHITE);
+
+		float scalar = 0.2;
+		Direction axis(0,0,1);
+		float degrees = 90.0;
+
+		glm::mat4 scaling = ScaleMatrix(Position(scalar));
+		glm::mat4 rotation = RotateMatrix(axis,degrees);
+		glm::mat4 translate = TranslateMatrix(Position(0.0));
+
+		vert->SetTransform(scaling);
+		horz->SetTransform(rotation * scaling);
+
+		scalar = 0.1;
+		scaling = ScaleMatrix(Position(scalar));
+		noisy.SetTransform(scaling);
+		noisylerp.SetTransform(scaling);
+
 		//	create world object list
-		Sphere *sphere = new Sphere();
+		Box *sphere = new Box();
 		sphere->oid = 1;
 		sphere->name = "sphere1";
+		sphere->material.reflective = 1.0;
+		sphere->material.usePattern = true;
+		sphere->material.pattern = new NoisySolid(COLOR_RED);
+		scaling = ScaleMatrix(Position(0.2));
+		sphere->material.pattern->SetTransform(scaling);
 
 		Position center(-2.5,0.0,-5.0);
 		Position scale(2.0,1.0,2.0);
-		float degrees = -135.0;
-		Direction axis(0,0,1);
+		degrees = -135.0;
 
-		glm::mat4 translate = TranslateMatrix(center);
-		glm::mat4 scaling = ScaleMatrix(scale);
-		glm::mat4 rotation = RotateMatrix(axis,degrees);
+		translate = TranslateMatrix(center);
+		rotation = RotateMatrix(axis,degrees);
+		scaling = ScaleMatrix(scale);
 
-		sphere->SetTransform(translate * rotation * scaling);
+		sphere->SetTransform(translate * rotation * scaling);/**/
 
 		/*Position center(-2.5,0.0,-5.0);
 		float radius=2.0;
@@ -69,14 +93,15 @@ public:
 		glm::mat4 rotation2 = RotateMatrix(axis2,degrees2);
 
 		Sphere *sphere2 = new Sphere(translate2 * rotation2 * scaling2);
-		sphere2->color = Color(0.1,0.1,1.0);
+		sphere2->material.color = Color(0.1,0.1,1.0);
+		sphere2->material.specular = 0.0;
 		sphere2->oid = 2;
-		sphere2->name = "sphere2";
+		sphere2->name = "sphere2";/**/
 
 		/*Position center2(2.5,0.0,-10.0);
 		float radius2=4.0;
 		Sphere *sphere2 = new Sphere(center2, radius2);
-		sphere2->color = Color(0.1,0.1,1.0);
+		sphere2->material.color = Color(0.1,0.1,1.0);
 		sphere2->oid = 2;
 		sphere2->name = "sphere2";/**/
 
@@ -85,16 +110,35 @@ public:
 		Position center3(0.0,8.0,-20.0);
 		float radius3=4.0;
 		Sphere *sphere3 = new Sphere(center3, radius3);
-		sphere3->color = Color(0.1,1.0,0.1);
+		sphere3->material.color = COLOR_GREEN;
+		sphere3->material.reflective = 0.5;
+		// sphere3->material.pattern = new Ring(PATTERN_GREEN, PATTERN_RED);
+		// sphere3->material.pattern = new Stripe(new Perturb(vert), new Perturb(horz));
+		// sphere3->material.pattern = new Perturb(horz); scaling = ScaleMatrix(Position(1.5));
+		// sphere3->material.pattern = new NoisySolid(COLOR_WHITE);
+		sphere3->material.pattern = new Stripe(PATTERN_NOISELERP, PATTERN_GREEN);
+		// sphere3->material.pattern = new Gradient(PATTERN_NOISE, PATTERN_RED);
+
+		sphere3->material.usePattern = true;
 		sphere3->oid = 3;
 		sphere3->name = "sphere3";
+
+		scaling = ScaleMatrix(Position(0.2));
+
+		Direction axis3(0,1,1);
+		float angle3 = 30.0;
+
+		rotation = RotateMatrix(axis3, angle3);
+
+		// sphere3->material.pattern->SetTransform(scaling);
+		sphere3->material.pattern->SetTransform(rotation * scaling);
 
 		objects.push_back(sphere3);/**/
 
 
-		Sphere *sphere_floor = new Sphere();
+		/*Box *sphere_floor = new Box();
 		sphere_floor->oid = 100;
-		sphere_floor->color = Color(0.4,0.5,0.5);
+		sphere_floor->material.color = Color(0.4,0.5,0.5);
 		sphere_floor->name = "sphere_floor";
 
 		Position center_floor(0.0,-10.0,-10.0);
@@ -108,12 +152,27 @@ public:
 
 		sphere_floor->SetTransform(translate * rotation * scaling);
 
-		objects.push_back(sphere_floor);
+		objects.push_back(sphere_floor);/**/
+
+		Plane *plane_floor = new Plane();
+		plane_floor->oid = 100;
+		plane_floor->material.color = Color(0.3,0.5,0.5);
+		plane_floor->material.reflective = 0.0;
+		// plane_floor->material.usePattern = true;
+		// plane_floor->material.pattern = new Stripe(PATTERN_NOISELERP, PATTERN_GREEN);
+		plane_floor->name = "plane_floor";
+
+		Position origin_floor(0.0,-10.0,0.0);
+		translate = TranslateMatrix(origin_floor);
+		plane_floor->SetTransform(translate);
+		// plane_floor->SetTransform(glm::mat4(1.0));
+
+		objects.push_back(plane_floor);/**/
 
 
-		Sphere *sphere_l_wall = new Sphere();
+		/*Sphere *sphere_l_wall = new Sphere();
 		sphere_l_wall->oid = 101;
-		sphere_l_wall->color = Color(0.5,0.5,0.4);
+		sphere_l_wall->material.color = Color(0.5,0.5,0.4);
 		sphere_l_wall->name = "sphere_l_wall";
 
 		Position center_l_wall(-10.0,0.0,-10.0);
@@ -125,17 +184,48 @@ public:
 		scaling = ScaleMatrix(scale_l_wall);
 		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
 
-		sphere_l_wall->SetTransform(translate * rotation * scaling);
+		sphere_l_wall->SetTransform(translate * rotation * scaling);/**/
 
 		// TODO: put this back in when intersecting objects doesn't blow up the pipeline...
 		// objects.push_back(sphere_l_wall);
+
+		Plane *plane_l_wall = new Plane();
+		plane_l_wall->oid = 101;
+		plane_l_wall->material.color = Color(0.5,0.5,0.4);
+		plane_l_wall->name = "plane_l_wall";
+
+		Position center_l_wall(-10.0,0.0,0.0);
+		float degrees_l_wall = -90.0;
+		Direction axis_l_wall(0,0,1);
+
+		translate = TranslateMatrix(center_l_wall);
+		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
+
+		plane_l_wall->SetTransform(translate * rotation);
+		objects.push_back(plane_l_wall);
+
+		Plane *plane_r_wall = new Plane();
+		plane_r_wall->oid = 102;
+		plane_r_wall->material.color = Color(0.5,0.5,0.4);
+		plane_floor->material.reflective = 0.0;
+		plane_r_wall->name = "plane_r_wall";
+
+		Position center_r_wall(10.0,0.0,0.0);
+		float degrees_r_wall = 90.0;
+		Direction axis_r_wall(0,0,1);
+
+		translate = TranslateMatrix(center_r_wall);
+		rotation = RotateMatrix(axis_r_wall,degrees_r_wall);
+
+		plane_r_wall->SetTransform(translate * rotation);
+		// objects.push_back(plane_r_wall);
 
 		object_count = objects.size();
 
 		// create world light list
 		Position lpos0(0.0,5.0, -1.0);
 		Light *light0 = new Light(lpos0);
-		light0->color = Color(1.0,1.0,1.0);
+		light0->material.color = Color(1.0,1.0,1.0);
 		light0->oid = 0;
 		light0->name = "light0";
 
@@ -143,7 +233,7 @@ public:
 
 		/*Position lpos1(2.5, 8.0, -10.0);
 		Light *light1 = new Light(lpos1);
-		light1->color = Color(1.0,1.0,1.0);
+		light1->material.color = Color(1.0,1.0,1.0);
 		light1->oid = 1;
 		light1->name = "light1";
 

@@ -46,8 +46,11 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 		// grab the best result...
 		int64_t key = hash( pixel );
 		i = nearest[key];
+		if( pixel.type == iPrimary ) pixel.oid = i.oid;
 
 		// Prepare payload for sending to next stage...
+		header->clear();
+		msgpack::pack( header, pixel );
 		payload->clear();
 		msgpack::pack( payload, i );
 
@@ -176,7 +179,7 @@ void IntersectResults::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	IntersectResults iw("IntersectWith", "RESULT", "ipc:///tmp/feeds/broadcast", "SHADE", "ipc:///tmp/feeds/control");
+	IntersectResults ir("IntersectResults", "RESULT", "ipc:///tmp/feeds/broadcast", "SHADE", "ipc:///tmp/feeds/control");
 
 	if( argc > 1 )
 	{
@@ -184,7 +187,7 @@ int main(int argc, char* argv[])
 		//iw.world_object = argv[1];
 	}
 	cout << "running" << endl;
-	iw.run();
+	ir.run();
 
 	cout << "shutting down" << endl;
 	return 0;

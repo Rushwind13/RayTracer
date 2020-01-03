@@ -13,7 +13,7 @@ using namespace std;
 
 void Lit::local_setup()
 {
-
+// #define DEBUG
 }
 
 // You will get here if a Shadow test registers a miss with an object between the intersection and a particular light
@@ -25,7 +25,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &mpobj );
 	mpobj.convert( pixel );
 #ifdef DEBUG
-	//std::cout << "(" << pixel.x << "," << pixel.y << ") ";
+	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 #endif /* DEBUG */
 
 	Object *obj = world.FindObject(pixel.oid);
@@ -35,9 +35,9 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	// Diffuse
 	Color diffuse;
-	diffuse = obj->color * pixel.NdotL;
+	diffuse = obj->ColorAt(pixel.position) * pixel.NdotL;
 
-	float s = 100.0f; // TODO: shininess should come from the object definition
+	float s = obj->material.shininess;
 	Direction vV = glm::normalize(pixel.primaryRay.origin - pixel.position);
 	Direction vL = glm::normalize(light->position - pixel.position);
 	float cosTheta = 0.0;
@@ -66,7 +66,7 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	if( cosTheta < 0.0 ) cosTheta = 0.0;
 
 	Color specular;
-	specular = light->color * pow(cosTheta, s); // TODO: different colors for specular vs diffuse?
+	specular = light->material.color * pow(cosTheta, s); // TODO: different colors for specular vs diffuse?
 
 #ifdef DEBUG
 	if( specular.x > 0.3 )
@@ -74,14 +74,17 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		printvec("s", specular); std::cout << std::endl;
 	}
 #endif /* DEBUG */
-	pixel.color = specular + diffuse;
+	pixel.color = (obj->material.specular * specular) +
+								(obj->material.diffuse * diffuse);
 
 	//printvec("c", pixel.color);
 	header->clear();
 	msgpack::pack( header, pixel );
 	payload->clear();
 
-	//std::cout << std::endl;
+#ifdef DEBUG
+	std::cout << std::endl;
+#endif
 	return true; // send an outbound message as a result of local_work()
 }
 

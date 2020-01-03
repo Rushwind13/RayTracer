@@ -52,8 +52,9 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		accumulator.erase(key);
 		layer_count.erase(key);
 
+#ifdef DEBUG
 		std::cout << key << " done. sending: " << pixel.color.r << "  ";
-
+#endif
 		// Prepare payload for sending to next stage...
 		payload->clear();
 		header->clear();
@@ -76,6 +77,7 @@ bool DepthChart::storeColor( Pixel pixel )
 	int16_t count;
 	Color curr_accumulator;
 	bool testComplete = false;
+	Object *obj = world.FindObject( pixel.oid );
 
 	// on a BKG (miss), that sets the number of layers
 	if( pixel.gothit == false )
@@ -83,13 +85,26 @@ bool DepthChart::storeColor( Pixel pixel )
 		// There won't be any more layers after this one.
 		// you know that this is the only one you're getting (at least for this depth).
 		maxlayers[key] = pixel.depth + 1;
-		std::cout << " BKG hit at layer " << pixel.depth << ". set layers to " << maxlayers[key] << " ";
+
+#ifdef DEBUG
+		// std::cout << " BKG hit at layer " << pixel.depth << ". set layers to " << maxlayers[key] << " ";
+#endif
+	}
+	else if( obj && obj->material.reflective < epsilon )
+	{
+		maxlayers[key] = pixel.depth + 1;
+
+#ifdef DEBUG
+		std::cout << " non-reflective hit at layer " << pixel.depth << ". set layers to " << maxlayers[key] << " ";
+#endif
 	}
 	// ...otherwise, first time in, expect to get hits on each layer
 	else if( layer_count.find(key) == layer_count.end() )
 	{
 		maxlayers[key] = world.maxdepth + 1;
+#ifdef DEBUG
 		std::cout << " new one. set layers to " << maxlayers[key] << " ";
+#endif
 	}
 
 	if( pixel.depth == 0 )
@@ -104,7 +119,7 @@ bool DepthChart::storeColor( Pixel pixel )
 		if( curr_accumulator.g > 1.0 ) curr_accumulator.g = 1.0;
 		if( curr_accumulator.b > 1.0 ) curr_accumulator.b = 1.0;
 
-		accumulator[key] += curr_accumulator;
+		accumulator[key] = curr_accumulator;
 	}
 	layer_count[key]++;
 
