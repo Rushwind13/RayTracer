@@ -66,6 +66,8 @@ public:
 		float _height = 100.0;/**/
 		/*float _width = 600.0;
 		float _height = 400.0;/**/
+		/*float _width = 1620.0;
+		float _height = 1080.0;/**/
 
 		eye = _eye;
 		lookAt = _lookAt;

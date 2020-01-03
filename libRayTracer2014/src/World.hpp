@@ -66,7 +66,7 @@ public:
 		sphere->material.pattern->SetTransform(scaling);
 
 		Position center(-2.5,0.0,-5.0);
-		Position scale(2.0,1.0,2.0);
+		Position scale(1.0,1.0,1.0);
 		degrees = -135.0;
 
 		translate = TranslateMatrix(center);
@@ -202,7 +202,7 @@ public:
 		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
 
 		plane_l_wall->SetTransform(translate * rotation);
-		objects.push_back(plane_l_wall);
+		//objects.push_back(plane_l_wall);
 
 		Plane *plane_r_wall = new Plane();
 		plane_r_wall->oid = 102;
