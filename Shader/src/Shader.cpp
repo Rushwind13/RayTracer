@@ -13,7 +13,14 @@ using namespace std;
 
 void Shader::local_setup()
 {
+//#define DEBUG
+    std::cout << "creating sockets for alternate pub paths...";
+    black_publisher = new zmq::socket_t( *context, ZMQ_PUB );
+    black_publisher->connect( "tcp://127.0.0.1:1312" ); // BLACK
 
+    intersect_publisher = new zmq::socket_t( *context, ZMQ_PUB );
+    intersect_publisher->connect( "tcp://127.0.0.1:1313" ); // INTERSECT
+    std::cout << "done." << std::endl;
 }
 
 // You will get here after a successful intersection with some object
@@ -68,14 +75,14 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		float NdotL = glm::dot( (glm::vec4)i.normal, (glm::vec4)vL );
 
 		//   N.L < 0 = send off background color message
-		if( NdotL < (ambient.r + emissive.r) )
+		if( NdotL < (ambient.r + emissive.r) ) // TODO: <-- this has to be a bug
 		{
-//#ifdef DEBUG
+#ifdef DEBUG
 			std::cout << "(" << pixel.x << "," << pixel.y << ")" << " N.L < 0 for lid: " << light->oid << std::endl;
-//#endif /* DEBUG */
+#endif /* DEBUG */
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
-			sendMessage(header, payload, "BLACK");
+			sendMessage(header, payload, "BLACK", black_publisher);
 			//sendMessage(header, payload, "BKG");
 			continue;
 		}
@@ -114,7 +121,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 		msgpack::pack( header, pixel );
 
-		sendMessage( header, payload, "INTERSECT" );
+		sendMessage( header, payload, "INTERSECT", intersect_publisher );
 #ifdef DEBUG
 		Pixel px2;
 
@@ -137,11 +144,11 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	msgpack::pack( header, pixel );
 	payload->clear();
-//#ifdef DEBUG
+#ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 	printvec("ambient", pixel.color);
 	std::cout << std::endl;
-//#endif /* DEBUG */
+#endif /* DEBUG */
 
 	return true; // send an outbound message as a result of local_work()
 }
@@ -159,24 +166,28 @@ void Shader::prepareShadowTest( Pixel *pixel, const Intersection i )
 void Shader::local_shutdown()
 {
 	std::cout << "shutting down... ";
+
+    if( black_publisher != NULL )
+	{
+		black_publisher->close();
+		black_publisher = NULL;
+	}
+	if( intersect_publisher != NULL )
+	{
+		intersect_publisher->close();
+		intersect_publisher = NULL;
+	}
 }
 
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-
-	// This will have several publisher outputs:
-	// - Shadow intersection tests for each light
-	// - Reflection test
-	// - Refraction test
-	// Finally, send off Ambient and Emissive color value.
-	Shader sh("Shader", "SHADE", "ipc:///tmp/feeds/broadcast", "COLOR", "ipc:///tmp/feeds/control");
-
-	if( argc > 1 )
-	{
-		int foo = 1;
-		//sh.world_object = argv[1];
-	}
+    if( argc != 6 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+    Shader sh(argv[1], argv[2], argv[3], argv[4], argv[5]);
 	cout << "running" << endl;
 	sh.run();
 

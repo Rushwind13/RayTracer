@@ -13,7 +13,7 @@ using namespace std;
 
 void Reflection::local_setup()
 {
-#define DEBUG
+//#define DEBUG
 }
 
 // You will get here after a successful intersection with some object
@@ -99,13 +99,12 @@ void Reflection::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	Reflection r("Reflection", "SHADE", "ipc:///tmp/feeds/broadcast", "INTERSECT", "ipc:///tmp/feeds/control");
-
-	if( argc > 1 )
-	{
-		int foo = 1;
-		//sh.world_object = argv[1];
-	}
+    if( argc != 6 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+	Reflection r(argv[1], argv[2], argv[3], argv[4], argv[5]);
 	cout << "running" << endl;
 	r.run();
 

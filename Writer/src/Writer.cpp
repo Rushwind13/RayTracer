@@ -24,6 +24,14 @@ void Writer::local_setup()
 	//pixel_count = 100;
 	pixel_count = camera.width * camera.height;
 	image = new Color[pixel_count];
+#define UGLY
+#ifdef UGLY
+    Color ugly(1.0, 0.0, 0.0);
+    for( int i=0; i < pixel_count; i++ )
+    {
+        image[i] = ugly;
+    }
+#endif /* UGLY */
 	std::cout << pixel_count << " pixels.";
 }
 
@@ -33,16 +41,22 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
+#ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 	printvec("c", pixel.color);
+#endif /* DEBUG */
 
 	bool fileComplete = false;
 	fileComplete = storePixel( pixel );
+#ifdef DEBUG
 	std::cout << " " << pixel_count;
+#endif /* DEBUG */
 
 	if( fileComplete )
 	{
+#ifdef DEBUG
 		std::cout << std::endl;
+#endif /* DEBUG */
 		// You got a full set of responses for this file, so
 		// time to write a PNG...
 		SaveImage();
@@ -51,8 +65,9 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		//pixel_count = 100;
 		pixel_count = camera.width * camera.height;
 	}
-
+#ifdef DEBUG
 	std::cout << std::endl;
+#endif /* DEBUG */
 	return false; // no more messages; we're done.
 }
 
@@ -65,6 +80,11 @@ bool Writer::storePixel( Pixel pixel )
 	{
 		fileComplete = true;
 	}
+    else if( pixel_count % 1000 == 0)
+    {
+        std::cout << pixel_count << std::endl;
+        SaveImage(); // we keep losing pixels...
+    }
 
 	int curr_pixel = (int)((pixel.y*camera.width) + pixel.x);
 	image[curr_pixel] = pixel.color;
@@ -131,12 +151,14 @@ void Writer::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	Writer wr("Writer", "PNG", "ipc:///tmp/feeds/broadcast", "", "");
+    if( argc != 5 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+	Writer wr(argv[1], argv[2], argv[3], "", "");
+    strcpy(wr.world.filename, argv[4]);
 
-	if( argc > 1 )
-	{
-		strcpy(wr.world.filename, argv[1]);
-	}
 	cout << "running" << endl;
 	wr.run();
 

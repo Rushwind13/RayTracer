@@ -109,7 +109,9 @@ public:
 			if( scalar < lo ) lo = scalar;
 			if( scalar > hi ) hi = scalar;
 			Direction seen_range(lo, scalar, hi);
+#ifdef DEBUG
 			printvec("perturbed", seen_range);
+#endif /* DEBUG */
 
 			return scalar;
 		}

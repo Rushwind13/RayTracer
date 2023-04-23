@@ -29,7 +29,7 @@ protected:
 private:
 
 public:
-	World() : refractiveindex(1.0), maxdepth(4), minweight(0.1){ setup(); };
+	World() : refractiveindex(1.0), maxdepth(6), minweight(0.1){ setup(); };
 	~World(){objects.clear(); lights.clear();};
 
 	void setup()
@@ -162,7 +162,7 @@ public:
 		// plane_floor->material.pattern = new Stripe(PATTERN_NOISELERP, PATTERN_GREEN);
 		plane_floor->name = "plane_floor";
 
-		Position origin_floor(0.0,-10.0,0.0);
+		Position origin_floor(0.0,-40.0,0.0);
 		translate = TranslateMatrix(origin_floor);
 		plane_floor->SetTransform(translate);
 		// plane_floor->SetTransform(glm::mat4(1.0));
@@ -223,21 +223,29 @@ public:
 		object_count = objects.size();
 
 		// create world light list
-		Position lpos0(0.0,5.0, -1.0);
+		/*Position lpos0(0.0,5.0, -1.0);
 		Light *light0 = new Light(lpos0);
 		light0->material.color = Color(1.0,1.0,1.0);
 		light0->oid = 0;
 		light0->name = "light0";
 
-		lights.push_back(light0);
+		lights.push_back(light0);/**/
 
-		/*Position lpos1(2.5, 8.0, -10.0);
+		Position lpos1(0.0,5.0, -1.0);
 		Light *light1 = new Light(lpos1);
 		light1->material.color = Color(1.0,1.0,1.0);
 		light1->oid = 1;
 		light1->name = "light1";
 
 		lights.push_back(light1);/**/
+
+		Position lpos2(2.5, 8.0, -10.0);
+		Light *light2 = new Light(lpos2);
+		light2->material.color = Color(1.0,1.0,1.0);
+		light2->oid = 2;
+		light2->name = "light2";
+
+		lights.push_back(light2);/**/
 
 		light_count = lights.size();
 	}
