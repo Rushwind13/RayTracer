@@ -16,7 +16,7 @@ class ColorResults : public Widget
 {
 public:
 	ColorResults( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
-		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint )
+		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, false, true )
 	{
 	};
 	~ColorResults(){};

@@ -13,7 +13,7 @@ using namespace std;
 
 void Lit::local_setup()
 {
-// #define DEBUG
+//#define DEBUG
 }
 
 // You will get here if a Shadow test registers a miss with an object between the intersection and a particular light
@@ -96,21 +96,14 @@ void Lit::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-
-	// This will have several publisher outputs:
-	// - Shadow intersection tests for each light
-	// - Reflection test
-	// - Refraction test
-	// Finally, send off Ambient and Emissive color value.
-	Lit bak("Lit", "LIT", "ipc:///tmp/feeds/broadcast", "COLOR", "ipc:///tmp/feeds/control");
-
-	if( argc > 1 )
-	{
-		int foo = 1;
-		//sh.world_object = argv[1];
-	}
+    if( argc != 6 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+	Lit lit(argv[1], argv[2], argv[3], argv[4], argv[5]);
 	cout << "running" << endl;
-	bak.run();
+	lit.run();
 
 	cout << "shutting down" << endl;
 	return 0;

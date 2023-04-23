@@ -226,7 +226,9 @@ public:
 		Position pattern_pos = objectToPattern * object_pos;
 		float perturbed = perlin.ScaledNoise(pattern_pos, 0.0, 1.0);
 		Color result = color_a + (distance * perturbed);
+#ifdef DEBUG
 		printvec("result", result); std::cout << std::endl;
+#endif /* DEBUG */
 		return result;
 	}
 
@@ -614,9 +616,11 @@ public:
         i.gothit = true;
         i.oid = oid;
 
+#ifdef DEBUG
         printvec("p",i.position);
         printvec("n", i.normal);
         std::cout << " distance: " << i.distance << std::endl;
+#endif /* DEBUG */
 
 		return true;
     }

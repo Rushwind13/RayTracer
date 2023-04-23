@@ -13,7 +13,7 @@ using namespace std;
 
 void Black::local_setup()
 {
-
+//#define DEBUG
 }
 
 // You will get here if a Shadow test registers a hit with an object between the intersection and a particular light
@@ -30,7 +30,6 @@ bool Black::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	Color ambient(0.01,0.01,0.01);// TODO: this comes from the world
 	Color emissive(0.0,0.0,0.0); // TODO: this comes from the object
 	pixel.color = ambient + emissive;
-#define DEBUG
 #ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 	printvec("c", pixel.color);
@@ -51,19 +50,13 @@ void Black::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
+    if( argc != 6 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+	Black blk(argv[1], argv[2], argv[3], argv[4], argv[5]);
 
-	// This will have several publisher outputs:
-	// - Shadow intersection tests for each light
-	// - Reflection test
-	// - Refraction test
-	// Finally, send off Ambient and Emissive color value.
-	Black blk("Black", "BLACK", "ipc:///tmp/feeds/broadcast", "COLOR", "ipc:///tmp/feeds/control");
-
-	if( argc > 1 )
-	{
-		int foo = 1;
-		//sh.world_object = argv[1];
-	}
 	cout << "running" << endl;
 	blk.run();
 

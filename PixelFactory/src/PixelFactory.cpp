@@ -37,7 +37,9 @@ void PixelFactory::local_setup()
 	{
 		for( int i = 0; i < camera.width; i++ )
 		{/**/
+#ifdef DEBUG
 			std::cout << "Pixel (" << i << "," << j << "): ";
+#endif /* DEBUG */
 			pixel.x = (float)i * 1.0f;
 			pixel.y = (float)j * 1.0f;
 			pixel.r = camera.RayThroughPoint(pixel.x, pixel.y);
@@ -45,15 +47,18 @@ void PixelFactory::local_setup()
 			pixel.type = iPrimary;
 			pixel.weight = 1.0f;
 			pixel.depth = 0;
-
+#ifdef DEBUG
 			printvec( "o", pixel.r.origin);
 			printvec( "d", pixel.r.direction);
+#endif /* DEBUG */
 
 			header.clear();
 			msgpack::pack( header, pixel );
 
 			sendMessage(&header, &pay);
+#ifdef DEBUG
 			std::cout << "\r";
+#endif /* DEBUG */
 			usleep(1*1000);
 		}
 	}
@@ -63,10 +68,15 @@ void PixelFactory::local_setup()
 	running = false;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	PixelFactory pf("PixelFactory", "", "", "INTERSECT", "ipc:///tmp/feeds/control");
+    if( argc != 4 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+	PixelFactory pf(argv[1], "", "", argv[2], argv[3]);
 
 	cout << "running" << endl;
 	pf.run();

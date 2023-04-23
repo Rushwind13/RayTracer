@@ -61,6 +61,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 		//printvec( "sent d", pixel.r.direction );
 		gothit = object->Intersect( pixel.r, i );
 		i.gothit = gothit;
+#ifdef DEBUG
 		std::string test = "Intersect ";
 		if( pixel.type == iShadow )
 		{
@@ -71,6 +72,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 			//std::cout << " h: " << i.distance;
 			std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ") depth:" << pixel.depth << std::endl;
 		}
+#endif /* DEBUG */
 	}
 
 	msgpack::pack( payload, i );
@@ -87,12 +89,13 @@ void IntersectWith::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	IntersectWith iw("IntersectWith", "INTERSECT", "ipc:///tmp/feeds/broadcast", "RESULT", "ipc:///tmp/feeds/control");
-
-	if( argc > 1 )
-	{
-		iw.world_object = argv[1];
-	}
+    if( argc != 7 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+	IntersectWith iw(argv[1], argv[2], argv[3], argv[4], argv[5]);
+    iw.world_object = argv[6];
 	cout << "running" << endl;
 	iw.run();
 
