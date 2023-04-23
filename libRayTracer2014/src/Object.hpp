@@ -226,7 +226,9 @@ public:
 		Position pattern_pos = objectToPattern * object_pos;
 		float perturbed = perlin.ScaledNoise(pattern_pos, 0.0, 1.0);
 		Color result = color_a + (distance * perturbed);
+#ifdef DEBUG
 		printvec("result", result); std::cout << std::endl;
+#endif /* DEBUG */
 		return result;
 	}
 
@@ -593,8 +595,8 @@ public:
         Range y = CheckAxis(object.origin.y, object.direction.y);
         Range z = CheckAxis(object.origin.z, object.direction.z);
 
-        float tmin = i.distance[0] = glm::max(x.x, glm::max(y.x, z.x));
-        float tmax = i.distance[1] = glm::min(x.y, glm::min(y.y, z.y));
+        i.distance[0] = glm::max(x.x, glm::max(y.x, z.x)); // tmin
+        i.distance[1] = glm::min(x.y, glm::min(y.y, z.y)); // tmax
 
         if( i.distance[0] < 0.0 )
         {
@@ -617,10 +619,11 @@ public:
         i.gothit = true;
         i.oid = oid;
 
+#ifdef DEBUG
         printvec("p",i.position);
         printvec("n", i.normal);
         std::cout << " distance: " << i.distance[0] << std::endl;
-
+#endif /* DEBUG */
 		return true;
     }
 

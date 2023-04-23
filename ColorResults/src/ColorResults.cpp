@@ -18,6 +18,7 @@ using namespace std;
 
 void ColorResults::local_setup()
 {
+//#define DEBUG
 	std::cout << "ColorResults starting up... ";
 }
 
@@ -27,7 +28,9 @@ bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payloa
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
+#ifdef DEBUG
 	if( pixel.gothit ) std::cout << "(" << pixel.x << "," << pixel.y << ")";
+#endif /* DEBUG */
 
 	bool colorComplete = false;
 	colorComplete = storeColor( pixel );
@@ -54,7 +57,9 @@ bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payloa
 		response_count.erase(key);/**/
 	}
 
+#ifdef DEBUG
 	if( pixel.gothit ) std::cout << std::endl;
+#endif /* DEBUG */
 	return colorComplete; // if true, send an outbound message as a result of local_work()
 }
 
@@ -87,14 +92,18 @@ bool ColorResults::storeColor( Pixel pixel )
 	// otherwise, you are expecting 1 + light_count responses, so accumulate until you have them all
 	if( response_count.find(key) != response_count.end())
 	{
+#ifdef DEBUG
 		std::cout << "already had this one ";
+#endif /* DEBUG */
 		// You already have a response for this object; accumulate the new color and bump the response count
 		count = response_count[key];
 		count++;
 
 		// Shadow tests only need the first intersected object, not the nearest
 		curr_accumulator = accumulator[key];
+#ifdef DEBUG
 		printvec("a", curr_accumulator);
+#endif /* DEBUG */
 		// If the new hit is closer, keep it.
 		Color outcolor;
 		outcolor = pixel.color + curr_accumulator;
@@ -103,25 +112,37 @@ bool ColorResults::storeColor( Pixel pixel )
 		if( outcolor.b > 1.0 ) outcolor.b = 1.0;
 
 		accumulator[key] = outcolor;
+#ifdef DEBUG
 		printvec("p", pixel.color);
 		printvec("o", outcolor);
+#endif /* DEBUG */
 	}
 	else
 	{
+#ifdef DEBUG
 		std::cout << "new one " << key << " " << pixel.x << " " << pixel.y << " " << pixel.depth << " ";
+#endif /* DEBUG */
 		count = 1;
 		accumulator[key] = pixel.color;
+#ifdef DEBUG
 		printvec("p", pixel.color);
+#endif /* DEBUG */
 	}
 
 	// want one more than the number of lights (one from the basic hit and one per light, or just one total if it's a miss)
 	if( count < world.light_count + 1 )
 	{
+#ifdef DEBUG
+        std::cout << count << std::endl;
+#endif /* DEBUG */
 		response_count[key] = count;
 		testComplete = false;
 	}
 	else
 	{
+#ifdef DEBUG
+        std::cout << "finished" << std::endl;
+#endif /* DEBUG */
 		testComplete = true;
 	}
 
@@ -138,13 +159,13 @@ void ColorResults::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	ColorResults cr("ColorResults", "COLOR", "ipc:///tmp/feeds/broadcast", "DEPTH", "ipc:///tmp/feeds/control");
+    if( argc != 6 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+    ColorResults cr(argv[1], argv[2], argv[3], argv[4], argv[5]);
 
-	if( argc > 1 )
-	{
-		int foo = 1;
-		//iw.world_object = argv[1];
-	}
 	cout << "running" << endl;
 	cr.run();
 

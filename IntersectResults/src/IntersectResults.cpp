@@ -179,13 +179,12 @@ void IntersectResults::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-	IntersectResults ir("IntersectResults", "RESULT", "ipc:///tmp/feeds/broadcast", "SHADE", "ipc:///tmp/feeds/control");
-
-	if( argc > 1 )
-	{
-		int foo = 1;
-		//iw.world_object = argv[1];
-	}
+    if( argc != 6 )
+    {
+        cout << "please use start.sh to provide proper CLI args" << endl;
+        return 1;
+    }
+	IntersectResults ir(argv[1], argv[2], argv[3], argv[4], argv[5]);
 	cout << "running" << endl;
 	ir.run();
 
