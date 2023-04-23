@@ -321,10 +321,11 @@ def create_scene( metadata ):
 			Intersection i;
 		    if( (*it)->Intersect( ray, i ) )
 		    {
-				if( i.distance < nearest.distance )
+				if( i.distance[0] < nearest.distance[0] )
 				{
 					nearest.gothit		= true;
-					nearest.distance	= i.distance;
+					nearest.distance[0]	= i.distance[0];
+					nearest.distance[1]	= i.distance[1];
 					nearest.normal		= i.normal;
 					nearest.oid			= i.oid;
 					nearest.position	= i.position;

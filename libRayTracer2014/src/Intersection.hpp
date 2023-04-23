@@ -15,10 +15,11 @@ class Object;
 class Intersection
 {
 public:
-	Intersection( float _distance = 1e9 ) : gothit(false), anyhit(false), oid(-1), normal(0), position(0), distance(_distance)
+	Intersection( float _distance = 1e9 ) : gothit(false), anyhit(false), oid(-1), normal(0), position(0)
 	{
+        distance[0] = distance[1] = _distance;
 		// For shadow rays, pass in the distance to the light, and then take any object hit, not just the nearest one.
-		if( distance < 1e9 )
+		if( distance[0] < 1e9 )
 		{
 			bool anyHit = true;
 		}
@@ -30,11 +31,11 @@ public:
 	//float x,y; // pixel coordinates
 	//Ray rTest; // ray that's being tested
 	bool gothit; //.
-	bool anyhit;
-	short oid; //.
+	bool anyhit; // two types of tests; Shadow tests can early-out on any hit
+	short oid; // Object ID of hit Object
 	Direction normal; //.
 	Position position; //.
-	float distance; //.
+	float distance[2]; // t-values for "entry" and "exit" points
 	// TODO: vec2 texture coordinates;
 };
 

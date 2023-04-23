@@ -38,7 +38,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	if( pixel.type == iShadow )
 	{
 		//std::cout << " shadow ";
-		i.distance = pixel.distance;
+		i.distance[0] = i.distance[1] = pixel.distance;
 		i.anyhit = true;
 
 		//std::cout << "d: " << i.distance;

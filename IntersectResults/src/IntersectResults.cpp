@@ -145,7 +145,7 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 	{
 		//std::cout << " shadow test ";
 		// Shadow rays get "Black" when they hit something, or "Lit" when they miss
-		strcpy(pub, (i.gothit && (i.distance < pixel.distance)) ? "BLACK":"LIT");
+		strcpy(pub, (i.gothit && (i.distance[0] < pixel.distance)) ? "BLACK":"LIT");
 		pixel.gothit = true;
 	}
 	else
