@@ -2,6 +2,7 @@
 .DS_Store
 Archive
 bin
+*.icloud
 
 # output files
 *.png
