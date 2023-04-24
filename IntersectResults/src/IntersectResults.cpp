@@ -95,7 +95,7 @@ bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
 			else
 			{
 				// If the new hit is closer, keep it.
-				if( hit.distance < curr_nearest.distance )
+				if( hit.distance[0] < curr_nearest.distance[0] )
 				{
 					nearest[key] = hit;
 				}
