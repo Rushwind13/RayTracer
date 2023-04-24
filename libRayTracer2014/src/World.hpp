@@ -341,7 +341,7 @@ def create_scene( metadata ):
 				// For shadow rays, any hit will do (don't need the actual closest one)
 				if( nearest.anyhit && nearest.gothit )
 				{
-					std::cout << nearest.distance << " ";
+					std::cout << nearest.distance[0] << " ";
 					return nearest;
 				}
 		    }
