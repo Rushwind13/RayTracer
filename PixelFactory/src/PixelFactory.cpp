@@ -12,6 +12,7 @@ using namespace std;
 #include "Pixel.hpp"
 #include "glm/glm.hpp"
 #include <unistd.h>
+#define DEBUG
 
 void PixelFactory::local_setup()
 {

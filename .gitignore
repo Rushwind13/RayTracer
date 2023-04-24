@@ -6,6 +6,7 @@ bin
 
 # output files
 *.png
+*.txt
 
 # misc files
 *.csv

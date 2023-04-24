@@ -13,7 +13,7 @@ using namespace std;
 
 void Shader::local_setup()
 {
-//#define DEBUG
+#define DEBUG
     std::cout << "creating sockets for alternate pub paths...";
     black_publisher = new zmq::socket_t( *context, ZMQ_PUB );
     black_publisher->connect( "tcp://127.0.0.1:1312" ); // BLACK
@@ -75,7 +75,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		float NdotL = glm::dot( (glm::vec4)i.normal, (glm::vec4)vL );
 
 		//   N.L < 0 = send off background color message
-		if( NdotL < (ambient.r + emissive.r) ) // TODO: <-- this has to be a bug
+		if( NdotL < 0.0) //(ambient.r + emissive.r) ) // TODO: <-- this has to be a bug
 		{
 #ifdef DEBUG
 			std::cout << "(" << pixel.x << "," << pixel.y << ")" << " N.L < 0 for lid: " << light->oid << std::endl;

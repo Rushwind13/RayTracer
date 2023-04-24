@@ -29,7 +29,7 @@ protected:
 private:
 
 public:
-	World() : refractiveindex(1.0), maxdepth(6), minweight(0.1){ setup(); };
+	World() : refractiveindex(1.0), maxdepth(10), minweight(0.1){ setup(); };
 	~World(){objects.clear(); lights.clear();};
 
 	void setup()

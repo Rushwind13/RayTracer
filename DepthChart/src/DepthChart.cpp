@@ -17,8 +17,8 @@ using namespace std;
 #include "glm/glm.hpp"
 
 void DepthChart::local_setup()
-{    
-//#define DEBUG
+{
+#define DEBUG
 	std::cout << name << " starting up... ";
 }
 
@@ -53,20 +53,19 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 #ifdef DEBUG
 		std::cout << key << " done. sending: " << pixel.color.r << "  ";
-#endif
+#endif /* DEBUG */
 		// Prepare payload for sending to next stage...
 		payload->clear();
 		header->clear();
 
 		msgpack::pack( header, pixel );
 #ifdef DEBUG
-		//printvec("c", pixel.color);
-#endif /* DEBUG *//**/
-	}
-
+		printvec("c", pixel.color);
+#endif /* DEBUG */
+    }
 #ifdef DEBUG
 	std::cout << pixel.depth << std::endl;
-#endif /* DEBUG *//**/
+#endif /* DEBUG */
 	return colorComplete; // if true, send an outbound message as a result of local_work()
 }
 
@@ -86,7 +85,7 @@ bool DepthChart::storeColor( Pixel pixel )
 		maxlayers[key] = pixel.depth + 1;
 
 #ifdef DEBUG
-		// std::cout << " BKG hit at layer " << pixel.depth << ". set layers to " << maxlayers[key] << " ";
+		std::cout << " BKG hit at layer " << pixel.depth << ". set layers to " << maxlayers[key] << " ";
 #endif
 	}
 	else if( obj && obj->material.reflective < epsilon )
@@ -122,7 +121,7 @@ bool DepthChart::storeColor( Pixel pixel )
 	}
 	layer_count[key]++;
 
-	return (layer_count[key] == maxlayers[key]);
+	return (layer_count[key] == maxlayers[key]); // TODO: <-- this feels like a bug
 }
 
 void DepthChart::local_shutdown()

@@ -24,6 +24,7 @@ void Writer::local_setup()
 	//pixel_count = 100;
 	pixel_count = camera.width * camera.height;
 	image = new Color[pixel_count];
+#define DEBUG
 #define UGLY
 #ifdef UGLY
     Color ugly(1.0, 0.0, 0.0);

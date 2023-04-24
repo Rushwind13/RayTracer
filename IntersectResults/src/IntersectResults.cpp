@@ -18,6 +18,7 @@ using namespace std;
 
 void IntersectResults::local_setup()
 {
+#define DEBUG
 	std::cout << "IntersectResults starting up... ";
 }
 
@@ -35,7 +36,9 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 	msgpack::object obj2;
 	unPackPart( payload, &obj2 );
 	obj2.convert( i );
-	//std::cout << i.oid << " " << i.gothit;
+#ifdef DEBUG
+	std::cout << i.oid << " " << i.gothit;
+#endif /* DEBUG */
 
 	bool testComplete = false;
 	testComplete = storeIntersection( pixel, i );
@@ -47,6 +50,9 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 		int64_t key = hash( pixel );
 		i = nearest[key];
 		if( pixel.type == iPrimary ) pixel.oid = i.oid;
+#ifdef DEBUG
+        std::cout << "Test Complete " << i.distance[0];
+#endif /* DEBUG */
 
 		// Prepare payload for sending to next stage...
 		header->clear();
@@ -58,8 +64,9 @@ bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *pa
 		nearest.erase(key);
 		response_count.erase(key);
 	}
-
-	//std::cout << std::endl;
+#ifdef DEBUG
+	std::cout << std::endl;
+#endif /* DEBUG */
 
 	return testComplete; // if true, send an outbound message as a result of local_work()
 }

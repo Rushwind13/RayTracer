@@ -18,7 +18,7 @@ using namespace std;
 
 void ColorResults::local_setup()
 {
-//#define DEBUG
+#define DEBUG
 	std::cout << "ColorResults starting up... ";
 }
 

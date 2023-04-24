@@ -16,6 +16,7 @@ using namespace std;
 
 void IntersectWith::local_setup()
 {
+//#define DEBUG
 	object = world.FindObject( world_object );
 	assert( object );
 }
@@ -27,7 +28,9 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
-	//if(pixel.type == iShadow) std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
+#ifdef DEBUG
+	if(pixel.type == iShadow) std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
+#endif /* DEBUG */
 	assert(object);
 
 	// Primary rays don't have a payload,
@@ -37,11 +40,12 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	assert(object);
 	if( pixel.type == iShadow )
 	{
-		//std::cout << " shadow ";
 		i.distance[0] = i.distance[1] = pixel.distance;
 		i.anyhit = true;
 
-		//std::cout << "d: " << i.distance;
+#ifdef DEBUG
+        // std::cout << " shadow " << "d: " << i.distance[0];
+#endif /* DEBUG */
 	}
 	assert(object);
 
@@ -51,7 +55,9 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	// Shadow tests do not allow self-intersection
 	if( pixel.type == iShadow && pixel.oid == object->oid )
 	{
-		//std::cout << " no self-shadow ";
+#ifdef DEBUG
+		std::cout << " no self-shadow ";
+#endif /* DEBUG */
 		i.gothit = false;
 	}
 	else
@@ -76,7 +82,9 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	}
 
 	msgpack::pack( payload, i );
-	//if( pixel.type == iShadow )std::cout << std::endl;
+#ifdef DEBUG
+	if( pixel.type == iShadow ) std::cout << std::endl;
+#endif /* DEBUG */
 	return true; // send an outbound message as a result of local_work()
 }
 
