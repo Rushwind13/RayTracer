@@ -6,10 +6,13 @@
 // Description : Capture all messages from a particular channel
 //============================================================================
 
+#include <csignal>
 #include <iostream>
 using namespace std;
 #include "Logger.hpp"
 #include "Lighting.hpp"
+
+Logger Logger::instance;
 
 void Logger::local_setup()
 {
@@ -27,7 +30,7 @@ bool Logger::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
     if( pixel.type != iInvalid )
     {
-        pixels.push_back(pixel);
+        instance.pixels.push_back(pixel);
     }
     else
     {
@@ -40,15 +43,36 @@ bool Logger::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 void Logger::local_shutdown()
 {
-    for( std::vector<Pixel>::iterator it = pixels.begin(); it != pixels.end(); ++it)
+    for( std::vector<Pixel>::iterator it = instance.pixels.begin(); it != instance.pixels.end(); ++it)
     {
         std::cout << "(" << it->x << "," << it->y << ") ";
         printvec( "o", it->r.origin);
         printvec( "d", it->r.direction);
         std::cout << endl;
     }
-    std::cout << "got " << pixels.size() << " pixels"<< std::endl;
+    std::cout << "got " << instance.pixels.size() << " pixels"<< std::endl;
 	std::cout << "shutting down... ";
+}
+
+void Logger::registerHandler()
+{
+    signal(SIGINT, Logger::logHandler);
+}
+
+void Logger::signalHandler( int signum )
+{
+   cout << "Interrupt signal (" << signum << ") received.\n";
+
+   for( std::vector<Pixel>::iterator it = pixels.begin(); it != pixels.end(); ++it)
+   {
+       std::cout << "(" << it->x << "," << it->y << ") ";
+       printvec( "o", it->r.origin);
+       printvec( "d", it->r.direction);
+       std::cout << endl;
+   }
+   std::cout << "got " << pixels.size() << " pixels"<< std::endl;
+
+   exit(signum);
 }
 
 int main(int argc, char* argv[])
@@ -60,6 +84,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 	Logger log(argv[1], argv[2], argv[3], "", "");
+    // register signal SIGINT and signal handler
+    log.registerHandler();
 
 	cout << "running" << endl;
 	log.run();

@@ -16,10 +16,17 @@ class Logger : public Widget
 {
 public:
 	Logger( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
-		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, false, false )
+		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, true, true )
 	{
 	};
+	Logger(): Widget( "", "", "", "", "", false, false ){};
 	~Logger(){};
+    void signalHandler( int signum );
+    static void logHandler (int signum)
+    {
+        instance.signalHandler(signum);
+    };
+    void registerHandler();
 
 protected:
 	virtual void local_setup();
@@ -27,6 +34,7 @@ protected:
 	virtual void local_shutdown();
 
 private:
+    static Logger instance;
     std::vector<Pixel> pixels;
     clock_t latest_write;
 };
