@@ -64,6 +64,17 @@ void PixelFactory::local_setup()
 		}
 	}
 	std::cout << std::endl;
+#ifdef WANT_EOF
+    // send "EOF" pixel
+    pixel.x = -1.0f;
+    pixel.y = -1.0f;
+    pixel.type = iInvalid;
+    pixel.weight = 0.0f;
+	header.clear();
+	msgpack::pack( header, pixel );
+
+	sendMessage(&header, &pay);
+#endif /* WANT_EOF */
 
 	std::cout << "finished... ";
 	running = false;
