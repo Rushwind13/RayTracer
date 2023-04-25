@@ -10,6 +10,7 @@
 #include <msgpack.hpp>
 #include "Math.hpp"
 
+#define	iInvalid	-1
 #define iPrimary	0
 #define	iShadow		1
 #define	iReflection	2
