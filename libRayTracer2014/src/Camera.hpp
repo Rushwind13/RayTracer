@@ -59,9 +59,11 @@ public:
 		//		- create camera
 		// TODO: Need to implement a scene file
 		Position _eye(0.0,6.0,0.0);
-		Position _lookAt(0.0,0.0,-50.0);
+		Position _lookAt(0.0,6.0,-100.0);
 		Direction _up(0.0,1.0,0.0);
 		float _fovy = 90.0;
+		/*float _width = 15.0;
+		float _height = 10.0;/**/
 		float _width = 150.0;
 		float _height = 100.0;/**/
 		/*float _width = 600.0;
