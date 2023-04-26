@@ -18,7 +18,7 @@ using namespace std;
 
 void DepthChart::local_setup()
 {
-#define DEBUG
+//#define DEBUG
 	std::cout << name << " starting up... ";
 }
 

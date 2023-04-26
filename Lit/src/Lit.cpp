@@ -13,7 +13,7 @@ using namespace std;
 
 void Lit::local_setup()
 {
-#define DEBUG
+//#define DEBUG
 }
 
 // You will get here if a Shadow test registers a miss with an object between the intersection and a particular light

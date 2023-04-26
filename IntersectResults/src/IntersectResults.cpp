@@ -18,7 +18,7 @@ using namespace std;
 
 void IntersectResults::local_setup()
 {
-#define DEBUG
+//#define DEBUG
 	std::cout << "IntersectResults starting up... ";
 }
 

@@ -13,7 +13,7 @@ using namespace std;
 
 void Reflection::local_setup()
 {
-#define DEBUG
+//#define DEBUG
 }
 
 // You will get here after a successful intersection with some object

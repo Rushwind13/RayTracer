@@ -16,7 +16,7 @@ Logger Logger::instance;
 
 void Logger::local_setup()
 {
-#define DEBUG
+//#define DEBUG
 }
 
 // You will get here if a Shadow test registers a hit with an object between the intersection and a particular light

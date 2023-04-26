@@ -13,7 +13,7 @@ using namespace std;
 
 void Shader::local_setup()
 {
-#define DEBUG
+//#define DEBUG
     std::cout << "creating sockets for alternate pub paths...";
     black_publisher = new zmq::socket_t( *context, ZMQ_PUB );
     black_publisher->connect( "tcp://127.0.0.1:1312" ); // BLACK
