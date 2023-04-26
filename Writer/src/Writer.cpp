@@ -24,7 +24,7 @@ void Writer::local_setup()
 	//pixel_count = 100;
 	pixel_count = camera.width * camera.height;
 	image = new Color[pixel_count];
-#define DEBUG
+//#define DEBUG
 #define UGLY
 #ifdef UGLY
     Color ugly(1.0, 0.0, 0.0);
@@ -46,6 +46,13 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 	printvec("c", pixel.color);
 #endif /* DEBUG */
+
+    if( pixel.type == iInvalid )
+    {
+        running = false;
+        std::cout << "finishing up" << std::endl;
+        return false;
+    }
 
 	bool fileComplete = false;
 	fileComplete = storePixel( pixel );
@@ -110,40 +117,10 @@ void Writer::SaveImage()
 	std::cout << "done." << std::endl;
 }
 
-/*void Writer::local_send( msgpack::sbuffer *header, msgpack::sbuffer *payload )
-{
-	// Depending on whether it is a hit or a miss, and depending upon the test type,
-	// this function will publish the intersection to one of 4 places.
-	// 			HIT				MISS
-	// SHADOW	BLACK			LIT
-	// other	SHADE			BKG
-
-	Pixel pixel;
-	memcpy( header, &pixel, sizeof(Pixel) );
-
-	Intersection i;
-	memcpy( payload, &i, sizeof(Intersection) );
-
-	char pub[6] = "";
-
-	if( pixel.type == iShadow )
-	{
-		// Shadow rays get "Black" when they hit something, or "Lit" when they miss
-		strcpy(pub, (i.gothit && (i.distance < pixel.distance)) ? "BLACK":"LIT");
-	}
-	else
-	{
-		// All other ray types (Primary, Reflection, Refraction)
-		// get "Shade" when they hit something, or "Background" when they miss
-		strcpy( pub, i.gothit ? "SHADE":"BKG");
-	}
-
-	sendMessage( header, payload, pub );
-}/**/
-
 void Writer::local_shutdown()
 {
-	std::cout << "IntersectResults shutting down... ";
+	std::cout << "Writer shutting down... ";
+    SaveImage();
 	response_count.clear();
 	accumulator.clear();
 	delete image;
