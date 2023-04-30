@@ -121,8 +121,6 @@ void Writer::local_shutdown()
 {
 	std::cout << "Writer shutting down... ";
     SaveImage();
-	response_count.clear();
-	accumulator.clear();
 	delete image;
 }
 
