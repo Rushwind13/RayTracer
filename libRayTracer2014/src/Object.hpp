@@ -339,7 +339,10 @@ public:
 class Light: public Object
 {
 public:
-	Light(Position pos) : position(pos) {}
+	Light(Position pos) : position(pos)
+    {
+        std::cout << "Light()" << std::endl;
+    }
 	//Light() {}
 	~Light() {}
 
@@ -351,7 +354,7 @@ public:
 	Direction local_normal_at( const Position object_pos ) const
 	{
 		// lights don't have normals
-		return Direction(0);
+		return Direction(0.0);
 	}
 
 	Position position;
@@ -363,7 +366,7 @@ public:
 	Sphere()
 	{
 		std::cout << "Sphere()" << std::endl;
-		center = Position(0);
+		center = Position(0.0);
 		radius = 1.0;
 		radius2 = 1.0;
 	}
@@ -376,7 +379,7 @@ public:
 		glm::mat4 scale = ScaleMatrix(scalar);
 		glm::mat4 translate = TranslateMatrix(c);
 		SetTransform(translate * scale);
-		center = Position(0);
+		center = Position(0.0);
 		radius = 1.0;
 		radius2 = 1.0;
 	}
@@ -385,7 +388,7 @@ public:
 	{
 		std::cout << "Sphere(o2w)" << std::endl;
 		SetTransform(o2w);
-		center = Position(0);
+		center = Position(0.0);
 		radius = 1.0;
 		radius2 = 1.0;
 	}

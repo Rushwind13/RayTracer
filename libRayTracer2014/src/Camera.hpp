@@ -12,6 +12,8 @@
 #define INFO
 
 #include "Math.hpp"
+#include "Loader.hpp"
+
 class Camera
 {
 public:
@@ -42,7 +44,6 @@ public:
 
 	void init()
 	{
-
 		CreateCoordinateFrame();
 		angle = fovy * deg2rad;
 		aspect_ratio = (float)width / (float)height;
@@ -56,30 +57,38 @@ public:
 
 	void setup()
 	{
-		//		- create camera
-		// TODO: Need to implement a scene file
-		Position _eye(0.0,6.0,0.0);
-		Position _lookAt(0.0,6.0,-100.0);
-		Direction _up(0.0,1.0,0.0);
-		float _fovy = 90.0;
-		/*float _width = 15.0;
-		float _height = 10.0;/**/
-		float _width = 150.0;
-		float _height = 100.0;/**/
-		/*float _width = 600.0;
-		float _height = 400.0;/**/
-		/*float _width = 1620.0;
-		float _height = 1080.0;/**/
-
-		eye = _eye;
-		lookAt = _lookAt;
-		up = _up;
-		fovy = _fovy;
-		width = _width;
-		height = _height;
-
+		// create camera
+        load_camera();
 		init();
 	}
+
+    void load_camera()
+    {
+        std::cout << "loading camera..." << std::endl;
+        std::ifstream f("../bin/World.json");
+        json data = json::parse(f);
+
+        float __eye[3];
+        array_from_json(data["camera"], "eye", 0.0, __eye);
+        Position _eye(__eye);
+        eye = _eye;
+
+        float __lookat[3];
+        array_from_json(data["camera"], "lookAt", 0.0, __lookat);
+        Position _lookat(__lookat);
+        lookAt = _lookat;
+
+        float __up[3];
+        array_from_json(data["camera"], "up", 0.0, __up);
+        Position _up(__up);
+        up = _up;
+
+        field_from_json(data["camera"], "fovy", 90.0, this->fovy);
+        field_from_json(data["camera"], "width", 150.0, this->width);
+        field_from_json(data["camera"], "height", 100.0, this->height);
+
+        std::cout << "camera complete." << std::endl;
+    }
 	/*Ray RayThroughPoint( float i, float j )
 		{
 			float b = _tan * (half_height - i) / half_height;
