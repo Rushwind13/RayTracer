@@ -1,0 +1,131 @@
+{
+	"filename": "test.png",
+	"camera": {
+		"eye": [0.0, 6.0, 0.0],
+		"lookAt": [0.0, 6.0, -100.0],
+		"up": [0.0, 1.0, 0.0],
+		"fovy": 90.0,
+		"width": 150.0,
+		"height": 100.0
+	},
+	"colors": {
+		"red": [1.0, 0.0, 0.0],
+		"green": [0.0, 1.0, 0.0],
+		"blue": [0.0, 0.0, 1.0],
+		"white": [1.0, 1.0, 1.0],
+		"black": [0.0, 0.0, 0.0],
+		"dark_blue": [0.1, 0.1, 1.0],
+		"medium_cyan": [0.3, 0.5, 0.5],
+		"medium_yellow": [0.5, 0.5, 0.4]
+	},
+	"patterns": {
+		"stripes": {
+			"vert": {
+				"patterns": ["red", "green"],
+				"scale": [0.2, 0.2, 0.2]
+			},
+			"horz": {
+				"patterns": ["blue", "white"],
+				"scale": [0.2, 0.2, 0.2],
+				"axis": [0, 0, 1],
+				"degrees": 90.0
+			}
+		},
+		"noisy": {
+			"scale": [0.1, 0.1, 0.1]
+		},
+		"noisylerp": {
+			"scale": [0.1, 0.1, 0.1]
+		}
+	},
+	"objects": {
+		"box1": {
+			"type": "box",
+			"material": {
+				"reflective": 1.0,
+				"usePattern": true,
+				"pattern": {
+					"type": "noisy",
+					"color": "red",
+					"scale": [0.2, 0.2, 0.2]
+				}
+			},
+			"center": [-2.5, 0.0, -5.0],
+			"scale": [1.0, 1.0, 1.0],
+			"axis": [0, 0, 1],
+			"degrees": -135.0
+		},
+		"sphere2": {
+			"type": "sphere",
+			"material": {
+				"color": "dark_blue",
+				"specular": 0.0
+			},
+			"center": [2.5, 0.0, -10.0],
+			"scale": [4.0, 1.0, 4.0],
+			"axis": [0, 0, 1],
+			"degrees": 135.0
+
+		},
+		"sphere3": {
+			"type": "sphere",
+			"radius": 4.0,
+			"material": {
+				"color": "green",
+				"reflective": 0.5,
+				"usePattern": true,
+				"pattern": {
+					"type": "stripe",
+					"color1": "noisylerp",
+					"color2": "green",
+					"scale": [0.2, 0.2, 0.2],
+					"axis": [0, 1, 1],
+					"degrees": 30.0
+				}
+			},
+			"center": [0.0, 8.0, -20.0]
+		},
+		"plane_floor": {
+			"type": "plane",
+			"material": {
+				"color": "medium_cyan",
+				"reflective": 0.0
+			},
+			"center": [0.0, -40.0, 0.0]
+		},
+		"plane_l_wall": {
+			"type": "plane",
+			"material": {
+				"color": "medium_yellow",
+				"reflective": 0.0
+			},
+			"center": [-10.0, 0.0, 0.0],
+			"axis": [0, 0, 1],
+			"degrees": -90.0
+		},
+		"plane_r_wall": {
+			"type": "plane",
+			"material": {
+				"color": "medium_yellow",
+				"reflective": 0.0
+			},
+			"center": [10.0, 0.0, 0.0],
+			"axis": [0, 0, 1],
+			"degrees": 90.0
+		}
+	},
+	"lights": {
+		"light0": {
+			"center": [0.0, 5.0, -1.0],
+			"material": {
+				"color": "white"
+			}
+		},
+		"light1": {
+			"center": [2.5, 8.0, -10.0],
+			"material": {
+				"color": "white"
+			}
+		}
+	}
+}

@@ -10,6 +10,7 @@
 #include <list>
 
 #include "Object.hpp"
+#include "Loader.hpp"
 
 class World
 {
@@ -21,6 +22,7 @@ public:
 
 	std::list<Object *> objects;
 	std::list<Light *> lights;
+    std::map<std::string, Color> colors;
 	int object_count;
 	int light_count;
 	Pattern *vert, *horz;
@@ -34,221 +36,159 @@ public:
 
 	void setup()
 	{
-		sprintf( filename, "test.png" );
-
-		vert = new Stripe(PATTERN_RED, PATTERN_GREEN);
-		horz = new Stripe(PATTERN_BLUE, PATTERN_WHITE);
-
-		float scalar = 0.2;
-		Direction axis(0,0,1);
-		float degrees = 90.0;
-
-		glm::mat4 scaling = ScaleMatrix(Position(scalar));
-		glm::mat4 rotation = RotateMatrix(axis,degrees);
-		glm::mat4 translate = TranslateMatrix(Position(0.0));
-
-		vert->SetTransform(scaling);
-		horz->SetTransform(rotation * scaling);
-
-		scalar = 0.1;
-		scaling = ScaleMatrix(Position(scalar));
-		noisy.SetTransform(scaling);
-		noisylerp.SetTransform(scaling);
-
-		//	create world object list
-		Box *sphere = new Box();
-		sphere->oid = 1;
-		sphere->name = "sphere1";
-		sphere->material.reflective = 1.0;
-		sphere->material.usePattern = true;
-		sphere->material.pattern = new NoisySolid(COLOR_RED);
-		scaling = ScaleMatrix(Position(0.2));
-		sphere->material.pattern->SetTransform(scaling);
-
-		Position center(-2.5,0.0,-5.0);
-		Position scale(1.0,1.0,1.0);
-		degrees = -135.0;
-
-		translate = TranslateMatrix(center);
-		rotation = RotateMatrix(axis,degrees);
-		scaling = ScaleMatrix(scale);
-
-		sphere->SetTransform(translate * rotation * scaling);/**/
-
-		/*Position center(-2.5,0.0,-5.0);
-		float radius=2.0;
-		Sphere *sphere = new Sphere(center, radius);
-		sphere->oid = 1;
-		sphere->name = "sphere1";/**/
-
-		objects.push_back(sphere);
-
-		Position center2(2.5,0.0,-10.0);
-		Position scale2(4.0,1.0,4.0);
-		float degrees2 = 135.0;
-		Direction axis2(0,0,1);
-
-		glm::mat4 translate2 = TranslateMatrix(center2);
-		glm::mat4 scaling2 = ScaleMatrix(scale2);
-		glm::mat4 rotation2 = RotateMatrix(axis2,degrees2);
-
-		Sphere *sphere2 = new Sphere(translate2 * rotation2 * scaling2);
-		sphere2->material.color = Color(0.1,0.1,1.0);
-		sphere2->material.specular = 0.0;
-		sphere2->oid = 2;
-		sphere2->name = "sphere2";/**/
-
-		/*Position center2(2.5,0.0,-10.0);
-		float radius2=4.0;
-		Sphere *sphere2 = new Sphere(center2, radius2);
-		sphere2->material.color = Color(0.1,0.1,1.0);
-		sphere2->oid = 2;
-		sphere2->name = "sphere2";/**/
-
-		objects.push_back(sphere2);
-
-		Position center3(0.0,8.0,-20.0);
-		float radius3=4.0;
-		Sphere *sphere3 = new Sphere(center3, radius3);
-		sphere3->material.color = COLOR_GREEN;
-		sphere3->material.reflective = 0.5;
-		// sphere3->material.pattern = new Ring(PATTERN_GREEN, PATTERN_RED);
-		// sphere3->material.pattern = new Stripe(new Perturb(vert), new Perturb(horz));
-		// sphere3->material.pattern = new Perturb(horz); scaling = ScaleMatrix(Position(1.5));
-		// sphere3->material.pattern = new NoisySolid(COLOR_WHITE);
-		sphere3->material.pattern = new Stripe(PATTERN_NOISELERP, PATTERN_GREEN);
-		// sphere3->material.pattern = new Gradient(PATTERN_NOISE, PATTERN_RED);
-
-		sphere3->material.usePattern = true;
-		sphere3->oid = 3;
-		sphere3->name = "sphere3";
-
-		scaling = ScaleMatrix(Position(0.2));
-
-		Direction axis3(0,1,1);
-		float angle3 = 30.0;
-
-		rotation = RotateMatrix(axis3, angle3);
-
-		// sphere3->material.pattern->SetTransform(scaling);
-		sphere3->material.pattern->SetTransform(rotation * scaling);
-
-		objects.push_back(sphere3);/**/
-
-
-		/*Box *sphere_floor = new Box();
-		sphere_floor->oid = 100;
-		sphere_floor->material.color = Color(0.4,0.5,0.5);
-		sphere_floor->name = "sphere_floor";
-
-		Position center_floor(0.0,-10.0,-10.0);
-		Position scale_floor(100.0,0.01,100.0);
-		float degrees_floor = 0.0;
-		Direction axis_floor(0,0,1);
-
-		translate = TranslateMatrix(center_floor);
-		scaling = ScaleMatrix(scale_floor);
-		rotation = RotateMatrix(axis_floor,degrees_floor);
-
-		sphere_floor->SetTransform(translate * rotation * scaling);
-
-		objects.push_back(sphere_floor);/**/
-
-		Plane *plane_floor = new Plane();
-		plane_floor->oid = 100;
-		plane_floor->material.color = Color(0.3,0.5,0.5);
-		plane_floor->material.reflective = 0.0;
-		// plane_floor->material.usePattern = true;
-		// plane_floor->material.pattern = new Stripe(PATTERN_NOISELERP, PATTERN_GREEN);
-		plane_floor->name = "plane_floor";
-
-		Position origin_floor(0.0,-40.0,0.0);
-		translate = TranslateMatrix(origin_floor);
-		plane_floor->SetTransform(translate);
-		// plane_floor->SetTransform(glm::mat4(1.0));
-
-		objects.push_back(plane_floor);/**/
-
-
-		/*Sphere *sphere_l_wall = new Sphere();
-		sphere_l_wall->oid = 101;
-		sphere_l_wall->material.color = Color(0.5,0.5,0.4);
-		sphere_l_wall->name = "sphere_l_wall";
-
-		Position center_l_wall(-10.0,0.0,-10.0);
-		Position scale_l_wall(100.0,0.01,100.0);
-		float degrees_l_wall = 90.0;
-		Direction axis_l_wall(0,0,1);
-
-		translate = TranslateMatrix(center_l_wall);
-		scaling = ScaleMatrix(scale_l_wall);
-		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
-
-		sphere_l_wall->SetTransform(translate * rotation * scaling);/**/
-
-		// TODO: put this back in when intersecting objects doesn't blow up the pipeline...
-		// objects.push_back(sphere_l_wall);
-
-		Plane *plane_l_wall = new Plane();
-		plane_l_wall->oid = 101;
-		plane_l_wall->material.color = Color(0.5,0.5,0.4);
-		plane_l_wall->name = "plane_l_wall";
-
-		Position center_l_wall(-10.0,0.0,0.0);
-		float degrees_l_wall = -90.0;
-		Direction axis_l_wall(0,0,1);
-
-		translate = TranslateMatrix(center_l_wall);
-		rotation = RotateMatrix(axis_l_wall,degrees_l_wall);
-
-		plane_l_wall->SetTransform(translate * rotation);
-		//objects.push_back(plane_l_wall);
-
-		Plane *plane_r_wall = new Plane();
-		plane_r_wall->oid = 102;
-		plane_r_wall->material.color = Color(0.5,0.5,0.4);
-		plane_floor->material.reflective = 0.0;
-		plane_r_wall->name = "plane_r_wall";
-
-		Position center_r_wall(10.0,0.0,0.0);
-		float degrees_r_wall = 90.0;
-		Direction axis_r_wall(0,0,1);
-
-		translate = TranslateMatrix(center_r_wall);
-		rotation = RotateMatrix(axis_r_wall,degrees_r_wall);
-
-		plane_r_wall->SetTransform(translate * rotation);
-		// objects.push_back(plane_r_wall);
-
-		object_count = objects.size();
-
-		// create world light list
-		/*Position lpos0(0.0,5.0, -1.0);
-		Light *light0 = new Light(lpos0);
-		light0->material.color = Color(1.0,1.0,1.0);
-		light0->oid = 0;
-		light0->name = "light0";
-
-		lights.push_back(light0);/**/
-
-		Position lpos1(0.0,5.0, -1.0);
-		Light *light1 = new Light(lpos1);
-		light1->material.color = Color(1.0,1.0,1.0);
-		light1->oid = 1;
-		light1->name = "light1";
-
-		lights.push_back(light1);/**/
-
-		Position lpos2(2.5, 8.0, -10.0);
-		Light *light2 = new Light(lpos2);
-		light2->material.color = Color(1.0,1.0,1.0);
-		light2->oid = 2;
-		light2->name = "light2";
-
-		lights.push_back(light2);/**/
-
-		light_count = lights.size();
+        load_world();
 	}
+    void load_world()
+    {
+        int _oid = 0;
+        int _lid = 0;
+        std::cout << "loading world...";
+        std::ifstream f("../bin/World.json");
+        json data = json::parse(f);
+        std::string _filename;
+        field_from_json(data, "filename", "test.png", _filename);
+        std::strcpy(filename, _filename.c_str());
+
+        for( auto &x: data["colors"].items() )
+        {
+            json _json = x;
+            const std::string name = x.key();
+            std::cout << name << " loading...";
+
+            float color[3];
+            array_from_json(_json, name, 0.0, color);
+            colors[name] = Color(color);
+        }
+        std::cout<< "objects done." << std::endl;
+        for( auto &x: data["objects"].items() )
+        {
+            const std::string name = x.key();
+            std::cout << name << " loading...";
+            const json _json = x.value();
+            Object *object = NULL;
+            if( _json["type"] == "sphere" )
+            {
+                object = (Object *)new Sphere();
+                //(Sphere *)object->radius = _json["radius"]; // <-- need to call different constructor?
+            }
+            else if( _json["type"] == "box" )
+            {
+                object = (Object *)new Box();
+            }
+            else if( _json["type"] == "plane" )
+            {
+                object = (Object *)new Plane();
+            }
+            else
+            {
+                std::cout << "unknown type: " << _json["type"] << std::endl;
+                continue;
+            }
+
+            // Material props
+            if( _json.contains("material") )
+            {
+                field_from_json(_json["material"], "reflective", 0.0, object->material.reflective);
+                field_from_json(_json["material"], "specular", 0.0, object->material.specular);
+                field_from_json(_json["material"], "usePattern", false, object->material.usePattern);
+                std::string color_name;
+                field_from_json(_json["material"], "color", 0.0, color_name);
+                object->material.color = colors[color_name];
+
+                // Pattern props
+                if( _json["material"].contains("pattern"))
+                {
+                    // field_from_json(_mat, "pattern", "type", "unknown", object->material.pattern->type);
+
+                    std::string pattern_color_name;
+                    field_from_json(_json["material"]["pattern"], "color", 0.0, color_name);
+                    // object->material.pattern->color = colors[pattern_color_name];
+
+                    // object->material.pattern->color1 = Color(from_json["material"]["pattern"]["color1"]);
+                    // object->material.pattern->color2 = Color(from_json["material"]["pattern"]["color2"]);
+
+                    float _pattern_scale[3];
+                    array_from_json(_json["material"]["pattern"], "scale", 1.0, _pattern_scale);
+                    Position pattern_scale(_pattern_scale);
+
+                    float _pattern_axis[3];
+                    array_from_json(_json["material"]["pattern"], "axis", 0.0, _pattern_axis);
+                    Direction pattern_axis(_pattern_axis);
+
+                    float pattern_degrees;
+                    field_from_json(_json["material"]["pattern"], "degrees", 0.0, pattern_degrees);
+
+                    // Transform pattern
+            		glm::mat4 scaling = ScaleMatrix(pattern_scale);
+
+                    glm::mat4 rotation = glm::mat4(1.0);
+                    if( pattern_degrees != 0.0 )
+                    {
+                        std::cout << "rotating pattern..." << std::endl;
+                		rotation = RotateMatrix(pattern_axis,pattern_degrees);
+                    }
+            		glm::mat4 translate = TranslateMatrix(Position(0.0));
+
+                    glm::mat4 xform = translate * rotation * scaling;
+
+                    // object->material.pattern = new Pattern();
+                    // object->material.pattern->SetTransform(translate * rotation * scaling);
+                }
+
+            }
+            // Object props
+            object->name = name;
+            object->oid = _oid++;
+
+            float _center[3];
+            array_from_json(_json, "center", 0.0, _center);
+            Position center(_center);
+
+            float _scale[3];
+            array_from_json(_json, "scale", 1.0, _scale);
+            Position scale(_scale);
+
+            float _axis[3];
+            array_from_json(_json, "axis", 0.0, _axis);
+            Direction axis(_axis);
+
+            float degrees;
+            field_from_json(_json, "degrees", 0.0, degrees);
+
+            // Transform object
+    		glm::mat4 scaling = ScaleMatrix(scale);
+            glm::mat4 rotation = glm::mat4(1.0);
+            if( degrees != 0.0 )
+            {
+                rotation = RotateMatrix(axis,degrees);
+            }
+    		glm::mat4 translate = TranslateMatrix(center);
+
+            object->SetTransform(translate * rotation * scaling);
+
+            std::cout << name << " loaded." << std::endl;
+            objects.push_back(object);
+        }
+        std::cout<< "objects done." << std::endl;
+        for( auto &x: data["lights"].items() )
+        {
+            const std::string name = x.key();
+            auto _json = x.value();
+            float center[3];
+            float color[3];
+            // array_from_json(_json, "center", 0.0, degrees);
+            // array_from_json(_json["material"], "color", 0.0, color);
+
+            Light *light = new Light(Position(center[0], center[1], center[2]));
+            light->name = name;
+            light->oid = _lid++;
+            light->material.color = Color(color[0], color[1], color[2]);
+            lights.push_back(light);
+        }
+        std::cout<< "lights done." << std::endl;
+        object_count = objects.size();
+        light_count = lights.size();
+    }
 
 	Object *FindObject( const std::string object_name )
 	{
