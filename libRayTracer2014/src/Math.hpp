@@ -42,6 +42,7 @@ class Position : public glm::vec4
 {
 public:
     Position(float _x, float _y, float _z, float _w=1.0){ x=_x; y=_y; z=_z; w=_w; /*printvec("<-xyz", *(this));/**/};
+    Position(float v[3]){ x=v[0]; y=v[1]; z=v[2]; w=1.0; };
     Position(glm::vec3 v){ x=v.x; y=v.y; z=v.z; w=1.0; };
     Position(glm::vec4 v){ x=v.x; y=v.y; z=v.z; w=v.w; };
     Position(){ x=y=z=0.0; w=1.0; };
@@ -52,6 +53,7 @@ class Direction : public glm::vec4
 {
 public:
     Direction(float _x, float _y, float _z, float _w=0.0){ x=_x; y=_y; z=_z; w=_w; };
+    Direction(float v[3]){ x=v[0]; y=v[1]; z=v[2]; w=0.0; };
     Direction(glm::vec3 v){ x=v.x; y=v.y; z=v.z; w=0.0; };
     Direction(glm::vec4 v){ x=v.x; y=v.y; z=v.z; w=v.w; };
     Direction(){ x=y=z=0.0; w=0.0; };
@@ -62,6 +64,7 @@ class Color : public glm::vec4
 {
 public:
     Color(float _r, float _g, float _b, float _a=0.0){ r=_r; g=_g; b=_b; a=_a; };
+    Color(float v[3]){ r=v[0]; g=v[1]; b=v[2]; a=0.0; };
     Color(glm::vec3 v){ r=v.r; g=v.g; b=v.b; a=0.0; };
     Color(glm::vec4 v){ r=v.r; g=v.g; b=v.b; a=v.a; };
     Color(){ r=g=b=0.0; a=0.0; };

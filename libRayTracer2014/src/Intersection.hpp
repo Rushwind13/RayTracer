@@ -15,7 +15,7 @@ class Object;
 class Intersection
 {
 public:
-	Intersection( float _distance = 1e9 ) : gothit(false), anyhit(false), oid(-1), normal(0), position(0)
+	Intersection( float _distance = 1e9 ) : gothit(false), anyhit(false), oid(-1), normal(0.0), position(0.0)
 	{
         distance[0] = distance[1] = _distance;
 		// For shadow rays, pass in the distance to the light, and then take any object hit, not just the nearest one.
