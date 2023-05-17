@@ -19,23 +19,59 @@
 		"medium_yellow": [0.5, 0.5, 0.4]
 	},
 	"patterns": {
-		"stripes": {
-			"vert": {
-				"patterns": ["red", "green"],
-				"scale": [0.2, 0.2, 0.2]
-			},
-			"horz": {
-				"patterns": ["blue", "white"],
-				"scale": [0.2, 0.2, 0.2],
-				"axis": [0, 0, 1],
-				"degrees": 90.0
-			}
-		},
-		"noisy": {
+        "red": {
+            "type": "solid",
+            "color": "red"
+        },
+        "green": {
+            "type": "solid",
+            "color": "green"
+        },
+        "blue": {
+            "type": "solid",
+            "color": "blue"
+        },
+        "white": {
+            "type": "solid",
+            "color": "white"
+        },
+        "black": {
+            "type": "solid",
+            "color": "black"
+        },
+		"noisy.white": {
+            "type": "noisy",
+            "colors": ["white", "black"],
+			"scale": [0.1, 0.1, 0.1]
+        },
+        "noisy.lerp": {
+            "type": "noisy",
+            "colors": ["blue", "green"],
+			"scale": [0.1, 0.1, 0.1]
+        },
+        "noisy.red": {
+            "type": "noisy",
+            "colors": ["red", "black"],
 			"scale": [0.1, 0.1, 0.1]
 		},
-		"noisylerp": {
-			"scale": [0.1, 0.1, 0.1]
+		"vert": {
+            "type": "stripe",
+			"patterns": ["red", "green"],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"horz": {
+            "type": "stripe",
+			"patterns": ["blue", "white"],
+			"scale": [0.2, 0.2, 0.2],
+			"axis": [0, 0, 1],
+			"degrees": 90.0
+		},
+		"stripe.noisy": {
+            "type": "stripe",
+			"patterns": ["noisylerp", "green"],
+			"scale": [0.2, 0.2, 0.2],
+			"axis": [0, 0, 1],
+			"degrees": 90.0
 		}
 	},
 	"objects": {
@@ -45,8 +81,7 @@
 				"reflective": 1.0,
 				"usePattern": true,
 				"pattern": {
-					"type": "noisy",
-					"color": "red",
+					"name": "noisy.red",
 					"scale": [0.2, 0.2, 0.2]
 				}
 			},
@@ -75,9 +110,7 @@
 				"reflective": 0.5,
 				"usePattern": true,
 				"pattern": {
-					"type": "stripe",
-					"color1": "noisylerp",
-					"color2": "green",
+					"type": "stripes.noisylerp",
 					"scale": [0.2, 0.2, 0.2],
 					"axis": [0, 1, 1],
 					"degrees": 30.0
