@@ -7,7 +7,7 @@
 
 #ifndef PIXEL_HPP_
 #define PIXEL_HPP_
-#include <iostream>
+#include <sstream>
 #include <msgpack.hpp>
 #include "Math.hpp"
 
@@ -62,11 +62,11 @@ public:
 	//Color deltaColor; // current color for recursive
 	//bool isRecursive; // So that the pub/sub engine can decide where to send things next
 }__attribute__((packed));
-//friend ostream& operator<<(ostream& os, const Pixel& px);
+//friend std::ostream& operator<<(std::ostream& os, const Pixel& px);
 
 
-//ostream& operator<<(ostream& os, const Pixel& px)
-void PrintPixel(ostream& os, const Pixel& px)
+//std::ostream& operator<<(std::ostream& os, const Pixel& px)
+void PrintPixel(std::ostream& os, const Pixel& px)
 {
     os << px.x << ',' << px.y << ',';
     os << px.primaryRay.direction.x << ',' << px.primaryRay.direction.y << ',' << px.primaryRay.direction.z << ',' << px.primaryRay.direction.w << ',';
@@ -135,5 +135,47 @@ void ReadPixel(std::string in, Pixel &pixel)
     std::getline(stream, temp, '\n'); pixel.gothit = stol(temp);
 }
 
-
+void NewPixel(Pixel &pixel)
+{
+    pixel.x = -1.0;
+    pixel.y = -1.0;
+    pixel.primaryRay.direction.x = 0.0;
+    pixel.primaryRay.direction.y = 0.0;
+    pixel.primaryRay.direction.z = 0.0;
+    pixel.primaryRay.direction.w = 0.0;
+    pixel.primaryRay.origin.x = 0.0;
+    pixel.primaryRay.origin.y = 0.0;
+    pixel.primaryRay.origin.z = 0.0;
+    pixel.primaryRay.origin.w = 0.0;
+    pixel.primaryRay.length = 0.0;
+    pixel.type = iInvalid;
+    pixel.r.direction.x = 0.0;
+    pixel.r.direction.y = 0.0;
+    pixel.r.direction.z = 0.0;
+    pixel.r.direction.w = 0.0;
+    pixel.r.origin.x = 0.0;
+    pixel.r.origin.y = 0.0;
+    pixel.r.origin.z = 0.0;
+    pixel.r.origin.w = 0.0;
+    pixel.r.length = 0.0;
+    pixel.oid = -1;
+    pixel.normal.x = 0.0;
+    pixel.normal.y = 0.0;
+    pixel.normal.z = 0.0;
+    pixel.normal.w = 0.0;
+    pixel.position.x = 0.0;
+    pixel.position.y = 0.0;
+    pixel.position.z = 0.0;
+    pixel.position.w = 0.0;
+    pixel.distance = 0.0;
+    pixel.lid = 0;
+    pixel.NdotL = 0.0;
+    pixel.depth = 10;
+    pixel.weight = 0.0;
+    pixel.color.r = 0.0;
+    pixel.color.g = 0.0;
+    pixel.color.b = 0.0;
+    pixel.color.a = 0.0;
+    pixel.gothit = false;
+}
 #endif /* PIXEL_HPP_ */

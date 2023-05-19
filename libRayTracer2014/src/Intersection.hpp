@@ -7,6 +7,7 @@
 
 #ifndef INTERSECTION_HPP_
 #define INTERSECTION_HPP_
+#include <sstream>
 #include <msgpack.hpp>
 #include "Math.hpp"
 
@@ -38,5 +39,40 @@ public:
 	float distance[2]; // t-values for "entry" and "exit" points
 	// TODO: vec2 texture coordinates;
 };
+//friend std::ostream& operator<<(std::ostream& os, const Intersection& i);
+
+
+//std::ostream& operator<<(std::ostream& os, const Intersection& i)
+void PrintIntersection(std::ostream& os, const Intersection& i)
+{
+    os << i.gothit << ',';
+    os << i.anyhit << ',';
+    os << i.oid << ',';
+    os << i.normal.x << ',' << i.normal.y << ',' << i.normal.z << ',' << i.normal.w << ',';
+    os << i.position.x << ',' << i.position.y << ',' << i.position.z << ',' << i.position.w << ',';
+    os << i.distance[0] << ',';
+    os << i.distance[1] << std::endl;
+}
+
+void ReadIntersection(std::string in, Intersection &i)
+{
+    if(in.length() == 0) return;
+    std::istringstream stream(in);
+
+    std::string temp;
+    std::getline(stream, temp, ','); i.gothit = stol(temp);
+    std::getline(stream, temp, ','); i.anyhit = stol(temp);
+    std::getline(stream, temp, ','); i.oid = stol(temp);
+    std::getline(stream, temp, ','); i.normal.x = stof(temp);
+    std::getline(stream, temp, ','); i.normal.y = stof(temp);
+    std::getline(stream, temp, ','); i.normal.z = stof(temp);
+    std::getline(stream, temp, ','); i.normal.w = stof(temp);
+    std::getline(stream, temp, ','); i.position.x = stof(temp);
+    std::getline(stream, temp, ','); i.position.y = stof(temp);
+    std::getline(stream, temp, ','); i.position.z = stof(temp);
+    std::getline(stream, temp, ','); i.position.w = stof(temp);
+    std::getline(stream, temp, ','); i.distance[0] = stof(temp);
+    std::getline(stream, temp, '\n'); i.distance[1] = stof(temp);
+}
 
 #endif /* INTERSECTION_HPP_ */
