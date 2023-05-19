@@ -8,6 +8,7 @@
 
 #include <csignal>
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 #include "Logger.hpp"
 #include "Lighting.hpp"
@@ -17,10 +18,10 @@ Logger Logger::instance;
 void Logger::local_setup()
 {
 //#define DEBUG
+	// Slow joiner problem
+	usleep(100*1000);
 }
 
-// You will get here if a Shadow test registers a hit with an object between the intersection and a particular light
-// So this point is shadowed by this light.
 bool Logger::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
 	Pixel pixel;
@@ -28,29 +29,32 @@ bool Logger::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	unPackPart( header, &obj );
 	obj.convert( pixel );
 
+    std::cout << "(" << pixel.y << ")" << "\r";
+
+    Intersection i;
+    msgpack::object obj2;
+    unPackPart( payload, &obj2 );
+    obj2.convert( i );
+
     if( pixel.type != iInvalid )
     {
         instance.pixels.push_back(pixel);
+        instance.intersections.push_back(i);
     }
     else
     {
-        running = false;
-        std::cout << "finishing up" << std::endl;
+        std::cout << "received EOF, writing file...";
+        writeFile();
+        std::cout << "done." << std::endl;
     }
 
-	return false; // send an outbound message as a result of local_work()
+    usleep(1*1000);
+	return false; // never send outgoing messages
 }
 
 void Logger::local_shutdown()
 {
-    for( std::vector<Pixel>::iterator it = instance.pixels.begin(); it != instance.pixels.end(); ++it)
-    {
-        std::cout << "(" << it->x << "," << it->y << ") ";
-        printvec( "o", it->r.origin);
-        printvec( "d", it->r.direction);
-        std::cout << endl;
-    }
-    std::cout << "got " << instance.pixels.size() << " pixels"<< std::endl;
+    writeFile();
 	std::cout << "shutting down... ";
 }
 
@@ -59,18 +63,35 @@ void Logger::registerHandler()
     signal(SIGINT, Logger::logHandler);
 }
 
+void Logger::writeFile()
+{
+    std::cout << endl;
+    std::cout << "got " << instance.pixels.size() << " pixels"<< std::endl;
+    std::cout << "got " << instance.intersections.size() << " intersections"<< std::endl;
+
+    // write pixels out to file
+    std::ofstream out("output.txt");
+    std::vector<Pixel>::iterator px;
+    std::vector<Intersection>::iterator i;
+    for( px = instance.pixels.begin(), i = instance.intersections.begin(); px < instance.pixels.end(), i < instance.intersections.end(); px++, i++)
+    {
+        PrintPixel(out, *px);
+        PrintIntersection(out, *i);
+    }
+    out.close();
+
+    instance.pixels.clear();
+    instance.intersections.clear();
+
+    usleep(100*1000); // slow re-joiner problem?
+}
+
 void Logger::signalHandler( int signum )
 {
-   cout << "Interrupt signal (" << signum << ") received.\n";
-
-   for( std::vector<Pixel>::iterator it = pixels.begin(); it != pixels.end(); ++it)
-   {
-       std::cout << "(" << it->x << "," << it->y << ") ";
-       printvec( "o", it->r.origin);
-       printvec( "d", it->r.direction);
-       std::cout << endl;
-   }
-   std::cout << "got " << pixels.size() << " pixels"<< std::endl;
+#ifdef DEBUG
+    cout << "Interrupt signal (" << signum << ") received.\n";
+#endif /* DEBUG */
+    writeFile();
 
    exit(signum);
 }

@@ -34,8 +34,11 @@ protected:
 	virtual void local_shutdown();
 
 private:
+    void writeFile();
+
     static Logger instance;
     std::vector<Pixel> pixels;
+    std::vector<Intersection> intersections;
     clock_t latest_write;
 };
 
