@@ -73,6 +73,7 @@ void PixelFactory::local_setup()
     for( ptr = pixels.begin(); ptr < pixels.end(); ptr++)
     {
         PrintPixel(out, *ptr);
+        out << std::endl; // extra line for Intersections (blank at this point)
     }
     out.close();
 #undef WANT_EOF
