@@ -12,48 +12,73 @@
 using namespace std;
 #include "Feeder.hpp"
 #include "Pixel.hpp"
+#include "Intersection.hpp"
 
 void Feeder::local_setup()
 {
-	std::cout << name << " starting up... ";
-    // open file
+#define DEBUG
+	// Slow joiner problem
+	usleep(1000*1000);
+
+    int pixel_count = 0;
+
+	std::cout << name << " starting up... " << std::endl;
+
     std::ifstream in(inputFile);
+	msgpack::sbuffer header(0);
+	msgpack::sbuffer pay(0);
     Pixel pixel;
+    Intersection i;
+    std::string line2;
     for (std::string line; std::getline(in, line); )
     {
         ReadPixel(line, pixel);
-        PrintPixel(cout, pixel);
-    	usleep(1*1000);
+
+        std::cout << "(" << pixel.y << ")" << "\r";
+
+        std::getline(in, line2);
+        ReadIntersection(line2, i);
+#ifdef DEBUG
+        // PrintPixel(cout, pixel);
+        // PrintIntersection(cout, i);
+#endif /* DEBUG */
+
+        header.clear();
+        msgpack::pack( &header, pixel );
+
+        pay.clear();
+        msgpack::pack( &pay, i );
+
+        sendMessage(&header, &pay);
+        pixel_count++;
+    	usleep(4*1000);
     }
+    std::cout << std::endl;
+
+#define WANT_EOF
+#ifdef WANT_EOF
+    // send "EOF" pixel
+    std::cout << "sending EOF after " << pixel_count << " pixels...";
+    NewPixel(pixel);
+    pixel.x = -1.0f;
+    pixel.y = -1.0f;
+    pixel.type = iInvalid;
+    pixel.weight = 0.0f;
+	header.clear();
+    pay.clear();
+	msgpack::pack( header, pixel );
+
+	sendMessage(&header, &pay);
+#endif /* WANT_EOF */
 
     std::cout << "all done." << std::endl;
-    // file says how big it is?
-    // send items from the file, line by line
+    pixel_count = 0;
     running = false;
 }
 
 bool Feeder::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
-	Pixel pixel;
-	msgpack::object obj;
-	unPackPart( header, &obj );
-	obj.convert( pixel );
-#ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ")";
-	printvec("c", pixel.color);
-#endif /* DEBUG */
-
-    if( pixel.type == iInvalid )
-    {
-        running = false;
-        std::cout << "finishing up" << std::endl;
-        return false;
-    }
-
-#ifdef DEBUG
-	std::cout << std::endl;
-#endif /* DEBUG */
-	return false; // no more messages; we're done.
+	return false; // all work happens in local_setup()
 }
 
 
@@ -65,13 +90,13 @@ void Feeder::local_shutdown()
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-    if( argc != 5 )
+    if( argc != 7 )
     {
         cout << "please use start.sh to provide proper CLI args" << endl;
         return 1;
     }
-	Feeder fd(argv[1], argv[2], argv[3], "", "");
-    strcpy(fd.inputFile, argv[4]);
+	Feeder fd(argv[1], argv[2], argv[3], argv[4], argv[5]);
+    strcpy(fd.inputFile, argv[6]);
 
 	cout << "running" << endl;
 	fd.run();
