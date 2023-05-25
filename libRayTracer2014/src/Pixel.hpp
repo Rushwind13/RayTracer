@@ -7,6 +7,7 @@
 
 #ifndef PIXEL_HPP_
 #define PIXEL_HPP_
+#include <sstream>
 #include <msgpack.hpp>
 #include "Math.hpp"
 
@@ -61,7 +62,120 @@ public:
 	//Color deltaColor; // current color for recursive
 	//bool isRecursive; // So that the pub/sub engine can decide where to send things next
 }__attribute__((packed));
+//friend std::ostream& operator<<(std::ostream& os, const Pixel& px);
 
 
+//std::ostream& operator<<(std::ostream& os, const Pixel& px)
+void PrintPixel(std::ostream& os, const Pixel& px)
+{
+    os << px.x << ',' << px.y << ',';
+    os << px.primaryRay.direction.x << ',' << px.primaryRay.direction.y << ',' << px.primaryRay.direction.z << ',' << px.primaryRay.direction.w << ',';
+    os << px.primaryRay.origin.x << ',' << px.primaryRay.origin.y << ',' << px.primaryRay.origin.z << ',' << px.primaryRay.origin.w << ',';
+    os << px.primaryRay.length << ',';
+    os << px.type << ',';
+    os << px.r.direction.x << ',' << px.r.direction.y << ',' << px.r.direction.z << ',' << px.r.direction.w << ',';
+    os << px.r.origin.x << ',' << px.r.origin.y << ',' << px.r.origin.z << ',' << px.r.origin.w << ',';
+    os << px.r.length << ',';
+    os << px.oid << ',';
+    os << px.normal.x << ',' << px.normal.y << ',' << px.normal.z << ',' << px.normal.w << ',';
+    os << px.position.x << ',' << px.position.y << ',' << px.position.z << ',' << px.position.w << ',';
+    os << px.distance << ',';
+    os << px.lid << ',';
+    os << px.NdotL << ',';
+    os << px.depth << ',';
+    os << px.weight << ',';
+    os << px.color.r << ',' << px.color.g << ',' << px.color.b << ',' << px.color.a << ',';
+    os << px.gothit << std::endl;
+}
 
+void ReadPixel(std::string in, Pixel &pixel)
+{
+    std::istringstream stream(in);
+
+    std::string temp;
+    std::getline(stream, temp, ','); pixel.x = stof(temp);
+    std::getline(stream, temp, ','); pixel.y = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.direction.x = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.direction.y = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.direction.z = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.direction.w = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.origin.x = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.origin.y = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.origin.z = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.origin.w = stof(temp);
+    std::getline(stream, temp, ','); pixel.primaryRay.length = stof(temp);
+    std::getline(stream, temp, ','); pixel.type = stol(temp);
+    std::getline(stream, temp, ','); pixel.r.direction.x = stof(temp);
+    std::getline(stream, temp, ','); pixel.r.direction.y = stof(temp);
+    std::getline(stream, temp, ','); pixel.r.direction.z = stof(temp);
+    std::getline(stream, temp, ','); pixel.r.direction.w = stof(temp);
+    std::getline(stream, temp, ','); pixel.r.origin.x = stof(temp);
+    std::getline(stream, temp, ','); pixel.r.origin.y = stof(temp);
+    std::getline(stream, temp, ','); pixel.r.origin.z = stof(temp);
+    std::getline(stream, temp, ','); pixel.r.origin.w = stof(temp);
+    std::getline(stream, temp, ','); pixel.r.length = stof(temp);
+    std::getline(stream, temp, ','); pixel.oid = stol(temp);
+    std::getline(stream, temp, ','); pixel.normal.x = stof(temp);
+    std::getline(stream, temp, ','); pixel.normal.y = stof(temp);
+    std::getline(stream, temp, ','); pixel.normal.z = stof(temp);
+    std::getline(stream, temp, ','); pixel.normal.w = stof(temp);
+    std::getline(stream, temp, ','); pixel.position.x = stof(temp);
+    std::getline(stream, temp, ','); pixel.position.y = stof(temp);
+    std::getline(stream, temp, ','); pixel.position.z = stof(temp);
+    std::getline(stream, temp, ','); pixel.position.w = stof(temp);
+    std::getline(stream, temp, ','); pixel.distance = stof(temp);
+    std::getline(stream, temp, ','); pixel.lid = stol(temp);
+    std::getline(stream, temp, ','); pixel.NdotL = stof(temp);
+    std::getline(stream, temp, ','); pixel.depth = stol(temp);
+    std::getline(stream, temp, ','); pixel.weight = stof(temp);
+    std::getline(stream, temp, ','); pixel.color.r = stof(temp);
+    std::getline(stream, temp, ','); pixel.color.g = stof(temp);
+    std::getline(stream, temp, ','); pixel.color.b = stof(temp);
+    std::getline(stream, temp, ','); pixel.color.a = stof(temp);
+    std::getline(stream, temp, '\n'); pixel.gothit = stol(temp);
+}
+
+void NewPixel(Pixel &pixel)
+{
+    pixel.x = -1.0;
+    pixel.y = -1.0;
+    pixel.primaryRay.direction.x = 0.0;
+    pixel.primaryRay.direction.y = 0.0;
+    pixel.primaryRay.direction.z = 0.0;
+    pixel.primaryRay.direction.w = 0.0;
+    pixel.primaryRay.origin.x = 0.0;
+    pixel.primaryRay.origin.y = 0.0;
+    pixel.primaryRay.origin.z = 0.0;
+    pixel.primaryRay.origin.w = 0.0;
+    pixel.primaryRay.length = 0.0;
+    pixel.type = iInvalid;
+    pixel.r.direction.x = 0.0;
+    pixel.r.direction.y = 0.0;
+    pixel.r.direction.z = 0.0;
+    pixel.r.direction.w = 0.0;
+    pixel.r.origin.x = 0.0;
+    pixel.r.origin.y = 0.0;
+    pixel.r.origin.z = 0.0;
+    pixel.r.origin.w = 0.0;
+    pixel.r.length = 0.0;
+    pixel.oid = -1;
+    pixel.normal.x = 0.0;
+    pixel.normal.y = 0.0;
+    pixel.normal.z = 0.0;
+    pixel.normal.w = 0.0;
+    pixel.position.x = 0.0;
+    pixel.position.y = 0.0;
+    pixel.position.z = 0.0;
+    pixel.position.w = 0.0;
+    pixel.distance = 0.0;
+    pixel.lid = 0;
+    pixel.NdotL = 0.0;
+    pixel.depth = 10;
+    pixel.weight = 0.0;
+    pixel.color.r = 0.0;
+    pixel.color.g = 0.0;
+    pixel.color.b = 0.0;
+    pixel.color.a = 0.0;
+    pixel.gothit = false;
+}
 #endif /* PIXEL_HPP_ */

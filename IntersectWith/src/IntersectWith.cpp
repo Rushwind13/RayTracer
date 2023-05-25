@@ -8,6 +8,7 @@
 //============================================================================
 
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 #include "IntersectWith.hpp"
 #include "Object.hpp"
@@ -16,32 +17,58 @@ using namespace std;
 
 void IntersectWith::local_setup()
 {
+	// Slow joiner problem
+	usleep(100*1000);
+#define DEBUG
 	object = world.FindObject( world_object );
 	assert( object );
+    pixel_count = 0;
 }
 
 bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
 	assert(object);
 	Pixel pixel;
+	Intersection i;
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
-	//if(pixel.type == iShadow) std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
+
+    if( pixel.type == iInvalid )
+    {
+        // running = false;
+        std::cout << "received EOF after " << pixel_count << " pixels, passing it along...";
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        PrintPixel(cout, pixel);
+
+        sendMessage(header, payload);
+        std::cout << "sent." << std::endl;
+        pixel_count = 0;
+        usleep(100*1000); // slow re-joiner problem?
+        return false;
+    }
+
+    pixel_count++;
+    std::cout << "(" << pixel.y << ")" << "\r";
+
 	assert(object);
 
 	// Primary rays don't have a payload,
 	// but Shadow rays will.
 	// TODO: Reflection and Refraction ones might, too.
-	Intersection i;
 	assert(object);
 	if( pixel.type == iShadow )
 	{
-		//std::cout << " shadow ";
-		i.distance = pixel.distance;
+		i.distance[0] = i.distance[1] = pixel.distance;
 		i.anyhit = true;
 
-		//std::cout << "d: " << i.distance;
+#ifdef DEBUG
+        // std::cout << " shadow " << "d: " << i.distance[0];
+#endif /* DEBUG */
 	}
 	assert(object);
 
@@ -51,7 +78,9 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 	// Shadow tests do not allow self-intersection
 	if( pixel.type == iShadow && pixel.oid == object->oid )
 	{
-		//std::cout << " no self-shadow ";
+#ifdef DEBUG
+		std::cout << " no self-shadow ";
+#endif /* DEBUG */
 		i.gothit = false;
 	}
 	else
@@ -71,12 +100,15 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 		{
 			//std::cout << " h: " << i.distance;
 			std::cout <<  test << object->name << " at (" << pixel.x << "," << pixel.y << ") depth:" << pixel.depth << std::endl;
+            PrintIntersection(cout, i);
 		}
 #endif /* DEBUG */
 	}
 
+    payload->clear();
 	msgpack::pack( payload, i );
-	//if( pixel.type == iShadow )std::cout << std::endl;
+
+    usleep(2*1000);
 	return true; // send an outbound message as a result of local_work()
 }
 

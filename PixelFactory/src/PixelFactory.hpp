@@ -9,6 +9,7 @@
 #define PIXELFACTORY_HPP_
 #include "Widget.hpp"
 #include "Camera.hpp"
+#include "Pixel.hpp"
 
 class PixelFactory : public Widget
 {
@@ -26,6 +27,7 @@ protected:
 
 private:
 	Camera camera;
+    std::vector<Pixel> pixels;
 };
 
 

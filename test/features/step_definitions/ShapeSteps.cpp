@@ -123,5 +123,5 @@ THEN("^intersection distance ([0-9]+) = ([0-9.-]+)$")
     REGEX_PARAM(int, index);
     REGEX_PARAM(float, distance);
     ScenarioScope<TestCtx> context;
-    EXPECT_EQ(context->intersection.distance, distance);
+    EXPECT_EQ(context->intersection.distance[index], distance);
 }

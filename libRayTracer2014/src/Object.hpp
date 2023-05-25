@@ -407,26 +407,29 @@ public:
 
 		if( b2 < ac )
 		{
-			i.distance = 1e9;
+			i.distance[0] = i.distance[1] = 1e9;
 			i.gothit = false;
 			return false;
 		}
 
 		float discriminant = std::sqrt(b2 - ac);
-		float root1 = (-b + discriminant) / a;
-		float root2 = (-b - discriminant) / a;
+		i.distance[0] = (-b + discriminant) / a;
+		i.distance[1] = (-b - discriminant) / a;
 
-		float distance = std::min(root1, root2);
-		if( distance < 0.0 )
+        if( i.distance[0] > i.distance[1] )
+        {
+            std::swap(i.distance[0], i.distance[1]);
+        }
+
+		if( i.distance[0] < 0.0f )
 		{
 			// TODO: deal with internal reflection later
-			i.distance = 1e9;
+			i.distance[0] = i.distance[1] = 1e9;
 			i.gothit = false;
 			return false;
 		}
 
-		i.distance = distance;
-		i.position = objectToWorld * object.apply(i.distance);
+		i.position = objectToWorld * object.apply(i.distance[0]);
 		i.normal = NormalAt(i.position);
 		// to remove off-by-ε errors, bump the hit position along the normal by a small amount...
 		// i.position = i.position + (i.normal * epsilon);
@@ -550,25 +553,26 @@ public:
 	{
 		if( glm::abs( object.direction.y - 0.0 ) < epsilon )
 		{
-			i.distance = 1e9;
+			i.distance[0] = i.distance[1] = 1e9;
 			i.gothit = false;
 			return false;
 		}
 
-    i.distance = -object.origin.y / object.direction.y;
-    if( i.distance < 0.0 )
-    {
-        i.distance = 1e9;
-        i.gothit = false;
-        return false;
-    }
+        i.distance[0]  = -object.origin.y / object.direction.y;
+        if( i.distance[0] < 0.0 )
+        {
+			i.distance[0] = i.distance[1] = 1e9;
+            i.gothit = false;
+            return false;
+        }
 
-    i.gothit = true;
-		i.oid = oid;
-    i.position = objectToWorld * object.apply(i.distance);
-		i.normal = NormalAt(i.position);
+        i.distance[1] = i.distance[0];
+        i.gothit = true;
+    	i.oid = oid;
+        i.position = objectToWorld * object.apply(i.distance[0]);
+    	i.normal = NormalAt(i.position);
 
-		return true;
+    	return true;
 	}
 	Direction local_normal_at( const Position object_pos ) const
 	{
@@ -594,27 +598,26 @@ public:
         Range y = CheckAxis(object.origin.y, object.direction.y);
         Range z = CheckAxis(object.origin.z, object.direction.z);
 
-        float tmin = glm::max(x.x, glm::max(y.x, z.x));
-        float tmax = glm::min(x.y, glm::min(y.y, z.y));
+        i.distance[0] = glm::max(x.x, glm::max(y.x, z.x)); // tmin
+        i.distance[1] = glm::min(x.y, glm::min(y.y, z.y)); // tmax
 
-        if( tmin < 0.0 )
+        if( i.distance[0] < 0.0 )
         {
             // std::cout << " inside " << std::endl;
-            i.distance = 1e9;
+			i.distance[0] = i.distance[1] = 1e9;
             i.gothit = false;
             return false;
         }
 
-        if( tmin > tmax )
+        if( i.distance[0] > i.distance[1] )
         {
             // std::cout << " min>max " << std::endl;
-            i.distance = 1e9;
+			i.distance[0] = i.distance[1] = 1e9;
             i.gothit = false;
             return false;
         }
 
-        i.distance = tmin;
-        i.position = objectToWorld * object.apply(i.distance);
+        i.position = objectToWorld * object.apply(i.distance[0]);
 		i.normal = NormalAt(i.position);
         i.gothit = true;
         i.oid = oid;
@@ -622,9 +625,8 @@ public:
 #ifdef DEBUG
         printvec("p",i.position);
         printvec("n", i.normal);
-        std::cout << " distance: " << i.distance << std::endl;
+        std::cout << " distance: " << i.distance[0] << std::endl;
 #endif /* DEBUG */
-
 		return true;
     }
 

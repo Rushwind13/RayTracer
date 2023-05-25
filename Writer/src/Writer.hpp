@@ -35,10 +35,6 @@ private:
 	int32_t pixel_count;
 
 	void SaveImage();
-
-	std::map<int64_t, int16_t> response_count;
-	std::map<int64_t, Color> accumulator;
-
 	bool storePixel( Pixel pixel );
 };
 

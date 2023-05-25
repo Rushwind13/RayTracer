@@ -9,18 +9,18 @@ Feature: Spheres
       And I have a sphere
       When I intersect the ray with the sphere
       Then an intersection occurred
-      #And intersection count = 2
+      And intersection count = 2
       And intersection distance 0 = 4.0
-      #And intersection distance 1 = 6.0
+      And intersection distance 1 = 6.0
 
   Scenario: A ray intersects a sphere at a tangent
       Given I have a Ray with origin 0,1,-5 and direction 0,0,1
       And I have a sphere
       When I intersect the ray with the sphere
       Then an intersection occurred
-      #And intersection count = 2
+      And intersection count = 2
       And intersection distance 0 = 5.0
-      #And intersection distance 1 = 6.0
+      And intersection distance 1 = 5.0
 
   Scenario: A ray misses a sphere
       Given I have a Ray with origin 0,2,-5 and direction 0,0,1

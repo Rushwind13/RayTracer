@@ -23,15 +23,15 @@ public:
 	std::list<Object *> objects;
 	std::list<Light *> lights;
     std::map<std::string, Color> colors;
+    std::map<std::string, Pattern *> patterns;
 	int object_count;
 	int light_count;
-	Pattern *vert, *horz;
 
 protected:
 private:
 
 public:
-	World() : refractiveindex(1.0), maxdepth(6), minweight(0.1){ setup(); };
+	World() : refractiveindex(1.0), maxdepth(10), minweight(0.1){ setup(); };
 	~World(){objects.clear(); lights.clear();};
 
 	void setup()
@@ -59,7 +59,38 @@ public:
             array_from_json(_json, name, 0.0, color);
             colors[name] = Color(color);
         }
-        std::cout<< "objects done." << std::endl;
+        std::cout<< "colors done." << std::endl;
+
+        for( auto &x: data["patterns"].items() )
+        {
+            json _json = x;
+            const std::string name = x.key();
+            std::cout << name << " loading...";
+
+            if(_json["type"] == "solid")
+            {
+                patterns[name] = ((Pattern *)new Solid());
+            }
+            // else if(_json["type"] == "stripe")
+            // {
+            //     patterns[name] = ((Pattern *)new Stripe());
+            // }
+            // else if(_json["type"] == "noisy")
+            // {
+            //     patterns[name] = ((Pattern *)new NoisySolid());
+            // }
+            else
+            {
+                std::cout << "unknown type: " << _json["type"] << " ...terminating pattern." << std::endl;
+                continue;
+            }
+
+            // float color[3];
+            // array_from_json(_json, name, 0.0, color);
+            // colors[name] = Color(color);
+        }
+        std::cout<< "patterns done." << std::endl;
+
         for( auto &x: data["objects"].items() )
         {
             const std::string name = x.key();
@@ -81,7 +112,7 @@ public:
             }
             else
             {
-                std::cout << "unknown type: " << _json["type"] << std::endl;
+                std::cout << "unknown type: " << _json["type"] << " ...terminating object." << std::endl;
                 continue;
             }
 
@@ -98,8 +129,6 @@ public:
                 // Pattern props
                 if( _json["material"].contains("pattern"))
                 {
-                    // field_from_json(_mat, "pattern", "type", "unknown", object->material.pattern->type);
-
                     std::string pattern_color_name;
                     field_from_json(_json["material"]["pattern"], "color", 0.0, color_name);
                     // object->material.pattern->color = colors[pattern_color_name];
@@ -131,6 +160,34 @@ public:
 
                     glm::mat4 xform = translate * rotation * scaling;
 
+                    // std::string pattern_type;
+                    // field_from_json(_mat, "pattern", "type", "unknown", pattern_type);
+                    // if( pattern_type == "solid" )
+                    // {
+                    //     // one color in the constructor
+                    //     patterns[pattern_type] = ((Pattern *)new Solid());
+                    //     patterns[pattern_type]->color = colors[pattern_color_name];
+                    // }
+                    // else if( pattern_type == "stripe" )
+                    // {
+                    //     // two colors in the constructor
+                    //     object->material.pattern = (Pattern *)new Stripe();
+                    // }
+                    // else if( pattern_type == "noisy" )
+                    // {
+                    //     // one color in the constructor
+                    //     object->material.pattern = (Pattern *)new NoisySolid();
+                    // }
+                    // else if( pattern_type == "noisylerp" )
+                    // {
+                    //     // two colors in the constructor
+                    //     object->material.pattern = (Pattern *)new NoisySolid();
+                    // }
+                    // else
+                    // {
+                    //     std::cout << "unknown pattern type: " << _json["type"] << " ...terminating object." << std::endl;
+                    //     continue;
+                    // }
                     // object->material.pattern = new Pattern();
                     // object->material.pattern->SetTransform(translate * rotation * scaling);
                 }
@@ -269,10 +326,11 @@ def create_scene( metadata ):
 			Intersection i;
 		    if( (*it)->Intersect( ray, i ) )
 		    {
-				if( i.distance < nearest.distance )
+				if( i.distance[0] < nearest.distance[0] )
 				{
 					nearest.gothit		= true;
-					nearest.distance	= i.distance;
+					nearest.distance[0]	= i.distance[0];
+					nearest.distance[1]	= i.distance[1];
 					nearest.normal		= i.normal;
 					nearest.oid			= i.oid;
 					nearest.position	= i.position;
@@ -280,7 +338,7 @@ def create_scene( metadata ):
 				// For shadow rays, any hit will do (don't need the actual closest one)
 				if( nearest.anyhit && nearest.gothit )
 				{
-					std::cout << nearest.distance << " ";
+					std::cout << nearest.distance[0] << " ";
 					return nearest;
 				}
 		    }

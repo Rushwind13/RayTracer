@@ -9,9 +9,9 @@
 #include <iostream>
 using namespace std;
 #include "PixelFactory.hpp"
-#include "Pixel.hpp"
 #include "glm/glm.hpp"
 #include <unistd.h>
+//#define DEBUG
 
 void PixelFactory::local_setup()
 {
@@ -47,15 +47,18 @@ void PixelFactory::local_setup()
 			pixel.type = iPrimary;
 			pixel.weight = 1.0f;
 			pixel.depth = 0;
+            pixel.NdotL = 0.0f;
+            pixel.distance = 1e9;
 #ifdef DEBUG
 			printvec( "o", pixel.r.origin);
 			printvec( "d", pixel.r.direction);
 #endif /* DEBUG */
 
-			header.clear();
-			msgpack::pack( header, pixel );
-
-			sendMessage(&header, &pay);
+            pixels.push_back(pixel);
+			// header.clear();
+			// msgpack::pack( header, pixel );
+            //
+			// sendMessage(&header, &pay);
 #ifdef DEBUG
 			std::cout << "\r";
 #endif /* DEBUG */
@@ -63,6 +66,17 @@ void PixelFactory::local_setup()
 		}
 	}
 	std::cout << std::endl;
+
+    // write pixels out to file
+    std::ofstream out("output.txt");
+    std::vector<Pixel>::iterator ptr;
+    for( ptr = pixels.begin(); ptr < pixels.end(); ptr++)
+    {
+        PrintPixel(out, *ptr);
+        out << std::endl; // extra line for Intersections (blank at this point)
+    }
+    out.close();
+#undef WANT_EOF
 #ifdef WANT_EOF
     // send "EOF" pixel
     pixel.x = -1.0f;

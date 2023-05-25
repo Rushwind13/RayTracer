@@ -13,7 +13,7 @@ using namespace std;
 
 void Configurator::local_setup()
 {
-#define DEBUG
+//#define DEBUG
 	// Slow joiner problem
 	usleep(100*1000);
     Pixel pixel;
