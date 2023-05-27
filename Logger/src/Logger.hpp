@@ -27,6 +27,7 @@ public:
         instance.signalHandler(signum);
     };
     void registerHandler();
+    char outputFile[255];
 
 protected:
 	virtual void local_setup();

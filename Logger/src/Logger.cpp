@@ -70,7 +70,7 @@ void Logger::writeFile()
     std::cout << "got " << instance.intersections.size() << " intersections"<< std::endl;
 
     // write pixels out to file
-    std::ofstream out("output.txt");
+    std::ofstream out(outputFile);
     std::vector<Pixel>::iterator px;
     std::vector<Intersection>::iterator i;
     for( px = instance.pixels.begin(), i = instance.intersections.begin(); px < instance.pixels.end(), i < instance.intersections.end(); px++, i++)
@@ -99,12 +99,13 @@ void Logger::signalHandler( int signum )
 int main(int argc, char* argv[])
 {
 	cout << "starting up" << endl;
-    if( argc != 4 )
+    if( argc != 5 )
     {
         cout << "please use start.sh to provide proper CLI args" << endl;
         return 1;
     }
 	Logger log(argv[1], argv[2], argv[3], "", "");
+    sprintf(log.outputFile, "%s/data/%s", BASEDIR, argv[4]);
     // register signal SIGINT and signal handler
     log.registerHandler();
 
