@@ -25,6 +25,11 @@ void Feeder::local_setup()
 	std::cout << name << " starting up... " << std::endl;
 
     std::ifstream in(inputFile);
+    if (in.good()) {
+        std::cout << "The file was opened successfully." << std::endl;
+    } else {
+        std::cout << "The file could not be opened." << std::endl;
+    }
 	msgpack::sbuffer header(0);
 	msgpack::sbuffer pay(0);
     Pixel pixel;
@@ -89,18 +94,22 @@ void Feeder::local_shutdown()
 
 int main(int argc, char* argv[])
 {
-	cout << "starting up" << endl;
-    if( argc != 7 )
+	std::cout << "starting up" << std::endl;
+    if( argc < 5 )
     {
-        cout << "please use start.sh to provide proper CLI args" << endl;
+        std::cout << "please use start.sh to provide proper CLI args" << std::endl;
         return 1;
     }
-	Feeder fd(argv[1], argv[2], argv[3], argv[4], argv[5]);
-    strcpy(fd.inputFile, argv[6]);
+	Feeder fd(argv[1], "", "", argv[2], argv[3]);
 
-	cout << "running" << endl;
-	fd.run();
+    // Rest of CLI args are the list of files, run them one-by-one
+    for (int i = 4; i < argc; i++) {
+        sprintf(fd.inputFile, "%s/data/%s", BASEDIR, argv[i]);
 
-	cout << "shutting down" << endl;
+	   std::cout << "running with file: " << fd.inputFile << std::endl;
+	   fd.run();
+    }
+
+	std::cout << "shutting down" << std::endl;
 	return 0;
 }

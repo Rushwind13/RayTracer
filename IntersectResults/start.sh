@@ -1,5 +1,6 @@
 #!/bin/sh
-
+# input: pixels (blank intersections) from IntersectWith (per world object)
+# output: pixels and intersections to {SHADE/BKG || BLACK/LIT (shadow test)}
 BIN=../bin
 NAME=IntersectResults
 INPUT_CHANNEL=RESULT
