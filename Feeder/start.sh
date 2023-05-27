@@ -1,12 +1,13 @@
 #!/bin/sh
-
+# input: CSV of pixels interleaved with intersections
+# output: pixels and intersections as Messages
 BIN=../bin
 NAME=Feeder
 INPUT_CHANNEL=JUNK
 INPUT_SOCKET=tcp://127.0.0.1:1301
-OUTPUT_CHANNEL=FEEDER
+OUTPUT_CHANNEL=${1:-"FEEDER"}
 OUTPUT_SOCKET=tcp://127.0.0.1:1313
-METADATA=pixels.txt
+METADATA=${2:-"pixels.txt"}
 
 echo $BIN/$NAME $NAME $INPUT_CHANNEL $INPUT_SOCKET $OUTPUT_CHANNEL $OUTPUT_SOCKET $METADATA
 $BIN/$NAME $NAME $INPUT_CHANNEL $INPUT_SOCKET $OUTPUT_CHANNEL $OUTPUT_SOCKET $METADATA

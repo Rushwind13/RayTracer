@@ -1,5 +1,6 @@
 #!/bin/sh
-
+# input: none
+# output: pixels and (blank) intersections to IntersectWith
 BIN=../bin
 NAME=PixelFactory
 INPUT_CHANNEL=

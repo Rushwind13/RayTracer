@@ -1,5 +1,6 @@
 #!/bin/sh
-
+# input: pixels and intersections as Messages
+# output: CSV of pixels interleaved with intersections
 BIN=../bin
 NAME=Logger
 INPUT_CHANNEL=LOGGER
