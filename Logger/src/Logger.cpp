@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 	Logger log(argv[1], argv[2], argv[3], "", "");
-    sprintf(log.outputFile, "%s/data/%s", BASEDIR, argv[4]);
+    sprintf(log.outputFile, "%s/data/o%s", BASEDIR, argv[4]);
     // register signal SIGINT and signal handler
     log.registerHandler();
 

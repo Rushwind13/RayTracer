@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
     {
 	    Feeder fd(argv[1], "", "", argv[2], argv[3]);
         fd.wantEOF = ( i == argc-1 );
-        sprintf(fd.inputFile, "%s/data/%s", BASEDIR, argv[i]);
+        sprintf(fd.inputFile, "%s/data/i%s", BASEDIR, argv[i]);
 
         std::cout << "running with file: " << fd.inputFile << std::endl;
         fd.run();
