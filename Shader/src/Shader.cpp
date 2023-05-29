@@ -7,6 +7,7 @@
 //============================================================================
 
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 #include "Shader.hpp"
 #include "Lighting.hpp"
@@ -14,13 +15,15 @@ using namespace std;
 void Shader::local_setup()
 {
 //#define DEBUG
-    std::cout << "creating sockets for alternate pub paths...";
-    black_publisher = new zmq::socket_t( *context, ZMQ_PUB );
-    black_publisher->connect( "tcp://127.0.0.1:1312" ); // BLACK
+    // std::cout << "creating sockets for alternate pub paths...";
+    // black_publisher = new zmq::socket_t( *context, ZMQ_PUB );
+    // black_publisher->connect( "tcp://127.0.0.1:1312" ); // BLACK
+    //
+    // intersect_publisher = new zmq::socket_t( *context, ZMQ_PUB );
+    // intersect_publisher->connect( "tcp://127.0.0.1:1313" ); // INTERSECT
+    // std::cout << "done." << std::endl;
 
-    intersect_publisher = new zmq::socket_t( *context, ZMQ_PUB );
-    intersect_publisher->connect( "tcp://127.0.0.1:1313" ); // INTERSECT
-    std::cout << "done." << std::endl;
+    pixel_count=0;
 }
 
 // You will get here after a successful intersection with some object
@@ -28,21 +31,55 @@ void Shader::local_setup()
 bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
 	Pixel pixel;
+	Intersection i;
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
-#ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
-#endif /* DEBUG */
+
+    if( pixel.type == iInvalid )
+    {
+        running = false;
+        std::cout << "received EOF after " << pixel_count << " pixels, passing it along...";
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        PrintPixel(cout, pixel);
+
+        sendMessage(header, payload, "Black");
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        sendMessage(header, payload, "IntersectWith");
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        sendMessage(header, payload, "Shader");
+
+        std::cout << "sent." << std::endl;
+        pixel_count = 0;
+        usleep(100*1000); // slow re-joiner problem?
+        return false;
+    }
 
 	// We know we have at least one hit now, so...
 	pixel.gothit = true;
 
-	Intersection i;
 	msgpack::object obj2;
 	unPackPart( payload, &obj2 );
 	obj2.convert( i );
+
+    pixel_count++;
+    std::cout << "(" << i.oid << "-"<< pixel.y << ")" << "\r";
+
 	payload->clear();
+	Intersection i2;
+    msgpack::pack( payload, i2 );
 
 	// Move necessary info out of the payload and into the header.
 	// all the below tests can possibly spawn several new INTERSECT messages, which will drop the payload.
@@ -82,7 +119,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 #endif /* DEBUG */
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
-			sendMessage(header, payload, "BLACK", black_publisher);
+			sendMessage(header, payload, "Black");
 			//sendMessage(header, payload, "BKG");
 			continue;
 		}
@@ -121,7 +158,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 		msgpack::pack( header, pixel );
 
-		sendMessage( header, payload, "INTERSECT", intersect_publisher );
+		sendMessage( header, payload, "IntersectWith");
 #ifdef DEBUG
 		Pixel px2;
 
@@ -144,6 +181,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	msgpack::pack( header, pixel );
 	payload->clear();
+	msgpack::pack( payload, i2 );
 #ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 	printvec("ambient", pixel.color);
