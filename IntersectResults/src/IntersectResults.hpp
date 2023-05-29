@@ -16,7 +16,7 @@ class IntersectResults : public Widget
 {
 public:
 	IntersectResults( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
-		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, false, false )
+		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, true, false )
 	{
 	};
 	~IntersectResults(){};
@@ -29,6 +29,7 @@ protected:
 
 private:
 	World world;
+    int pixel_count;
 
 	// Simple hashing function
 	// creates a hash of x,y , the depth, and the test type
