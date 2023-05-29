@@ -46,6 +46,7 @@ bool Logger::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
         std::cout << "received EOF, writing file...";
         writeFile();
         std::cout << "done." << std::endl;
+        running = false;
     }
 
     usleep(1*1000);
@@ -54,20 +55,21 @@ bool Logger::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 void Logger::local_shutdown()
 {
-    writeFile();
+    //writeFile();
 	std::cout << "shutting down... ";
 }
 
 void Logger::registerHandler()
 {
     signal(SIGINT, Logger::logHandler);
+    signal(SIGHUP, Logger::logHandler);
 }
 
 void Logger::writeFile()
 {
     std::cout << endl;
-    std::cout << "got " << instance.pixels.size() << " pixels"<< std::endl;
-    std::cout << "got " << instance.intersections.size() << " intersections"<< std::endl;
+    std::cout << "got " << instance.pixels.size() << " pixels for "<< outputFile << std::endl;
+    std::cout << "got " << instance.intersections.size() << " intersections for "<< outputFile << std::endl;
 
     // write pixels out to file
     std::ofstream out(outputFile);
