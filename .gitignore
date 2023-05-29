@@ -10,7 +10,7 @@ data
 *.txt
 
 # misc files
-*.csv
+# *.csv
 
 # log files
 *.log
