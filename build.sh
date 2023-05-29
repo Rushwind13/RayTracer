@@ -2,6 +2,8 @@
 
 mkdir -p ./bin
 mkdir -p ./data
+cd Feeder; make clean; make; cd ..
+cd Logger; make clean; make; cd ..
 cd Background; make clean; make; cd ..
 cd Black; make clean; make; cd ..
 cd ColorResults; make clean; make; cd ..
