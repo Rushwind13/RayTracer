@@ -60,21 +60,21 @@ void Feeder::local_setup()
     }
     std::cout << std::endl;
 
-#define WANT_EOF
-#ifdef WANT_EOF
-    // send "EOF" pixel
-    std::cout << "sending EOF after " << pixel_count << " pixels...";
-    NewPixel(pixel);
-    pixel.x = -1.0f;
-    pixel.y = -1.0f;
-    pixel.type = iInvalid;
-    pixel.weight = 0.0f;
-	header.clear();
-    pay.clear();
-	msgpack::pack( header, pixel );
+    if(wantEOF)
+    {
+        // send "EOF" pixel
+        std::cout << "sending EOF after " << pixel_count << " pixels...";
+        NewPixel(pixel);
+        pixel.x = -1.0f;
+        pixel.y = -1.0f;
+        pixel.type = iInvalid;
+        pixel.weight = 0.0f;
+    	header.clear();
+        pay.clear();
+    	msgpack::pack( header, pixel );
 
-	sendMessage(&header, &pay);
-#endif /* WANT_EOF */
+    	sendMessage(&header, &pay);
+    }
 
     std::cout << "all done." << std::endl;
     pixel_count = 0;
@@ -100,14 +100,17 @@ int main(int argc, char* argv[])
         std::cout << "please use start.sh to provide proper CLI args" << std::endl;
         return 1;
     }
-	Feeder fd(argv[1], "", "", argv[2], argv[3]);
 
     // Rest of CLI args are the list of files, run them one-by-one
-    for (int i = 4; i < argc; i++) {
+    for (int i = 4; i < argc; i++)
+    {
+	    Feeder fd(argv[1], "", "", argv[2], argv[3]);
+        fd.wantEOF = ( i == argc-1 );
         sprintf(fd.inputFile, "%s/data/%s", BASEDIR, argv[i]);
 
-	   std::cout << "running with file: " << fd.inputFile << std::endl;
-	   fd.run();
+        std::cout << "running with file: " << fd.inputFile << std::endl;
+        fd.run();
+        std::cout << "ran with file: " << fd.inputFile << std::endl;
     }
 
 	std::cout << "shutting down" << std::endl;

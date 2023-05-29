@@ -19,6 +19,7 @@ public:
 	~Feeder(){};
 
     char inputFile[255];
+    bool wantEOF;
 
 protected:
 	virtual void local_setup();
