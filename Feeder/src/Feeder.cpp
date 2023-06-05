@@ -16,11 +16,12 @@ using namespace std;
 
 void Feeder::local_setup()
 {
-#define DEBUG
+// #define DEBUG
 	// Slow joiner problem
 	usleep(1000*1000);
 
     int pixel_count = 0;
+    int current_y = -1;
 
 	std::cout << name << " starting up... " << std::endl;
 
@@ -39,7 +40,11 @@ void Feeder::local_setup()
     {
         ReadPixel(line, pixel);
 
-        std::cout << "(" << pixel.y << ")" << "\r";
+        if( current_y != pixel.y )
+        {
+            current_y = pixel.y;
+            std::cout << "(" << current_y << ")" << std::endl;
+        }
 
         std::getline(in, line2);
         ReadIntersection(line2, i);
@@ -106,7 +111,7 @@ int main(int argc, char* argv[])
     {
 	    Feeder fd(argv[1], "", "", argv[2], argv[3]);
         fd.wantEOF = ( i == argc-1 );
-        sprintf(fd.inputFile, "%s/data/i%s", BASEDIR, argv[i]);
+        sprintf(fd.inputFile, "%s/i%s", BASEDIR, argv[i]);
 
         std::cout << "running with file: " << fd.inputFile << std::endl;
         fd.run();
