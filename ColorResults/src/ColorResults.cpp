@@ -11,6 +11,7 @@
 //============================================================================
 
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 #include "ColorResults.hpp"
 #include "Object.hpp"
@@ -20,17 +21,37 @@ void ColorResults::local_setup()
 {
 //#define DEBUG
 	std::cout << "ColorResults starting up... ";
+    pixel_count = 0;
 }
 
 bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
 	Pixel pixel;
+    Intersection i;
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
-#ifdef DEBUG
-	if( pixel.gothit ) std::cout << "(" << pixel.x << "," << pixel.y << ")";
-#endif /* DEBUG */
+
+    if( pixel.type == iInvalid )
+    {
+        running = false;
+        std::cout << "received EOF after " << pixel_count << " pixels, passing it along...";
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        PrintPixel(cout, pixel);
+
+        sendMessage(header, payload);
+        std::cout << "sent." << std::endl;
+        pixel_count = 0;
+        usleep(100*1000); // slow re-joiner problem?
+        return false;
+    }
+
+    pixel_count++;
+    std::cout << "(" << pixel.y << ")" << "\r";
 
 	bool colorComplete = false;
 	colorComplete = storeColor( pixel );
@@ -47,7 +68,8 @@ bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payloa
 		payload->clear();
 		header->clear();
 
-		msgpack::pack( header, pixel );
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
 #ifdef DEBUG
 		printvec("c", pixel.color);
 #endif /* DEBUG */
@@ -99,12 +121,12 @@ bool ColorResults::storeColor( Pixel pixel )
 		count = response_count[key];
 		count++;
 
-		// Shadow tests only need the first intersected object, not the nearest
+		// you need contrib from each light
 		curr_accumulator = accumulator[key];
 #ifdef DEBUG
 		printvec("a", curr_accumulator);
 #endif /* DEBUG */
-		// If the new hit is closer, keep it.
+		// mix the new color into the existing accumulator, without overflowing
 		Color outcolor;
 		outcolor = pixel.color + curr_accumulator;
 		if( outcolor.r > 1.0 ) outcolor.r = 1.0;
