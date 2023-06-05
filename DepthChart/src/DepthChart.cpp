@@ -105,6 +105,7 @@ bool DepthChart::storeColor( Pixel pixel )
 #endif
 	}
 
+    // Note: Without Reflection turned on, DepthChart is not needed; just take the output of ColorResults and send to Writer
 	if( pixel.depth == 0 )
 	{
 		primary[key] =  pixel.color;
