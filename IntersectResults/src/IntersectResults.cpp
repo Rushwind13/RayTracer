@@ -132,6 +132,7 @@ bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
 			if( pixel.type == iShadow )
 			{
 				// Shadow tests only need the first intersected object, not the nearest
+                // TODO: this is a bug, we are checking distance below and could leak a more distant object
 				if( !curr_nearest.gothit )
 				{
 					nearest[key] = hit;
@@ -184,12 +185,13 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 	unPackPart( payload, &obj );
 	obj.convert( i );
 
-	char pub[6] = "";
+	char pub[11] = "";
 
 	if( pixel.type == iShadow )
 	{
 		//std::cout << " shadow test ";
 		// Shadow rays get "Black" when they hit something, or "Lit" when they miss
+        // Note: Shadow tests mess with thhe pixel a lot, "pixel.distance" here is "distance from intersect point to light being tested"
 		strcpy(pub, (i.gothit && (i.distance[0] < pixel.distance)) ? "Black":"Lit");
 		pixel.gothit = true;
 	}
