@@ -69,6 +69,7 @@ public:
 void PrintPixel(std::ostream& os, const Pixel& px)
 {
     os << px.x << ',' << px.y << ',';
+    os << px.oid << ',';
     os << px.primaryRay.direction.x << ',' << px.primaryRay.direction.y << ',' << px.primaryRay.direction.z << ',' << px.primaryRay.direction.w << ',';
     os << px.primaryRay.origin.x << ',' << px.primaryRay.origin.y << ',' << px.primaryRay.origin.z << ',' << px.primaryRay.origin.w << ',';
     os << px.primaryRay.length << ',';
@@ -76,7 +77,6 @@ void PrintPixel(std::ostream& os, const Pixel& px)
     os << px.r.direction.x << ',' << px.r.direction.y << ',' << px.r.direction.z << ',' << px.r.direction.w << ',';
     os << px.r.origin.x << ',' << px.r.origin.y << ',' << px.r.origin.z << ',' << px.r.origin.w << ',';
     os << px.r.length << ',';
-    os << px.oid << ',';
     os << px.normal.x << ',' << px.normal.y << ',' << px.normal.z << ',' << px.normal.w << ',';
     os << px.position.x << ',' << px.position.y << ',' << px.position.z << ',' << px.position.w << ',';
     os << px.distance << ',';
@@ -95,6 +95,7 @@ void ReadPixel(std::string in, Pixel &pixel)
     std::string temp;
     std::getline(stream, temp, ','); pixel.x = stof(temp);
     std::getline(stream, temp, ','); pixel.y = stof(temp);
+    std::getline(stream, temp, ','); pixel.oid = stol(temp);
     std::getline(stream, temp, ','); pixel.primaryRay.direction.x = stof(temp);
     std::getline(stream, temp, ','); pixel.primaryRay.direction.y = stof(temp);
     std::getline(stream, temp, ','); pixel.primaryRay.direction.z = stof(temp);
@@ -114,7 +115,6 @@ void ReadPixel(std::string in, Pixel &pixel)
     std::getline(stream, temp, ','); pixel.r.origin.z = stof(temp);
     std::getline(stream, temp, ','); pixel.r.origin.w = stof(temp);
     std::getline(stream, temp, ','); pixel.r.length = stof(temp);
-    std::getline(stream, temp, ','); pixel.oid = stol(temp);
     std::getline(stream, temp, ','); pixel.normal.x = stof(temp);
     std::getline(stream, temp, ','); pixel.normal.y = stof(temp);
     std::getline(stream, temp, ','); pixel.normal.z = stof(temp);
