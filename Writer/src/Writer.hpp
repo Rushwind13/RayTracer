@@ -17,7 +17,7 @@ class Writer : public Widget
 {
 public:
 	Writer( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
-		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint )
+		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, true, false )
 	{
 	};
 	~Writer(){};
@@ -35,7 +35,7 @@ private:
 	int32_t pixel_count;
 
 	void SaveImage();
-	bool storePixel( Pixel pixel );
+	void AutosaveImage();
 };
 
 
