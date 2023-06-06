@@ -59,7 +59,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
         payload->clear();
         msgpack::pack( header, pixel );
         msgpack::pack( payload, i );
-        sendMessage(header, payload, "Shader");
+        sendMessage(header, payload, "ColorResults");
 
         std::cout << "sent." << std::endl;
         pixel_count = 0;
@@ -149,7 +149,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		prepareShadowTest( &pShadow, i );
 #endif /* 0 */
 		pixel.r = rShadow;
-		pixel.distance = light_dist;
+		pixel.distance = light_dist; // temporarily overwrite for shadow test
 		pixel.NdotL = NdotL;
 		pixel.lid = light->oid;
 		prepareShadowTest( &pixel, i );
@@ -177,7 +177,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	// Finally, calculate ambient and emissive colors and send off pixel color message
 	// TODO: figure out ambient (from world) and emissive (from object) colors and prepare header and payload to send off a COLOR message
 	pixel.type = iPrimary;
-	pixel.color = ambient + emissive;
+	pixel.color = ambient + emissive; // <-- TODO: this object just got rocked 4 ways from Sunday, per light, I don't think it has good data anymore
 
 	msgpack::pack( header, pixel );
 	payload->clear();
