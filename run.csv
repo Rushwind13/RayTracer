@@ -1,10 +1,10 @@
 widget,infile,outfile,cli
 PixelFactory,,pixels,
 IntersectWith,pixels,,[box1|sphere2|sphere3|plane_floor|plane_l_wall|plane_r_wall]
-IntersectResults,IntersectResults,Black,
+IntersectResults,IntersectResults,Shader,
 IntersectResults,IntersectResults,[Shader|Background|Lit|Black],
-Shader,Shader,IntersectWith,
-Shader2,Shader,[Shader|Black|IntersectWith],
+Shader,Shader,Black,
+Shader2,Shader,[ColorResults|Black|IntersectWith],
 Background,Background,oBackground,
 Lit,Lit,oLit,
 Black,[Black|sBlack],oBlack,
