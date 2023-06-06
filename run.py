@@ -10,18 +10,20 @@ cd ..; cd Logger
 # Start the Logger for {widget}, writing to {outfile}
 ../bin/Logger Logger {outfile} tcp://127.0.0.1:1300 {outfile}.txt &""".format(widget=widget,outfile=outfile)
 
+def startWidget(widget, output, cli):
+    return f"""#!/bin/sh
+#### Starting {widget} ####
+# Change directory to the {widget} directory
+cd {widget}
+
+# Start the {widget} widget {"with the cli argument" if cli else ""}
+../bin/{widget} {widget} {widget} tcp://127.0.0.1:1313 {cli if cli else output} tcp://127.0.0.1:1300 {cli} &""".format(widget=widget,cli=cli,output=output)
+
 def emit(row, cli):
     if row["cli"]:
         if not cli or cli not in row["cli"]:
             return f"""### Usage: {row["widget"]} requires a CLI argument: {row["cli"]}"""
-    outstring = f"""#!/bin/sh
-#### Starting {row["widget"]} ####
-# Change directory to the {row["widget"]} directory
-cd {row["widget"]}
-
-# Start the {row["widget"]} {"with the cli argument" if cli else ""}
-../bin/{row["widget"]} {row["widget"]} {row["widget"]} tcp://127.0.0.1:1313 {cli if cli else row["widget"]} tcp://127.0.0.1:1300 {cli} &""".format(row=row)
-
+    outstring = startWidget(row["widget"], row["outfile"], cli)
     if cli:
         outstring += startLogger(row["widget"], cli)
     elif row["outfile"] != "":
