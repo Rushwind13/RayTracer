@@ -1,7 +1,7 @@
 #!/bin/sh
 
 mkdir -p ./bin
-mkdir -p ./data
+mkdir -p ../../data/Raytracer
 cd Feeder; make clean; make; cd ..
 cd Logger; make clean; make; cd ..
 cd Background; make clean; make; cd ..
