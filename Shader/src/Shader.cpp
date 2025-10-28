@@ -14,14 +14,12 @@ using namespace std;
 
 void Shader::local_setup()
 {
-//#define DEBUG
-    // std::cout << "creating sockets for alternate pub paths...";
-    // black_publisher = new zmq::socket_t( *context, ZMQ_PUB );
-    // black_publisher->connect( "tcp://127.0.0.1:1312" ); // BLACK
-    //
-    // intersect_publisher = new zmq::socket_t( *context, ZMQ_PUB );
-    // intersect_publisher->connect( "tcp://127.0.0.1:1313" ); // INTERSECT
-    // std::cout << "done." << std::endl;
+    
+	// publish base ambient/emissive contribution to COLOR for aggregation
+	// Create dedicated publisher for INTERSECT bus via XPUB/XSUB proxy (XSUB at 1314)
+	// Leave COLOR publisher managed by base Widget
+	intersect_publisher = new zmq::socket_t( *context, ZMQ_PUB );
+	intersect_publisher->connect( "tcp://127.0.0.1:1314" ); // INTERSECT bus inbound
 
     pixel_count=0;
 }
@@ -49,11 +47,12 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
         sendMessage(header, payload, "Black");
 
-        header->clear();
-        payload->clear();
-        msgpack::pack( header, pixel );
-        msgpack::pack( payload, i );
-        sendMessage(header, payload, "IntersectWith");
+		header->clear();
+		payload->clear();
+		msgpack::pack( header, pixel );
+		msgpack::pack( payload, i );
+		// Publish shadow test to INTERSECT bus (topic IntersectWith) via dedicated publisher
+		sendMessage(header, payload, (char*)"IntersectWith", intersect_publisher);
 
         header->clear();
         payload->clear();
@@ -114,9 +113,9 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		//   N.L < 0 = send off background color message
 		if( NdotL < 0.0) //(ambient.r + emissive.r) ) // TODO: <-- this has to be a bug
 		{
-#ifdef DEBUG
+// #ifdef DEBUG
 			std::cout << "(" << pixel.x << "," << pixel.y << ")" << " N.L < 0 for lid: " << light->oid << std::endl;
-#endif /* DEBUG */
+// #endif /* DEBUG */
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
 			sendMessage(header, payload, "Black");
@@ -158,7 +157,8 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 		msgpack::pack( header, pixel );
 
-		sendMessage( header, payload, "IntersectWith");
+	// Send shadow test via dedicated INTERSECT bus publisher
+	sendMessage( header, payload, (char*)"IntersectWith", intersect_publisher);
 #ifdef DEBUG
 		Pixel px2;
 
@@ -188,7 +188,8 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	std::cout << std::endl;
 #endif /* DEBUG */
 
-	return true; // send an outbound message as a result of local_work()
+	// Publish the primary color contribution on the COLOR channel for downstream stages
+	return true; // base class will publish header/payload using publication (COLOR)
 }
 
 // Copy the info out of the Intersection to pass along to further tests
@@ -204,12 +205,6 @@ void Shader::prepareShadowTest( Pixel *pixel, const Intersection i )
 void Shader::local_shutdown()
 {
 	std::cout << "shutting down... ";
-
-    if( black_publisher != NULL )
-	{
-		black_publisher->close();
-		black_publisher = NULL;
-	}
 	if( intersect_publisher != NULL )
 	{
 		intersect_publisher->close();

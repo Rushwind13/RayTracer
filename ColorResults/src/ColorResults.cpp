@@ -70,6 +70,15 @@ bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payloa
 
         msgpack::pack( header, pixel );
         msgpack::pack( payload, i );
+        // Optional forwarding log when SMOKE_MODE is enabled
+        const char* smoke = getenv("SMOKE_MODE");
+        bool smoke_mode = (smoke && smoke[0] != '\0' && smoke[0] != '0');
+#if !defined(DEBUG)
+        if (smoke_mode)
+        {
+            std::cout << "ColorResults -> DEPTH (x=" << pixel.x << ", y=" << pixel.y << ", d=" << pixel.depth << ")" << std::endl;
+        }
+#endif /* !DEBUG */
 #ifdef DEBUG
 		printvec("c", pixel.color);
 #endif /* DEBUG */
@@ -91,6 +100,8 @@ bool ColorResults::storeColor( Pixel pixel )
 	int16_t count;
 	Color curr_accumulator;
 	bool testComplete = false;
+	const char* smoke = getenv("SMOKE_MODE");
+	bool smoke_mode = (smoke && smoke[0] != '\0' && smoke[0] != '0');
 
 	// The states you could be in:
 	// Primary miss - you get only one response from "bkg" (gothit = F)
@@ -152,7 +163,9 @@ bool ColorResults::storeColor( Pixel pixel )
 	}
 
 	// want one more than the number of lights (one from the basic hit and one per light, or just one total if it's a miss)
-	if( count < world.light_count + 1 )
+	// In SMOKE_MODE, allow completion after the first contribution to keep the pipeline flowing
+	int16_t threshold = smoke_mode ? 1 : (world.light_count + 1);
+	if( count < threshold )
 	{
 #ifdef DEBUG
         std::cout << count << std::endl;

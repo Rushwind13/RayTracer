@@ -15,3 +15,6 @@ once all the pixels have run through, a file called test.png will appear in the 
 Change world objects by changing World.hpp (requires rebuild of most of the code)
 
 Use build.sh to build all objects and put the executables in bin/ (you will have to create this folder the first time)
+
+## New for 2025: AI Support
+https://chatgpt.com/g/g-68900eb6c144819184ca3a14c566b8b5-raytracer-development

@@ -36,6 +36,8 @@ void Feeder::local_setup()
     Pixel pixel;
     Intersection i;
     std::string line2;
+    const char* env_limit = std::getenv("FEEDER_LIMIT");
+    int limit = env_limit ? std::atoi(env_limit) : -1;
     for (std::string line; std::getline(in, line); )
     {
         ReadPixel(line, pixel);
@@ -61,6 +63,11 @@ void Feeder::local_setup()
 
         sendMessage(&header, &pay);
         pixel_count++;
+        if( limit > 0 && pixel_count >= limit )
+        {
+            std::cout << "Reached FEEDER_LIMIT=" << limit << ", stopping early." << std::endl;
+            break;
+        }
     	usleep(4*1000);
     }
     std::cout << std::endl;
@@ -99,25 +106,28 @@ void Feeder::local_shutdown()
 
 int main(int argc, char* argv[])
 {
-	std::cout << "starting up" << std::endl;
-    if( argc < 5 )
+    std::cout << "starting up" << std::endl;
+    // Expected arguments:
+    // argv[1]=NAME argv[2]=INPUT_CHANNEL argv[3]=INPUT_SOCKET argv[4]=OUTPUT_CHANNEL argv[5]=OUTPUT_SOCKET [argv[6..]=file(s)]
+    if( argc < 6 )
     {
         std::cout << "please use start.sh to provide proper CLI args" << std::endl;
         return 1;
     }
 
-    // Rest of CLI args are the list of files, run them one-by-one
-    for (int i = 4; i < argc; i++)
+    // Remaining CLI args are the list of files, run them one-by-one
+    for (int i = 6; i < argc; i++)
     {
-	    Feeder fd(argv[1], "", "", argv[2], argv[3]);
+        Feeder fd(argv[1], "", "", argv[4], argv[5]);
         fd.wantEOF = ( i == argc-1 );
-        sprintf(fd.inputFile, "%s/i%s", BASEDIR, argv[i]);
+        // Use the provided argument as the path (relative or absolute)
+        snprintf(fd.inputFile, sizeof(fd.inputFile), "%s", argv[i]);
 
         std::cout << "running with file: " << fd.inputFile << std::endl;
         fd.run();
         std::cout << "ran with file: " << fd.inputFile << std::endl;
     }
 
-	std::cout << "shutting down" << std::endl;
-	return 0;
+    std::cout << "shutting down" << std::endl;
+    return 0;
 }

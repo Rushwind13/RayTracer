@@ -8,3 +8,4 @@
 #include "SphereSteps.cpp"
 #include "TransformationSteps.cpp"
 #include "TupleSteps.cpp"
+#include "PipelineSteps.cpp"

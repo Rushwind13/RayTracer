@@ -17,7 +17,7 @@ class Writer : public Widget
 {
 public:
 	Writer( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
-		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, true, false )
+		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, false, false )
 	{
 	};
 	~Writer(){};

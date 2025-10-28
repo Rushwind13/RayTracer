@@ -3,7 +3,7 @@ PixelFactory,,pixels,
 IntersectWith,pixels,,[box1|sphere2|sphere3|plane_floor|plane_l_wall|plane_r_wall]
 IntersectResults,IntersectResults,Shader,
 IntersectResults,IntersectResults,[Shader|Background|Lit|Black],
-Shader,Shader,Black,
+Shader,Shader,IntersectWith,
 Shader2,Shader,[ColorResults|Black|IntersectWith],
 Background,Background,oBackground,
 Lit,Lit,oLit,

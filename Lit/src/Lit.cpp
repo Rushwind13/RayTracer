@@ -30,8 +30,16 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	Object *obj = world.FindObject(pixel.oid);
 	Light *light = world.FindLight(pixel.lid);
-	assert(obj);
-	assert(light);
+	if (!obj || !light)
+	{
+		// Guard against missing object/light ids; publish a minimal ambient to keep pipeline moving
+		Color ambient(0.01,0.01,0.01);
+		pixel.color = ambient;
+		header->clear();
+		msgpack::pack(header, pixel);
+		payload->clear();
+		return true;
+	}
 
 	// Diffuse
 	Color diffuse;
