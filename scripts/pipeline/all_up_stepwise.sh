@@ -183,8 +183,45 @@ RESUME_STAGE1_FILE=${RESUME_STAGE1_FILE:-}
 RESUME_APPEND=${RESUME_APPEND:-0}
 # Defaults to runs/complete for resume files if not explicitly provided
 COMPLETE_DIR="$ROOT_DIR/runs/complete"
-if [[ -z "$RESUME_STAGE1_FILE" && -f "$COMPLETE_DIR/oIntersectResult.txt" ]]; then
-	RESUME_STAGE1_FILE="$COMPLETE_DIR/oIntersectResult.txt"
+if [[ -z "$RESUME_STAGE1_FILE" ]]; then
+	if [[ -f "$COMPLETE_DIR/oIntersectResult.txt" ]]; then
+		RESUME_STAGE1_FILE="$COMPLETE_DIR/oIntersectResult.txt"
+	elif [[ -f "$COMPLETE_DIR/stages/oIntersectResults.txt" ]]; then
+		# Support consolidated truth layout under runs/complete/stages
+		RESUME_STAGE1_FILE="$COMPLETE_DIR/stages/oIntersectResults.txt"
+	elif [[ -f "$COMPLETE_DIR/oIntersectResults.txt" ]]; then
+		RESUME_STAGE1_FILE="$COMPLETE_DIR/oIntersectResults.txt"
+	fi
+fi
+
+# Provide default resume files for later stages when resuming from Stage 3+
+if [[ -z "${RESUME_STAGE2_FILE:-}" ]]; then
+	if [[ -f "$COMPLETE_DIR/stages/oShader.txt" ]]; then
+		RESUME_STAGE2_FILE="$COMPLETE_DIR/stages/oShader.txt"
+	elif [[ -f "$COMPLETE_DIR/oShader.txt" ]]; then
+		RESUME_STAGE2_FILE="$COMPLETE_DIR/oShader.txt"
+	fi
+fi
+if [[ -z "${RESUME_STAGE3_FILE:-}" ]]; then
+	if [[ -f "$COMPLETE_DIR/stages/oCOLOR.txt" ]]; then
+		RESUME_STAGE3_FILE="$COMPLETE_DIR/stages/oCOLOR.txt"
+	elif [[ -f "$COMPLETE_DIR/oCOLOR.txt" ]]; then
+		RESUME_STAGE3_FILE="$COMPLETE_DIR/oCOLOR.txt"
+	fi
+fi
+if [[ -z "${RESUME_STAGE4_FILE:-}" ]]; then
+	if [[ -f "$COMPLETE_DIR/stages/oDEPTH.txt" ]]; then
+		RESUME_STAGE4_FILE="$COMPLETE_DIR/stages/oDEPTH.txt"
+	elif [[ -f "$COMPLETE_DIR/oDEPTH.txt" ]]; then
+		RESUME_STAGE4_FILE="$COMPLETE_DIR/oDEPTH.txt"
+	fi
+fi
+if [[ -z "${RESUME_STAGE5_FILE:-}" ]]; then
+	if [[ -f "$COMPLETE_DIR/stages/oPNG.txt" ]]; then
+		RESUME_STAGE5_FILE="$COMPLETE_DIR/stages/oPNG.txt"
+	elif [[ -f "$COMPLETE_DIR/oPNG.txt" ]]; then
+		RESUME_STAGE5_FILE="$COMPLETE_DIR/oPNG.txt"
+	fi
 fi
 if [[ "$RESUME_STAGE" -ge 2 && -z "${STEPWISE_FEEDER_LIMIT:-}" ]]; then
 	# When resuming from Stage 2+, default to unlimited feed unless explicitly overridden

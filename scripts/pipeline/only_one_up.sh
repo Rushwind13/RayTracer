@@ -18,6 +18,18 @@ export SMOKE_MODE=${SMOKE_MODE:-1}
 
 STAGE="${1:-${STAGE:-4}}"
 
+resolve_path() {
+	local p="$1"
+	python3 - "$ROOT_DIR" "$p" <<'PY'
+import os, sys
+root, p = sys.argv[1], sys.argv[2]
+if os.path.isabs(p):
+		print(p)
+else:
+		print(os.path.abspath(os.path.join(root, p)))
+PY
+}
+
 global_pids=()
 stage_pids=()
 cleanup() {
@@ -47,10 +59,8 @@ case "$STAGE" in
 		echo "[one-up] Stage 4: ColorResults -> DEPTH"
 		# Inputs
 		INPUT_FILE="${INPUT_FILE:-$ROOT_DIR/runs/complete/oCOLOR.txt}"
-		# Normalize to absolute path if a relative path was provided
-		if [[ "$INPUT_FILE" != /* ]]; then
-			INPUT_FILE="$ROOT_DIR/${INPUT_FILE#./}"
-		fi
+		# Normalize to absolute path (handles ../ and ./)
+		INPUT_FILE="$(resolve_path "$INPUT_FILE")"
 		if [[ ! -s "$INPUT_FILE" ]]; then
 			echo "[one-up] ERROR: Missing COLOR input file: $INPUT_FILE" >&2
 			exit 2
@@ -82,10 +92,7 @@ case "$STAGE" in
 	5)
 		echo "[one-up] Stage 5: DepthChart -> PNG"
 		INPUT_FILE="${INPUT_FILE:-$ROOT_DIR/runs/complete/oDEPTH.txt}"
-		# Normalize to absolute path if a relative path was provided
-		if [[ "$INPUT_FILE" != /* ]]; then
-			INPUT_FILE="$ROOT_DIR/${INPUT_FILE#./}"
-		fi
+		INPUT_FILE="$(resolve_path "$INPUT_FILE")"
 		if [[ ! -s "$INPUT_FILE" ]]; then
 			echo "[one-up] ERROR: Missing DEPTH input file: $INPUT_FILE" >&2
 			exit 2
@@ -116,10 +123,7 @@ case "$STAGE" in
 	6)
 		echo "[one-up] Stage 6: Writer -> PNG file"
 		INPUT_FILE="${INPUT_FILE:-$ROOT_DIR/runs/complete/oPNG.txt}"
-		# Normalize to absolute path if a relative path was provided
-		if [[ "$INPUT_FILE" != /* ]]; then
-			INPUT_FILE="$ROOT_DIR/${INPUT_FILE#./}"
-		fi
+		INPUT_FILE="$(resolve_path "$INPUT_FILE")"
 		if [[ ! -s "$INPUT_FILE" ]]; then
 			echo "[one-up] ERROR: Missing PNG channel input file: $INPUT_FILE" >&2
 			exit 2
