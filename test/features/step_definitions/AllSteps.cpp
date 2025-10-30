@@ -9,3 +9,4 @@
 #include "TransformationSteps.cpp"
 #include "TupleSteps.cpp"
 #include "PipelineSteps.cpp"
+#include "StepwisePipelineSteps.cpp"

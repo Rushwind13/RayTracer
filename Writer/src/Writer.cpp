@@ -16,6 +16,8 @@ using namespace std;
 #include "Object.hpp"
 #include "glm/glm.hpp"
 #include <pngwriter.h>
+#include <unordered_map>
+#include <map>
 
 void Writer::local_setup()
 {
@@ -53,6 +55,19 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
         running = false;
         std::cout << "Writer got EOF; finishing up" << std::endl;
         SaveImage();
+        // Report color diversity and per-object contributions
+        std::cout << "[STATS] distinct_colors: " << color_hist.size() << std::endl;
+        // Print per-object counts sorted by count desc
+        std::map<long long, std::vector<int>, std::greater<long long>> by_count;
+        for (auto &kv : object_hist) { by_count[kv.second].push_back(kv.first); }
+        for (auto &bucket : by_count) {
+            long long cnt = bucket.first;
+            for (int oid : bucket.second) {
+                Object *obj = world.FindObject(oid);
+                const char* name = obj ? obj->name.c_str() : "<none>";
+                std::cout << "[STATS] object: " << name << " (oid=" << oid << ") pixels=" << cnt << std::endl;
+            }
+        }
         return false;
     }
 
@@ -64,27 +79,45 @@ bool Writer::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
     // - pixel is a MISS (gothit=F), p.oid unset, i.oid unset -- choose annoying color (or 0,0,0)
     // - pixel is a HIT (gothit=T), i.oid set, IW (obox1.txt) will not have p.oid
     Intersection i;
-    msgpack::object obj2;
-    unPackPart( payload, &obj2 );
-    obj2.convert( i );
+    try {
+        msgpack::object obj2;
+        unPackPart( payload, &obj2 );
+        obj2.convert( i );
+    } catch (const std::exception&) {
+        // If payload is missing or malformed, treat as no intersection
+        i.gothit = false;
+        i.oid = -1;
+    }
 
     // check for intersection oid first; it will be an interesting piece of (new!) data (even if pixel.oid is set)
     // pixel.oid will be set on anything that is downstream of Shader (including anything with depth>0)
     Object *world_object;
     Color diffuse(0.0,1.0,1.0);
 
+    int used_oid = -1;
     if(i.oid != -1 )
     {
         world_object = world.FindObject(i.oid);
-        diffuse = world_object->ColorAt(i.position);
+        if (world_object) diffuse = world_object->ColorAt(i.position);
+        used_oid = i.oid;
     }
     else if(pixel.oid != -1 )
     {
         world_object = world.FindObject(pixel.oid);
-        diffuse = world_object->ColorAt(pixel.position);
+        if (world_object) diffuse = world_object->ColorAt(pixel.position);
+        used_oid = pixel.oid;
     }
 
     image[curr_pixel] = diffuse;
+    // Update histograms
+    if (used_oid != -1) { object_hist[used_oid]++; }
+    // Quantize color to 8-bit per channel and pack into 24-bit code
+    auto q = [](float v)->unsigned int {
+        if (v < 0.f) v = 0.f; if (v > 1.f) v = 1.f; return (unsigned int)(v * 255.0f + 0.5f);
+    };
+    unsigned int r = q(diffuse.x), g = q(diffuse.y), b = q(diffuse.z);
+    uint32_t code = (r << 16) | (g << 8) | b;
+    color_hist[code]++;
 #else
 	image[curr_pixel] = pixel.color;
 #endif /* BRUTE_FORCE */
@@ -140,6 +173,12 @@ int main(int argc, char* argv[])
     }
 	Writer wr(argv[1], argv[2], argv[3], "", "");
     strcpy(wr.world.filename, argv[4]);
+
+    // Allow binding the subscriber (PNG bus) in isolated runs so Feeder can connect directly
+    const char* bind_sub = std::getenv("WRITER_BIND_SUB");
+    if (bind_sub && *bind_sub && *bind_sub != '0') {
+        wr.forceBindSubscriber();
+    }
 
 	cout << "running" << endl;
 	wr.run();

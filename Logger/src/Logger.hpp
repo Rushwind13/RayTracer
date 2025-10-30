@@ -24,10 +24,18 @@ public:
     void signalHandler( int signum );
     static void logHandler (int signum)
     {
-        instance.signalHandler(signum);
+        if (active) {
+            active->signalHandler(signum);
+        } else {
+            instance.signalHandler(signum);
+        }
     };
     void registerHandler();
     char outputFile[255];
+    // For stepwise capture on PUB-only buses (e.g., 1300), allow binding the subscriber endpoint
+    void bindSubscriber() { this->connect_sub = false; }
+    // Active instance for signal routing
+    static Logger* active;
 
 protected:
 	virtual void local_setup();

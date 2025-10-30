@@ -181,6 +181,11 @@ int main(int argc, char* argv[])
         return 1;
     }
 	DepthChart dc(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	// Allow binding the subscriber (DEPTH bus) in isolated runs so Feeder can connect
+	const char* bind_sub = std::getenv("DEPTHCHART_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		dc.forceBindSubscriber();
+	}
 	cout << "running" << endl;
 	dc.run();
 

@@ -33,6 +33,8 @@ private:
 	Camera camera;
 	Color *image;
 	int32_t pixel_count;
+    std::unordered_map<int, long long> object_hist;
+    std::unordered_map<uint32_t, long long> color_hist;
 
 	void SaveImage();
 	void AutosaveImage();

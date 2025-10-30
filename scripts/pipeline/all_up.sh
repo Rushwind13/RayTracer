@@ -3,7 +3,7 @@
 # MacOS bash-compatible.
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
 BIN_DIR="$ROOT_DIR/bin"
 LOG_DIR="$ROOT_DIR/runlogs"
 mkdir -p "$LOG_DIR"
@@ -13,38 +13,38 @@ export DYLD_LIBRARY_PATH="$ROOT_DIR/../zmq_widgets/bin:${DYLD_LIBRARY_PATH:-}"
 
 pids=()
 cleanup() {
-  echo "\n[all_up] Cleaning up..."
-  # First try TERM
-  for pid in "${pids[@]:-}"; do
-    if kill -0 "$pid" 2>/dev/null; then
-      kill "$pid" 2>/dev/null || true
-    fi
-  done
-  # Short grace period
-  sleep 0.2
-  # Escalate to KILL for any remaining
-  for pid in "${pids[@]:-}"; do
-    if kill -0 "$pid" 2>/dev/null; then
-      kill -9 "$pid" 2>/dev/null || true
-    fi
-  done
+	echo "\n[all_up] Cleaning up..."
+	# First try TERM
+	for pid in "${pids[@]:-}"; do
+		if kill -0 "$pid" 2>/dev/null; then
+			kill "$pid" 2>/dev/null || true
+		fi
+	done
+	# Short grace period
+	sleep 0.2
+	# Escalate to KILL for any remaining
+	for pid in "${pids[@]:-}"; do
+		if kill -0 "$pid" 2>/dev/null; then
+			kill -9 "$pid" 2>/dev/null || true
+		fi
+	done
 }
 trap cleanup EXIT INT TERM
 
 launch() {
-  local name=$1; shift
-  local log="$LOG_DIR/${name}.log"
-  echo "[all_up] starting $name -> $log"
-  "$@" >"$log" 2>&1 &
-  pids+=("$!")
+	local name=$1; shift
+	local log="$LOG_DIR/${name}.log"
+	echo "[all_up] starting $name -> $log"
+	"$@" >"$log" 2>&1 &
+	pids+=("$!")
 }
 
 # Run a launch inside a directory without using a subshell, so we keep PIDs
 run_in() {
-  local dir=$1; shift
-  pushd "$dir" >/dev/null
-  launch "$@"
-  popd >/dev/null
+	local dir=$1; shift
+	pushd "$dir" >/dev/null
+	launch "$@"
+	popd >/dev/null
 }
 
 # 1) Start XPUB/XSUB proxy for INTERSECT bus
@@ -75,15 +75,15 @@ run_in "$ROOT_DIR/IntersectResults" intersect_results ./start.sh
 # 6) Start IntersectWith instances for each world object (fan-out workers)
 # Keep this list in sync with bin/World.json objects
 OBJECTS=(
-  box1
-  sphere2
-  sphere3
-  plane_floor
-  plane_l_wall
-  plane_r_wall
+	box1
+	sphere2
+	sphere3
+	plane_floor
+	plane_l_wall
+	plane_r_wall
 )
 for OBJ in "${OBJECTS[@]}"; do
-  run_in "$ROOT_DIR/IntersectWith" "intersect_with_${OBJ}" ./start.sh "$OBJ"
+	run_in "$ROOT_DIR/IntersectWith" "intersect_with_${OBJ}" ./start.sh "$OBJ"
 done
 
 # 7) Feed a limited number of pixels into the INTERSECT bus
@@ -96,23 +96,23 @@ PNG_FILE="$ROOT_DIR/bin/test.png"
 TIMEOUT=${SMOKE_WAIT_SECONDS:-120}
 echo "[all_up] Waiting up to ${TIMEOUT}s for $PNG_FILE ..."
 for ((i=0; i< TIMEOUT; i++)); do
-  if [ -f "$PNG_FILE" ] && [ -s "$PNG_FILE" ]; then
-    echo "[all_up] Smoke test PASS at t=${i}s: $PNG_FILE exists and is non-empty"
-    # Clean up started processes before exiting when in smoke mode
-    if [ -n "${SMOKE_MODE-}" ] && [ "${SMOKE_MODE}" != "0" ]; then
-      cleanup || true
-      # As a safeguard, run the global teardown to catch any stragglers
-      "$ROOT_DIR/scripts/all_down.sh" || true
-    fi
-    exit 0
-  fi
-  sleep 1
+	if [ -f "$PNG_FILE" ] && [ -s "$PNG_FILE" ]; then
+		echo "[all_up] Smoke test PASS at t=${i}s: $PNG_FILE exists and is non-empty"
+		# Clean up started processes before exiting when in smoke mode
+		if [ -n "${SMOKE_MODE-}" ] && [ "${SMOKE_MODE}" != "0" ]; then
+			cleanup || true
+			# As a safeguard, run the global teardown to catch any stragglers
+			"$ROOT_DIR/scripts/pipeline/all_down.sh" || true
+		fi
+		exit 0
+	fi
+	sleep 1
 done
 
 echo "[all_up] Smoke test FAIL: $PNG_FILE missing or empty after ${TIMEOUT}s"
 # Ensure cleanup is attempted even on failure when in smoke mode
 if [ -n "${SMOKE_MODE-}" ] && [ "${SMOKE_MODE}" != "0" ]; then
-  cleanup || true
-  "$ROOT_DIR/scripts/all_down.sh" || true
+	cleanup || true
+	"$ROOT_DIR/scripts/pipeline/all_down.sh" || true
 fi
 exit 1

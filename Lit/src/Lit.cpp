@@ -110,6 +110,11 @@ int main(int argc, char* argv[])
         return 1;
     }
 	Lit lit(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	// Allow binding the subscriber (LIT topic on 1312) in isolated/stepwise runs
+	const char* bind_sub = std::getenv("LIT_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		lit.forceBindSubscriber();
+	}
 	cout << "running" << endl;
 	lit.run();
 

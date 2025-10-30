@@ -15,7 +15,8 @@ data
 # log files
 *.log
 *.log.*
-*.txt
+#*.txt
+*.pid
 
 # Editor files
 *.swp

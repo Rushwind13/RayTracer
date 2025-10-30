@@ -57,6 +57,12 @@ int main(int argc, char* argv[])
     }
 	Black blk(argv[1], argv[2], argv[3], argv[4], argv[5]);
 
+	// Allow binding the subscriber (BLACK topic on 1312) in isolated/stepwise runs
+	const char* bind_sub = std::getenv("BLACK_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		blk.forceBindSubscriber();
+	}
+
 	cout << "running" << endl;
 	blk.run();
 

@@ -1,4 +1,72 @@
 Distributed Ray Tracer — Worklist and Component Map (2025-10-27)
+Scripts inventory (moved to subfolders)
+- Pipeline
+  - scripts/pipeline/all_up.sh — Start full pipeline with proxy; quick smoke to Writer; tears down on success.
+  - scripts/pipeline/all_down.sh — Robust teardown: kills known binaries, start.sh wrappers, and frees ports.
+  - scripts/pipeline/all_up_stepwise.sh — Run pipeline in stepwise mode stage-by-stage, logging to runs/<timestamp>.
+  - scripts/pipeline/only_one_up.sh — Run one stage in isolation (Stage 4/5/6 supported) from a given input o*.txt.
+  - scripts/pipeline/run_objects_serial.sh — Per-object IntersectWith capture, then run downstream to frames; can render per-object PNGs.
+  - scripts/pipeline/produce_intersectresults.sh — Aggregate truth per-object artifacts into oIntersectResults.txt and render intersectresults.png (fixed BUS_SHADER).
+  - scripts/pipeline/regenerate_truth.sh — Deterministic truth run across stages (1→6), capture all o*.txt and final PNG.
+- Artifacts
+  - scripts/artifacts/capture_objects.sh — Re-capture specified objects’ oIntersectResult.<obj>.txt into runs/truth/objects.
+  - scripts/artifacts/freeze_truth.sh — Freeze latest per-object run into runs/truth and compare to runs/complete.
+  - scripts/artifacts/freeze_truth_pixels.sh — Freeze camera pixel reference to truth.
+  - scripts/artifacts/regenerate_ref_pixels.sh — Rebuild PixelFactory pixels to data/pixels.txt with current camera.
+  - scripts/tools/stage_to_png.sh — Convert any Logger-formatted artifact(s) to PNG via Feeder→Writer (dynamic ports; waits for flush).
+  - scripts/tools/stage_to_png.sh — Convert any Logger-formatted artifact(s) to PNG via Feeder→Writer (fixed BUS_PNG; absolute output path; deterministic).
+  - scripts/artifacts/rerender_from_artifacts.sh — Re-render PNGs from existing artifacts without recomputation.
+  - scripts/artifacts/render_frames.sh — Render PNGs per stage artifact using Writer.
+- Validation
+  - scripts/validation/count_png_colors.sh — Approximate distinct colors by Writer [STATS] with safe fallback (fixed BUS_PNG).
+  - scripts/validation/pretty_logs.sh — Summarize run directory: list artifacts and tail relevant logs.
+  - scripts/validation/compare_artifacts.sh — Compare a run directory’s o*.txt vs runs/complete.
+  - scripts/validation/trace_missing_pixels.py — Pixel-by-pixel presence diagnostics.
+  - scripts/validation/analyze_intersections.py — Count hits/misses and distances within artifacts.
+  - scripts/validation/analyze_png_log.py — Analyze oPNG.txt coverage and estimate missing pixels.
+  - scripts/validation/surface_intersections.sh — Two-ray per-object intersection probe for quick sanity checks.
+- Tools
+  - scripts/tools/to_opng.py — Concatenate Logger artifacts into oPNG-shaped stream for Writer.
+  - scripts/tools/build_two_rays.py — Build a minimal two-pixel CSV for per-object hit/miss tests.
+  - scripts/tools/pixel_tools.py — Pixel helpers (extract from PixelFactory, generate toward-object ray).
+  - scripts/tools/cleanup_runs.sh — Prune old runs and remove runtime logs from truth, preserving artifacts.
+  - scripts/tools/deep_clean.sh — Remove build *.o and dupes.
+  - scripts/tools/pipeline.cfg.sh — Centralized topics and sockets (single source-of-truth).
+
+Deprecated/removed
+- scripts/artifact_to_png.py — Removed (legacy PIL path). Use scripts/tools/stage_to_png.sh (Writer-based) instead.
+- scripts/trace_missing.py — Replaced by scripts/validation/trace_missing_pixels.py.
+- scripts/full_stream_from_stage2.sh — Superseded by scripts/pipeline/all_up.sh and stepwise flows.
+
+Consolidation targets (minimal command set)
+- Start/Stop pipeline
+  - Direct connect: scripts/pipeline/all_up.sh (start), scripts/pipeline/all_down.sh (stop)
+  - Stepwise: scripts/pipeline/all_up_stepwise.sh (or scripts/pipeline/only_one_up.sh for a stage), scripts/pipeline/all_down.sh (stop)
+- Validate artifacts and visuals
+  - scripts/tools/stage_to_png.sh, scripts/artifacts/rerender_from_artifacts.sh, scripts/validation/count_png_colors.sh, scripts/validation/compare_artifacts.sh, scripts/validation/pretty_logs.sh
+- Truth/config management
+  - scripts/artifacts/freeze_truth.sh, scripts/artifacts/capture_objects.sh, scripts/pipeline/regenerate_truth.sh, scripts/artifacts/regenerate_ref_pixels.sh
+- Cleanup and housekeeping
+  - scripts/tools/cleanup_runs.sh, scripts/tools/deep_clean.sh
+
+Housekeeping rules (operational)
+1) When data is captured, separate runtime logs from render artifacts; keep artifacts (*.txt, *.png) easy to compare/update; ensure logs are easy to clean.
+2) Avoid re-running stages that already have a known-good truth txt.
+3) Produce a PNG from each artifact txt (can run in parallel with other tasks; use stage_to_png.sh/Writer).
+4) Avoid creating new scripts unless necessary; prefer reusing/consolidating existing ones and document reasons for any additions.
+5) Maximize reuse of existing scripts and C++ code: cucumber tests for behavior, Writer for PNGs, PixelFactory for pixels, Feeder→Tool→Logger for stage/object runs.
+6) Everything must be testable (unit or integration), with small deterministic scenes when feasible.
+7) Goal: robust, repeatable, performant pipeline with minimal support overhead.
+
+Consolidation work to complete
+- [ ] Unify “truth run” into regenerate_truth.sh with dynamic-port rendering and optional per-stage resume.
+- [ ] Reduce overlap between run_objects_serial.sh and regenerate_truth.sh (single code path with flags).
+- [ ] Provide a single entrypoint for per-stage execution (extend only_one_up.sh to stages 1–3).
+- [ ] Standardize artifact file naming (no double ‘o’ prefix) and directory layout under runs/truth/{objects,stages}.
+- [ ] Add cucumber feature(s) to exercise Stage 2–6 stepwise chain and PNG rendering from artifacts.
+- [ ] Teach pretty_logs.sh to recognize runs/truth/objects and runs/truth/stages summaries.
+- [ ] Integrate cleanup_runs.sh into regeneration flows (final step).
+
 
 Scope
 - Goal: Each rendering pipeline stage runs as its own process (ideally on its own CPU core) and is wired via ZeroMQ through the Widget interface.
@@ -153,6 +221,37 @@ Actionable next steps (checklist)
 [ ] - PixelFactory-driven smoke instead of Feeder, re-enable PixelFactory message sending and add a “small image” World.json override for fast runs.
 [x] - Audit shadow test routing and per-light contribution generation to ensure ColorResults gets all expected messages (added SMOKE_MODE fast path for completion).
 [x] - Refine DepthChart’s layer accounting when reflections are disabled to avoid unnecessary waits (SMOKE_MODE primary-layer completion).
+[ ] - add a test to demonstrate stepwise rendering
+[ ] - add a linter
+- [x] Confirm Shader produces output in stepwise Stage 3
+  - Verified with RUN_ID=verify-stage3 using reference input at runs/complete/oShader.txt; produced runs/verify-stage3/oCOLOR.txt with 19616 lines.
+- [x] Confirm oShader.txt is parsed properly by Shader
+  - Feeder -> Shader -> Logger path succeeded; Shader consumed 9808 pairs and Logger captured COLOR; EOF handled.
+- [x] Add start/stop timestamp to logs and runtime at EOF
+  - Implemented in base Widget: logs now include [TIMING] START/STOP and elapsed seconds; visible in shader and logger logs.
+- [x] Support Stage 3 resume from reference oShader
+  - Added RESUME_STAGE2_FILE to stepwise script; Shader binds subscriber via SHADER_BIND_SUB=1 to accept Feeder publisher connect.
+- [x] Fix Shader EOF publish to COLOR
+  - Shader now publishes EOF on COLOR so Stage 3 Logger completes in stepwise.
+[x] Resume from any stage
+  - Stepwise now accepts RESUME_STAGE{1..5}_FILE and defaults to runs/complete/* for missing values.
+  - Stage 3 binds Shader subscriber in stepwise so Feeder can connect; Stage 6 can generate PNG directly from oPNG.txt.
+[ ] Fix Stage 4, 5 stability in stepwise
+- [ ] Add single-pixel replay helper
+  - Script to replay one Pixel/Intersection pair into any bus for debugging.
+- [ ] Unskip stepwise feature
+  - Remove @skip and adjust thresholds for minimal smoke in test/features/stepwise_pipeline.feature.
+  
+Verification and stats
+- [x] Confirm Shader produces output in stepwise Stage 3
+  - Verified with RUN_ID=verify-stage3 using reference input at runs/complete/oShader.txt; produced runs/verify-stage3/oCOLOR.txt with 19616 lines.
+- [x] Confirm oShader.txt is parsed properly by Shader
+  - Feeder -> Shader -> Logger path succeeded; Shader consumed 9808 pairs and Logger captured COLOR; EOF handled.
+- [x] Add start/stop timestamp to logs and runtime at EOF
+  - Implemented in base Widget: logs now include [TIMING] START/STOP and elapsed seconds; visible in shader and logger logs.
+- [x] Writer color/object histograms
+  - Writer now logs [STATS] distinct_colors and per-object pixel counts at EOF; robust to malformed payloads.
+  
 
 Quick file index (selected)
 - Pipeline stages: RayTracer/{PixelFactory,IntersectWith,IntersectResults,Shader,Black,Lit,Background,ColorResults,DepthChart,Reflection,Writer,Configurator}/src
@@ -163,3 +262,64 @@ Quick file index (selected)
 Success criteria
 - Streaming: All stages launch; topics deliver; Writer emits final PNG with plausible colors; Ctrl+C or EOF pixel shuts down cleanly.
 - Stepwise: Each stage can process a file and produce the next; a simple script chains all into a PNG; unit/integration tests cover both paths.
+
+Current tasks (live checklist)
+- [x] Stage 5 isolated (complete oDEPTH → oPNG)
+- [x] Stage 6 isolated (complete oPNG → PNG file)
+- [x] pretty_logs utility for runs (scripts/validation/pretty_logs.sh)
+- [ ] Stepwise run from complete oIntersectResult (RESUME_STAGE=2 → PNG)
+- [ ] Stepwise run from complete oShader (RESUME_STAGE=3 → PNG)
+- [ ] Stepwise run from complete oCOLOR (RESUME_STAGE=4 → PNG)
+- [ ] Stepwise run from complete oDEPTH (RESUME_STAGE=5 → PNG)
+- [x] Stepwise run from complete oPNG (RESUME_STAGE=6 → PNG)
+- [x] Confirm Writer [STATS] shows >1 distinct color and per-object counts
+- [ ] Analyze oPNG.txt for missing pixels and trace to earliest missing stage (scripts/validation/trace_missing_pixels.py)
+
+Truth data and artifact comparisons
+- [ ] Regenerate a full set of stepwise artifacts from data/pixels.txt (truth run)
+  - Start: feed pixels.txt to IntersectWith via proxy; capture oIntersectResult.txt
+  - Stage 2: run IntersectResults and capture Shader, BKG, BLACK, LIT (oShader.txt, oBKG.txt, oBLACK.txt, oLIT.txt)
+  - [x] Added scripts/pipeline/produce_intersectresults.sh to aggregate truth per-object IntersectResult into oIntersectResults.txt and render intersectresults.png using fixed BUS_SHADER.
+  - Stage 3: run Shader + Background + Black + Lit; feed their inputs; capture oCOLOR.txt
+  - Stage 4: ColorResults → capture oDEPTH.txt
+  - Stage 5: DepthChart → capture oPNG.txt
+  - Stage 6: Writer → test.png
+  - Script: scripts/pipeline/regenerate_truth.sh
+- [ ] Compare the truth artifacts with runs/complete for diffs and counts
+  - Script: scripts/validation/compare_artifacts.sh <truth_run_dir>
+- [ ] Visualize each step as a 150x100 PNG with purple marking missing pixels
+  - Script: scripts/tools/stage_to_png.sh (Writer-based)
+  - Script: scripts/artifacts/render_frames.sh <run_dir> <out_dir>
+
+Script consolidation plan
+- [x] Fix Feeder arg parsing that caused duplicate file re-reads when passing extra args (now shifts first three arguments in start.sh)
+- [x] Freeze canonical per-object artifacts under runs/truth (do not re-run Stage 1 unless inputs/code change)
+- [x] Add converter to produce an oPNG.txt-shaped artifact from any Logger-formatted input (scripts/tools/to_opng.py)
+- [ ] Consolidate runners with a consistent interface:
+  1) all_up: full pipeline with direct connections.
+  2) only_one_up: run a single stage from a given input artifact to that stage's output (accepts input path, writes o*.txt).
+  3) stage_to_png: given any stage's o*.txt, convert to oPNG.txt (to_opng.py) and run Feeder→Writer to render PNG.
+  4) all_up_stepwise: orchestrate (2) across stages 2→6 with RESUME_STAGE and default inputs from runs/complete; emit artifacts and final PNG.
+
+Notes
+- New scripts:
+  - scripts/artifacts/freeze_truth.sh: copies latest runs/objects-* into runs/truth (per-object oIntersectResult.$obj.txt, plus oCOLOR/oDEPTH/oPNG), writes manifest, compares vs runs/complete.
+  - scripts/tools/to_opng.py: concatenates Logger-formatted artifacts into an oPNG.txt-shaped file for Feeder→Writer.
+- Source-of-truth policy: Use runs/truth/objects as the canonical per-object set; avoid re-running Stage 1 unless inputs or code change.
+
+Ports and configuration policy (2025-10-29)
+- All dynamic port scanning has been removed from active tools; fixed ports are defined in `scripts/tools/pipeline.cfg.sh`.
+  - BUS_PNG: tcp://127.0.0.1:1308 — used by Writer and all PNG-related tools (stage_to_png, count_png_colors).
+  - BUS_SHADER: tcp://127.0.0.1:1312 — used by IntersectResults aggregation and Shader subscribers.
+- `stage_to_png.sh` now passes an absolute output path to Writer to ensure files land in the requested directory.
+- Operational note: Always tear down old runs (`scripts/pipeline/all_down.sh`) before ad‑hoc tools to avoid bind conflicts on fixed ports.
+
+Changelog (2025-10-29)
+- Switched `scripts/tools/stage_to_png.sh` to fixed BUS_PNG and absolute OUT path; verified PNG output.
+- Switched `scripts/validation/count_png_colors.sh` to fixed BUS_PNG; verified it reports counts.
+- Switched `scripts/pipeline/produce_intersectresults.sh` to fixed BUS_SHADER; verified aggregate and PNG render.
+
+New TODOs
+- [ ] Add `scripts/validation/ports_sanity.sh` to assert all fixed ports are free/in-use as expected, with hints to resolve conflicts.
+- [ ] Document fixed-port policy and update README with a brief “tear down first” reminder and port map.
+- [ ] Plan data-driven pipeline config (e.g., Pipeline.json) to centralize ports, topics, and stage parameters.

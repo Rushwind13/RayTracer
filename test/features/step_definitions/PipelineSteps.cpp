@@ -14,9 +14,9 @@ static bool file_exists(const std::string &path) {
 }
 
 GIVEN("^I run the all-up script$") {
-  // Run the script relative to test directory: ../scripts/all_up.sh
+  // Run the script relative to test directory: ../scripts/pipeline/all_up.sh
   // Enable SMOKE_MODE only for this invocation to keep regular shells clean
-  int rc = system("SMOKE_MODE=1 bash ../scripts/all_up.sh");
+  int rc = system("SMOKE_MODE=1 bash ../scripts/pipeline/all_up.sh");
   ScenarioScope<int> status;
   *status = rc;
   // system() returns exit status in the high-order byte on POSIX

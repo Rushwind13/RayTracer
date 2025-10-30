@@ -71,6 +71,12 @@ int main(int argc, char* argv[])
     }
 	Background bak(argv[1], argv[2], argv[3], argv[4], argv[5]);
 
+	// Allow binding the subscriber (BKG bus) in isolated/stepwise runs
+	const char* bind_sub = std::getenv("BACKGROUND_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		bak.forceBindSubscriber();
+	}
+
 	cout << "running" << endl;
 	bak.run();
 

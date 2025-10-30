@@ -60,6 +60,14 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
         msgpack::pack( payload, i );
         sendMessage(header, payload, "ColorResults");
 
+		// Also publish EOF on the COLOR topic so stepwise Stage 3 Logger can complete
+		header->clear();
+		payload->clear();
+		msgpack::pack( header, pixel );
+		msgpack::pack( payload, i );
+		// Use default publication (COLOR) via base publisher
+		sendMessage(header, payload);
+
         std::cout << "sent." << std::endl;
         pixel_count = 0;
         usleep(100*1000); // slow re-joiner problem?
@@ -221,6 +229,11 @@ int main(int argc, char* argv[])
         return 1;
     }
     Shader sh(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	// In stepwise Stage 3, allow binding the subscriber so Feeder can connect as publisher
+	const char* bind_sub = std::getenv("SHADER_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		sh.forceBindSubscriber();
+	}
 	cout << "running" << endl;
 	sh.run();
 

@@ -199,7 +199,12 @@ int main(int argc, char* argv[])
         cout << "please use start.sh to provide proper CLI args" << endl;
         return 1;
     }
-    ColorResults cr(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	ColorResults cr(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	// Allow binding the subscriber (COLOR bus) in stepwise/isolated runs
+	const char* bind_sub = std::getenv("COLORRESULTS_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		cr.forceBindSubscriber();
+	}
 
 	cout << "running" << endl;
 	cr.run();
