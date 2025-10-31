@@ -13,17 +13,28 @@ fi
 # Set the executable path
 EXE_UNDER_TEST="./bin/AllSteps"
 
-# Find and kill any existing instances of the executable
-pid=$(ps -fe | grep "$EXE_UNDER_TEST" | grep -v grep | awk '{print $2}')
-if [[ -n "$pid" ]]; then
-  echo "found old pid running... killing"
-  kill "$pid"
-fi
+# Best-effort cleanup: kill stale AllSteps and free Cucumber wire port (3902)
+{
+  # Kill by executable path
+  pkill -f "/RayTracer/test/bin/AllSteps" >/dev/null 2>&1 || true
+  # Kill anything bound on port 3902 (macOS and Linux compatible)
+  if command -v lsof >/dev/null 2>&1; then
+    PIDS=$(lsof -ti tcp:3902 2>/dev/null || true)
+    if [[ -n "$PIDS" ]]; then
+      echo "found processes on port 3902... killing"
+      kill -9 $PIDS >/dev/null 2>&1 || true
+    fi
+  fi
+} || true
 
-# Start the executable in the background
+# Start the executable in the background and capture PID
 "$EXE_UNDER_TEST" &
+ALLSTEPS_PID=$!
 
-# Sleep to allow the executable to start
+# Ensure cleanup on exit
+trap 'kill "$ALLSTEPS_PID" >/dev/null 2>&1 || true' EXIT
+
+# Give the server a moment to bind
 sleep 1
 
 # Set the test to run based on the first argument
@@ -34,3 +45,7 @@ fi
 
 # Run the Cucumber tests
 cucumber --tags ~@skip features/$TEST_TO_RUN.feature
+
+# Explicitly cleanup the background server
+kill "$ALLSTEPS_PID" >/dev/null 2>&1 || true
+wait "$ALLSTEPS_PID" >/dev/null 2>&1 || true

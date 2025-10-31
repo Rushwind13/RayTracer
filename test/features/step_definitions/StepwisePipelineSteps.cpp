@@ -67,26 +67,13 @@ GIVEN("^I create a pixel slice \"(.+)\" rows \"([0-9,]+)\" as \"(.+)\"$") {
   // Ensure output directory exists
   std::string mkdir_cmd = std::string("/bin/mkdir -p ") + out.substr(0, out.find_last_of('/'));
   system(mkdir_cmd.c_str());
-  // Use Python to filter CSV by y field (second column)
-  std::string cmd = std::string(
-      "python3 - \"") + src + "\" \"" + rows_csv + "\" \"" + out + "\" <<'PY'\n"
-      "import sys,csv,os\n"
-      "src,rows_csv,out=sys.argv[1],sys.argv[2],sys.argv[3]\n"
-      "rows=set(int(x) for x in rows_csv.split(',') if x)\n"
-      "with open(src,'r') as f, open(out,'w') as g:\n"
-      "  for line in f:\n"
-      "    s=line.strip()\n"
-      "    if not s:\n"
-      "      continue\n"
-      "    parts=s.split(',')\n"
-      "    try:\n"
-      "      y=int(parts[1])\n"
-      "    except Exception:\n"
-      "      continue\n"
-      "    if y in rows:\n"
-      "      g.write(line)\n"
-      "      if not line.endswith('\n'): g.write('\n')\n"
-      "PY\n";
+  // Use awk to filter CSV by y field (second column) and keep only rows matching the requested y values.
+  // rows_csv is a comma-separated list of integers like "49,50". For each matching Pixel line, also output a blank
+  // line immediately after it to preserve the interleaved Pixel+Intersection record shape.
+  const std::string awk_prog =
+    R"( 'BEGIN{n=split(rows,a,","); for(i=1;i<=n;i++) r[a[i]+0]=1} { y=$2+0; if (r[y]) { print; print "" } }' )";
+  std::string cmd = std::string("awk -F',' -v rows=\"") + rows_csv +
+          "\" " + awk_prog + "\"" + src + "\" > \"" + out + "\"";
   int rc = system(cmd.c_str());
   int exit_code = WIFEXITED(rc) ? WEXITSTATUS(rc) : rc;
   EXPECT_EQ(exit_code, 0);

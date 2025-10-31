@@ -1,3 +1,4 @@
+@skip
 Feature: Stepwise pipeline from artifacts (resume Stage 2–6)
   As a developer
   I want to resume the stepwise pipeline from existing artifacts

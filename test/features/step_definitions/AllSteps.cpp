@@ -11,3 +11,4 @@
 #include "PipelineSteps.cpp"
 #include "StepwisePipelineSteps.cpp"
 #include "OnlyOneUpSteps.cpp"
+#include "FeederWriterSteps.cpp"

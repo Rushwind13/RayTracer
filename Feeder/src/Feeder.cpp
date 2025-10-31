@@ -34,12 +34,13 @@ void Feeder::local_setup()
 	msgpack::sbuffer header(0);
 	msgpack::sbuffer pay(0);
     Pixel pixel;
-    Intersection i;
     std::string line2;
     const char* env_limit = std::getenv("FEEDER_LIMIT");
     int limit = env_limit ? std::atoi(env_limit) : -1;
     for (std::string line; std::getline(in, line); )
     {
+        // Start each record with a fresh default Intersection
+        Intersection i;
         ReadPixel(line, pixel);
 
         if( current_y != pixel.y )
@@ -48,8 +49,18 @@ void Feeder::local_setup()
             std::cout << "(" << current_y << ")" << std::endl;
         }
 
-        std::getline(in, line2);
-        ReadIntersection(line2, i);
+        if (std::getline(in, line2))
+        {
+            if (!line2.empty())
+            {
+                ReadIntersection(line2, i);
+            }
+            // else keep default Intersection (blank payload)
+        }
+        else
+        {
+            // Missing payload line: keep default Intersection
+        }
 #ifdef DEBUG
         // PrintPixel(cout, pixel);
         // PrintIntersection(cout, i);
