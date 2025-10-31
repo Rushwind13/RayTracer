@@ -9,6 +9,3 @@
 #include "TransformationSteps.cpp"
 #include "TupleSteps.cpp"
 #include "PipelineSteps.cpp"
-#include "StepwisePipelineSteps.cpp"
-#include "OnlyOneUpSteps.cpp"
-#include "FeederWriterSteps.cpp"

@@ -3,11 +3,8 @@
 # Check if the first argument is "--build"
 if [[ "$1" == "--build" ]]; then
   # If it is, build the project and return
-  cd ..
-  make clean
-  make test
-  cd -
   shift
+  ./build.sh 
 fi
 
 # Set the executable path
