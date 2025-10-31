@@ -33,20 +33,23 @@ bool Logger::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
     std::cout << "(" << pixel.y << ")" << "\r";
 
-    // Payload may be missing (e.g., capturing PixelFactory stream). Fall back to default Intersection.
-    Intersection i;
+    // Payload may be missing (e.g., capturing PixelFactory stream).
+    // Track whether a payload was actually present so we can write blank lines in artifacts.
+    Intersection i; bool has_payload = false;
     try {
         msgpack::object obj2;
         unPackPart( payload, &obj2 );
         obj2.convert( i );
+        has_payload = true;
     } catch (const std::exception&) {
-        // leave i as default: gothit=false, distance=1e9
+        // leave i as default: gothit=false, distance=1e9; has_payload stays false
     }
 
     if( pixel.type != iInvalid )
     {
         pixels.push_back(pixel);
         intersections.push_back(i);
+        had_payload.push_back(has_payload);
     }
     else
     {
@@ -88,14 +91,20 @@ void Logger::writeFile()
     }
 
     size_t n = std::min(pixels.size(), intersections.size());
+    n = std::min(n, had_payload.size());
     for (size_t idx = 0; idx < n; ++idx) {
         PrintPixel(out, pixels[idx]);
-        PrintIntersection(out, intersections[idx]);
+        if (had_payload[idx]) {
+            PrintIntersection(out, intersections[idx]);
+        } else {
+            out << '\n';
+        }
     }
     out.close();
 
     pixels.clear();
     intersections.clear();
+    had_payload.clear();
 
     usleep(100*1000); // slow re-joiner problem?
 }

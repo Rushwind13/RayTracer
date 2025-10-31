@@ -48,6 +48,7 @@ private:
     static Logger instance;
     std::vector<Pixel> pixels;
     std::vector<Intersection> intersections;
+    std::vector<bool> had_payload;
     clock_t latest_write;
 };
 

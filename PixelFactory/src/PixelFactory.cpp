@@ -29,6 +29,13 @@ void PixelFactory::local_setup()
 	msgpack::sbuffer header(0);
 	msgpack::sbuffer pay(0);
 
+	// Streaming and limit controls via environment
+	const char* env_stream = std::getenv("PF_STREAM");
+	bool do_stream = (env_stream && *env_stream && *env_stream != '0');
+	const char* env_limit = std::getenv("PF_LIMIT");
+	long limit = env_limit ? std::atol(env_limit) : -1;
+	long emitted = 0;
+
 	/*for( int j = 130; j < 140; j++ )
 	{
 		for( int i = 205; i < 215; i++ )
@@ -55,11 +62,19 @@ void PixelFactory::local_setup()
 			printvec( "d", pixel.r.direction);
 #endif /* DEBUG */
 
-            pixels.push_back(pixel);
-			// header.clear();
-			// msgpack::pack( header, pixel );
-            //
-			// sendMessage(&header, &pay);
+			pixels.push_back(pixel);
+			if (do_stream) {
+				header.clear();
+				msgpack::pack( header, pixel );
+				// No payload for PixelFactory stream (Pixel-only messages)
+				pay.clear();
+				sendMessage(&header, &pay);
+				emitted++;
+				if (limit > 0 && emitted >= limit) {
+					j = camera.height; // break outer
+					break; // break inner
+				}
+			}
 #ifdef DEBUG
 			std::cout << "\r";
 #endif /* DEBUG */
@@ -68,18 +83,28 @@ void PixelFactory::local_setup()
 	}
 	std::cout << std::endl;
 
-    // write pixels out to file
-    std::ofstream out("output.txt");
-    std::vector<Pixel>::iterator ptr;
-    for( ptr = pixels.begin(); ptr < pixels.end(); ptr++)
-    {
-        PrintPixel(out, *ptr);
-        out << std::endl; // extra line for Intersections (blank at this point)
-    }
-    out.close();
-#undef WANT_EOF
-#ifdef WANT_EOF
-    // send "EOF" pixel
+	// Optionally write pixels out to file (default off when streaming)
+	bool write_file = true;
+	const char* env_write = std::getenv("PF_WRITE_FILE");
+	if (do_stream) {
+		write_file = false;
+	}
+	if (env_write && *env_write) {
+		// PF_WRITE_FILE=1 enables, =0 disables
+		write_file = (*env_write != '0');
+	}
+	if (write_file) {
+		std::ofstream out("output.txt");
+		std::vector<Pixel>::iterator ptr;
+		for( ptr = pixels.begin(); ptr < pixels.end(); ptr++)
+		{
+			PrintPixel(out, *ptr);
+			out << std::endl; // extra line for Intersections (blank at this point)
+		}
+		out.close();
+	}
+
+	// send "EOF" pixel
     pixel.x = -1.0f;
     pixel.y = -1.0f;
     pixel.type = iInvalid;
@@ -88,7 +113,6 @@ void PixelFactory::local_setup()
 	msgpack::pack( header, pixel );
 
 	sendMessage(&header, &pay);
-#endif /* WANT_EOF */
 
 	std::cout << "finished... ";
 	running = false;

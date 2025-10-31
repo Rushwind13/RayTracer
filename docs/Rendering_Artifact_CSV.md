@@ -22,8 +22,13 @@ Goal: Lock down the canonical interleaved record format (Pixel + Intersection pe
   1) Pixel CSV line
   2) Intersection CSV line
 - Blank payload rule: a blank second line is permitted and implies a default Intersection (gothit=false, oid=-1, distances large, vectors zero). Consumers must synthesize defaults, never carry a previous payload across records.
-- EOF convention: a single EOF Pixel (type=iInvalid, x=y=-1) terminates streams/files; no extra blank lines after the final record.
+- EOF convention: As a "control signal", the pipeline may emit a single EOF Pixel (type=iInvalid, x=y=-1); this terminates streams/files; no extra blank lines after the final record. The EOF signal is not part of the data, and should never be captured in a Rendering Artifact. 
 - Counting invariants: for N pixels there are exactly 2N lines. Tools and tests count in records (pairs), not raw lines.
+
+### Message contract (bus) vs disk artifact (files)
+
+- Message contract: one logical message consists of a Pixel header plus an Intersection payload. PixelFactory is the sole exception and may emit Pixel-only messages (it knows nothing about Intersections). Every other actor MUST emit both a Pixel and an Intersection payload. If an actor receives a Pixel-only message, it SHALL synthesize a default Intersection and include it in its output message.
+- Disk artifact contract: canonical on-disk artifacts MUST contain exactly two lines per record (2N lines total) with the Pixel CSV line followed by the Intersection CSV line. When the payload is absent, the second line MUST be present but blank to represent the default Intersection.
 
 ### Pixel CSV columns (in order)
 
@@ -72,25 +77,28 @@ Intersection: gothit,anyhit,oid,Norm(x,y,z,w),Pos(x,y,z,w),Dist0,Dist1
 All actors below must treat the artifact format as the interface contract:
 
 - PixelFactory
-  - Emits Pixel lines paired with a blank Intersection line (default payload) unless explicitly provided.
-  - Deterministic traversal (row-major as camera defines). Width/height come from Camera/World.
+  - Network (bus): emits Pixel-only messages and MUST emit a single EOF Pixel after the last pixel.
+  - Disk (files): when writing artifacts directly to disk, it MUST conform to the disk contract by writing a Pixel CSV line followed by a blank Intersection line per record (to preserve the 2N-line invariant).
+  - Deterministic traversal: row‑major with x as the fast axis (inner loop) and y as the slow axis (outer loop), visiting (0,0) → (width−1,height−1) in camera order. Width/height come from Camera/World.
 
 - Feeder
-  - Reads records as pairs; blank or missing second line → synthesize default Intersection for that record.
+  - Reads records as pairs from disk; blank or missing second line → synthesize default Intersection for that record.
+  - Emits bus messages that ALWAYS contain both a Pixel and an Intersection payload (blank/default if synthesized).
   - FEEDER_LIMIT applies to records. Supports multiple input files as a single concatenated stream; emits exactly one EOF after the final record across all files.
 
 - Logger
-  - Captures a stream and writes records in canonical interleaved format. Supports `LOG_BASEDIR` and `LOG_APPEND`. Never mutates fields; logs counts for pixels/intersections.
+  - Captures a stream and writes records in canonical interleaved (2N-line) format. If an input message lacks an Intersection payload, Logger writes a default Intersection line for that record. Supports `LOG_BASEDIR` and `LOG_APPEND`. Never mutates business fields; logs counts for pixels/intersections. Logger does not capture EOF as data.
 
 - Writer
-  - Consumes records; ignores the Intersection payload; advances one record (two lines) per pixel. Produces the final PNG at EOF.
+  - Consumes bus messages (Pixel + Intersection). It ignores the Intersection payload for coloring, advances one record per message, and produces the final PNG at EOF. Writer does not parse text artifacts directly; for file-to-PNG flows, Feeder is responsible for reading pairs and emitting messages to Writer.
 
 ## Compliance and validation
 
-- Readers MUST use `ReadPixel`/`ReadIntersection` and default an `Intersection` when the payload line is blank/missing.
-- Writers MUST use `PrintPixel`/`PrintIntersection` without reformatting or extra whitespace.
-- EOF MUST be a single Pixel with `type=iInvalid` and `x=y=-1`, followed by no additional lines.
-- Record counts MUST be computed in pairs; 2N-line invariant SHOULD be enforced in tests.
+- Readers of disk artifacts MUST use `ReadPixel`/`ReadIntersection` and default an `Intersection` when the payload line is blank/missing.
+- Writers of disk artifacts MUST use `PrintPixel`/`PrintIntersection` without reformatting or extra whitespace, and MUST preserve the 2N-line invariant (blank second lines are explicit records, not omitted).
+- Bus emitters: all actors EXCEPT PixelFactory MUST emit messages that include both Pixel and Intersection payloads. If Intersection is not provided on input, they MUST synthesize and include a default Intersection in their output message.
+- EOF MUST be a single Pixel with `type=iInvalid` and `x=y=-1`. It is a control signal on the bus and MUST NOT be captured as part of a disk artifact; no additional lines follow EOF.
+- Record counts MUST be computed in pairs for files; the 2N-line invariant SHOULD be enforced in tests.
 
 ## BDD coverage
 
