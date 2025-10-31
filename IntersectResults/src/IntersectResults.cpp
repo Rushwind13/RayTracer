@@ -185,6 +185,14 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 	unPackPart( payload, &obj );
 	obj.convert( i );
 
+	// Optional: also publish an aggregate stream for fan-in consumers (e.g., Mailroom)
+	// Enable by setting INTERSECTRESULTS_EMIT_AGGREGATE=1 in the environment.
+	const char* emit_aggr = std::getenv("INTERSECTRESULTS_EMIT_AGGREGATE");
+	if (emit_aggr && *emit_aggr && *emit_aggr != '0') {
+		// Send the same header/payload to the IntersectResults topic without altering buffers
+		sendMessage(header, payload, "IntersectResults");
+	}
+
 	char pub[11] = "";
 
 	if( pixel.type == iShadow )

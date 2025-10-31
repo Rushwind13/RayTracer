@@ -448,3 +448,18 @@ THEN("^the logger artifact \"([^\"]+)\" should have (\\d+) blank payload lines$"
   }
   EXPECT_EQ(count_blank, blanks);
 }
+
+// Mailroom steps
+GIVEN("^Mailroom on socket \"([^\\"]+)\" subscribing \"([^\\"]+)\" publishing on socket \"([^\\"]+)\"$") {
+  REGEX_PARAM(std::string, sub_socket);
+  REGEX_PARAM(std::string, topic);
+  REGEX_PARAM(std::string, pub_socket);
+  // Launch Mailroom in background; bind the subscriber to accept Feeder connections directly
+  std::ostringstream cmd;
+  cmd << "bash -lc 'cd ../Mailroom && MAILROOM_BIND_SUB=1 DYLD_LIBRARY_PATH=../../zmq_widgets/bin:$DYLD_LIBRARY_PATH ./start.sh "
+      << sub_socket << " " << topic << " " << pub_socket
+      << " > /dev/null 2>&1 &'";
+  int rc = ::system(cmd.str().c_str());
+  ASSERT_EQ(rc, 0);
+  usleep(100*1000);
+}

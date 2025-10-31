@@ -18,3 +18,10 @@ Examine docs/`Rendering_Artifact_CSV`.md as a read-only reference and ruleset.
 Examine docs/`SchemaBDD_WORKLIST`.md as the current worklist we will update as we complete.
  
 note the state of code and tests in the local repo, surface any rule ambiguities; prefer to correct the WORKLIST interpretation and assume the ruleset is canon.
+
+To build docs/`StepwiseBDD_WORKLIST`.md,
+Examine docs/`Rendering_Artifact_CSV`.md as a read-only reference and ruleset.
+Examine WORKLIST.txt to find all stepwise references, and move them verbatim to `StepwiseBDD_WORKLIST`.
+Following the BDD path in ArtifactCSVSteps.cpp,
+generate a list of required integration tests that will separately execute each pipeline stage on a small dataset with the correct actors, and render a correct artifact.
+Add these to the `StepwiseBDD_WORKLIST`.

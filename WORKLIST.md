@@ -25,6 +25,11 @@
   - Input: RESULT; Output: SHADE/BKG or BLACK/LIT depending on Pixel.type and Intersection result.
   - Next steps: fix noted bug on shadow distance check; parameterize world.object_count; ensure consistent EOF propagation.
 
+- Mailroom (RayTracer/Mailroom/src)
+  - Purpose: Divide-out router. Subscribes to aggregated IntersectResults stream and republishes to Shader/Background/Black/Lit topics.
+  - Input: IntersectResults (aggregate); Output: SHADE/BKG/BLACK/LIT.
+  - Next steps: finalize topic and socket defaults in pipeline.cfg; add performance metrics and optional split mailrooms (shadow vs regular).
+
 - Shader (RayTracer/Shader/src)
   - Purpose: For primary hits, compute ambient/emissive baseline and launch one shadow test per light. Stashes N·L, light id, distance.
   - Input: SHADE + payload=nearest Intersection; Output: INTERSECT for shadow rays; also prepares baseline COLOR for ambient/emissive.
@@ -255,6 +260,7 @@
 - [x] Stage 5 isolated (complete oDEPTH → oPNG)
 - [x] Stage 6 isolated (complete oPNG → PNG file)
 - [x] pretty_logs utility for runs (scripts/validation/pretty_logs.sh)
+- [ ] Able to push an image of arbitrary HxW size through pipeline using integration test harness
 - [ ] Stepwise run from complete oIntersectResult (RESUME_STAGE=2 → PNG)
 - [ ] Stepwise run from complete oShader (RESUME_STAGE=3 → PNG)
 - [ ] Stepwise run from complete oCOLOR (RESUME_STAGE=4 → PNG)
