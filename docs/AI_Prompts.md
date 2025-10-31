@@ -12,7 +12,7 @@ we are going to work on `Rendering Artifact Schema BDD (PixelFactory, Feeder, Lo
 Examine docs/`Rendering_Artifact_CSV`.md as a read-only reference and ruleset.
 Examine docs/`SchemaBDD_WORKLIST`.md as the current worklist we will update as we complete.
  
-note the state of code and tests in the local repo, surface any rule ambiguities, surface any needed updates to `SchemaBDD_WORKLIST`, and surface a list of 3 next steps
+note the state of code and tests in the local repo, surface any needed updates to `SchemaBDD_WORKLIST`, and surface a list of 3 next steps
 
 Examine docs/`Rendering_Artifact_CSV`.md as a read-only reference and ruleset.
 Examine docs/`SchemaBDD_WORKLIST`.md as the current worklist we will update as we complete.

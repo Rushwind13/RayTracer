@@ -1,4 +1,3 @@
-@skip
 Feature: PixelFactory streaming yields blank payload lines in Logger
   As a developer
   I want PixelFactory to publish Pixel-only messages

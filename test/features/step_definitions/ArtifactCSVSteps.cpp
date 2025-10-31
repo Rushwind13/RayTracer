@@ -46,6 +46,44 @@ static void ensureDir(const std::string &dir) {
   }
 }
 } // namespace
+// Utility to write a 150x2 slice artifact from a full interleaved file
+GIVEN("^a 150x2 slice artifact from \"([^\"]+)\" rows (\\d+)-(\\d+)$") {
+  REGEX_PARAM(std::string, relpath);
+  REGEX_PARAM(int, y0);
+  REGEX_PARAM(int, y1);
+  ScenarioScope<ArtifactCtx> ctx;
+  // Ensure temp run dir exists
+  if (ctx->tmpDir.empty()) {
+    ctx->tmpDir = "tmp/run";
+    ensureDir("tmp");
+    ensureDir(ctx->tmpDir);
+  }
+
+  // Load the source artifact (expected to be PixelFactory-style: Pixel line + blank payload)
+  std::string path = std::string("../") + relpath;
+  auto L = readAllLines(path);
+  ASSERT_FALSE(L.empty()) << "missing input artifact: " << path;
+  ASSERT_EQ(L.size() % 2, 0u) << "source must be interleaved (2N lines)";
+
+  // Prepare output slice path
+  std::string outPath = ctx->tmpDir + "/slice.txt";
+  std::ofstream out(outPath.c_str());
+  ASSERT_TRUE(out.good()) << "unable to open output: " << outPath;
+
+  int written = 0;
+  for (size_t i = 0; i + 1 < L.size(); i += 2) {
+    Pixel p; ReadPixel(L[i], p);
+    if (p.y >= y0 && p.y <= y1) {
+      // Re-emit in canonical form: Pixel CSV, then blank payload (slice keeps defaults)
+      PrintPixel(out, p);
+      out << '\n';
+      written++;
+    }
+  }
+  out.close();
+  // Sanity: expect width*rows records; width comes from data; but we at least need >0
+  ASSERT_GT(written, 0) << "no records matched rows " << y0 << "-" << y1;
+}
 
 // PixelFactory steps
 GIVEN("^I load the sample artifact \"(.+)\"$") {
