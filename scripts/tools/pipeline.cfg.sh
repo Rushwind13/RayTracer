@@ -6,7 +6,7 @@ PROXY_XSUB="tcp://127.0.0.1:1314"
 PROXY_XPUB="tcp://127.0.0.1:1313"
 
 # Buses (direct PUB/SUB sockets used by services outside the proxy)
-BUS_INTERSECT_RESULT="tcp://127.0.0.1:1300" # IntersectResults bind/subscribes here in continuous mode
+BUS_INTERSECTRESULTS="tcp://127.0.0.1:1300" # IntersectResults bind/subscribes here in continuous mode
 BUS_SHADER="tcp://127.0.0.1:1312"
 BUS_COLOR="tcp://127.0.0.1:1303"
 BUS_DEPTH="tcp://127.0.0.1:1307"

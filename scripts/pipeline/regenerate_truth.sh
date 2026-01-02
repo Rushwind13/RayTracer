@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerate a full, deterministic set of stepwise rendering artifacts from data/pixels.txt
+# Regenerate a full, deterministic set of stepwise rendering artifacts from runs/truth/pixels.txt
 # Captures: oIntersectResult, oShader, oBKG, oBlack, oLit, oCOLOR, oDEPTH, oPNG, final PNG
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)"
@@ -18,24 +18,27 @@ pids=()
 # Start proxy for IntersectWith fan-out
 "$ROOT_DIR/../zmq_widgets/bin/ControlChannel" "$PROXY_XSUB" "$PROXY_XPUB" >"$RUN_DIR/proxy.log" 2>&1 & proxy_pid=$!
 
-# Stage 1: IntersectWith (many) -> IntersectResults (via proxy)
-for OBJ in "${OBJECTS[@]}"; do run_in "$ROOT_DIR/IntersectWith" "intersect_with_${OBJ}" ./start.sh "$OBJ" "$PROXY_XSUB"; done
-# Capture IntersectResult via logger on proxy XPUB
-run_in "$ROOT_DIR/Logger" logger_stage1 ./start.sh "$PROXY_XPUB" "$TOPIC_INTERSECT_RESULT" IntersectResult.txt
+# Stage 1: IntersectWith (many) -> Logger (per object)
+for OBJ in "${OBJECTS[@]}"; do
+  run_in "$ROOT_DIR/IntersectWith" "intersect_with_${OBJ}" ./start.sh "$OBJ" "$PROXY_XPUB" "$TOPIC_INTERSECT_RESULT.$OBJ" "$PROXY_XSUB"
+  run_in "$ROOT_DIR/Logger" "logger_intersectwith_${OBJ}" ./start.sh "$PROXY_XPUB" "$TOPIC_INTERSECT_RESULT.$OBJ" "IntersectResult.$OBJ.txt"
+done
 sleep 0.15; LOGGER1=$LAST_PID
 # Feed pixels
-STEPWISE_INPUT_FILE="$ROOT_DIR/data/pixels.txt"
+STEPWISE_INPUT_FILE="$ROOT_DIR/runs/truth/pixels.txt"
 run_in "$ROOT_DIR/Feeder" feeder_stage1 ./start.sh IntersectWith "$STEPWISE_INPUT_FILE" "$PROXY_XSUB"
 wait "$LOGGER1" || true; cleanup_stage || true
 
-# Stage 2: IntersectResults -> log Shader, BKG, BLACK, LIT
-run_in "$ROOT_DIR/IntersectResults" intersect_results ./start.sh
+# Stage 2: IntersectResults -> Logger(s)
+run_in "$ROOT_DIR/IntersectResults" intersect_results ./start.sh "$BUS_INTERSECTRESULTS"
 run_in "$ROOT_DIR/Logger" logger_shader ./start.sh "$BUS_SHADER" Shader.txt
 run_in "$ROOT_DIR/Logger" logger_bkg ./start.sh "$BUS_SHADER" BKG.txt
 run_in "$ROOT_DIR/Logger" logger_black ./start.sh "$BUS_SHADER" BLACK.txt
 run_in "$ROOT_DIR/Logger" logger_lit ./start.sh "$BUS_SHADER" LIT.txt
 sleep 0.15; LOGGER_LAST=$LAST_PID
-run_in "$ROOT_DIR/Feeder" feeder_stage2 ./start.sh "$TOPIC_INTERSECT_RESULT" "$RUN_DIR/oIntersectResult.txt" "$BUS_INTERSECT_RESULT"
+for OBJ in "${OBJECTS[@]}"; do
+  run_in "$ROOT_DIR/Feeder" feeder_to_intersectresults ./start.sh IntersectResult "$RUN_DIR/IntersectResult.$OBJ.txt" "$BUS_INTERSECTRESULTS"
+done
 wait "$LOGGER_LAST" || true; cleanup_stage || true
 
 # Stage 3: Shader + Background + Black + Lit -> COLOR
@@ -57,6 +60,12 @@ run_in "$ROOT_DIR/Feeder" feeder_lit ./start.sh LIT "$RUN_DIR/oLIT.txt" "$BUS_SH
 wait "$LAST_PID" || true; cleanup_stage || true
 
 # Stage 4: ColorResults -> DEPTH
+# TODO: eventually handle multiple layers
+# (each depth represents a different reflective surface along each ray)
+# this will have a different pixel count than the base depth
+# base depth has all pixels
+# each other depth has only pixels that hit that surface
+# how do we serialize and validate that?
 run_in "$ROOT_DIR/ColorResults" colorresults ./start.sh
 run_in "$ROOT_DIR/Logger" logger_stage4 ./start.sh "$BUS_DEPTH" "$TOPIC_DEPTH" DEPTH.txt
 sleep 0.15; LOGGER_LAST=$LAST_PID
