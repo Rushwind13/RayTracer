@@ -29,6 +29,7 @@ protected:
 
 private:
 	World world;
+    int pixel_count;
 
 	// Simple hashing function
 	// creates a hash of x,y , the depth, and the test type

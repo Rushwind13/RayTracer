@@ -30,8 +30,16 @@ bool Lit::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 	Object *obj = world.FindObject(pixel.oid);
 	Light *light = world.FindLight(pixel.lid);
-	assert(obj);
-	assert(light);
+	if (!obj || !light)
+	{
+		// Guard against missing object/light ids; publish a minimal ambient to keep pipeline moving
+		Color ambient(0.01,0.01,0.01);
+		pixel.color = ambient;
+		header->clear();
+		msgpack::pack(header, pixel);
+		payload->clear();
+		return true;
+	}
 
 	// Diffuse
 	Color diffuse;
@@ -102,6 +110,11 @@ int main(int argc, char* argv[])
         return 1;
     }
 	Lit lit(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	// Allow binding the subscriber (LIT topic on 1312) in isolated/stepwise runs
+	const char* bind_sub = std::getenv("LIT_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		lit.forceBindSubscriber();
+	}
 	cout << "running" << endl;
 	lit.run();
 

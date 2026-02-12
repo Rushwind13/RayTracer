@@ -36,7 +36,7 @@ bool IntersectWith::local_work(msgpack::sbuffer *header, msgpack::sbuffer *paylo
 
     if( pixel.type == iInvalid )
     {
-        // running = false;
+        running = false;
         std::cout << "received EOF after " << pixel_count << " pixels, passing it along...";
 
         header->clear();

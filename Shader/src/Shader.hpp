@@ -15,7 +15,7 @@ class Shader : public Widget
 {
 public:
 	Shader( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
-		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, true, true )
+		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, true, false )
 	{
 	};
 	~Shader(){};
@@ -29,6 +29,7 @@ protected:
 
 private:
 	World world;
+    int pixel_count;
 	void prepareShadowTest( Pixel *pixel, const Intersection i );
 };
 

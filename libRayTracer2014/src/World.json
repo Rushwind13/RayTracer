@@ -2,7 +2,7 @@
 	"filename": "test.png",
 	"camera": {
 		"eye": [0.0, 6.0, 0.0],
-		"lookAt": [0.0, 6.0, -100.0],
+		"lookAt": [0.0, 1.0, -100.0],
 		"up": [0.0, 1.0, 0.0],
 		"fovy": 90.0,
 		"width": 150.0,
@@ -15,8 +15,9 @@
 		"white": [1.0, 1.0, 1.0],
 		"black": [0.0, 0.0, 0.0],
 		"dark_blue": [0.1, 0.1, 1.0],
-		"medium_cyan": [0.3, 0.5, 0.5],
-		"medium_yellow": [0.5, 0.5, 0.4]
+		"medium_cyan": [0.25, 0.5, 0.5],
+		"medium_yellow": [0.5, 0.5, 0.25],
+		"medium_magenta": [0.5, 0.25, 0.5]
 	},
 	"patterns": {
         "red": {
@@ -79,13 +80,14 @@
 			"type": "box",
 			"material": {
 				"reflective": 1.0,
-				"usePattern": true,
+				"usePattern": false,
+                "color": "red",
 				"pattern": {
 					"name": "noisy.red",
 					"scale": [0.2, 0.2, 0.2]
 				}
 			},
-			"center": [-2.5, 0.0, -5.0],
+			"center": [-2.5, 6.0, -5.0],
 			"scale": [1.0, 1.0, 1.0],
 			"axis": [0, 0, 1],
 			"degrees": -135.0
@@ -108,7 +110,7 @@
 			"material": {
 				"color": "green",
 				"reflective": 0.5,
-				"usePattern": true,
+				"usePattern": false,
 				"pattern": {
 					"type": "stripes.noisylerp",
 					"scale": [0.2, 0.2, 0.2],
@@ -139,7 +141,7 @@
 		"plane_r_wall": {
 			"type": "plane",
 			"material": {
-				"color": "medium_yellow",
+				"color": "medium_magenta",
 				"reflective": 0.0
 			},
 			"center": [10.0, 0.0, 0.0],

@@ -11,6 +11,7 @@
 //============================================================================
 
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 #include "IntersectResults.hpp"
 #include "Object.hpp"
@@ -18,27 +19,64 @@ using namespace std;
 
 void IntersectResults::local_setup()
 {
+	// Slow joiner problem
+	usleep(100*1000);
 //#define DEBUG
 	std::cout << "IntersectResults starting up... ";
+    pixel_count=0;
 }
 
 bool IntersectResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
 	Pixel pixel;
+	Intersection i;
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
-#ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ") " << pixel.type << " ";
-#endif /* DEBUG */
 
-	Intersection i;
+    if( pixel.type == iInvalid )
+    {
+        running = false;
+        std::cout << "received EOF after " << pixel_count << " pixels, passing it along...";
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        PrintPixel(cout, pixel);
+
+        sendMessage(header, payload, "Black");
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        sendMessage(header, payload, "Lit");
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        sendMessage(header, payload, "Shader");
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        sendMessage(header, payload, "Background");
+
+        std::cout << "sent." << std::endl;
+        pixel_count = 0;
+        usleep(100*1000); // slow re-joiner problem?
+        return false;
+    }
+
 	msgpack::object obj2;
 	unPackPart( payload, &obj2 );
 	obj2.convert( i );
-#ifdef DEBUG
-	std::cout << i.oid << " " << i.gothit;
-#endif /* DEBUG */
+
+    pixel_count++;
+    std::cout << "(" << i.oid << "-"<< pixel.y << ")" << "\r";
 
 	bool testComplete = false;
 	testComplete = storeIntersection( pixel, i );
@@ -94,6 +132,7 @@ bool IntersectResults::storeIntersection( Pixel pixel, Intersection hit )
 			if( pixel.type == iShadow )
 			{
 				// Shadow tests only need the first intersected object, not the nearest
+                // TODO: this is a bug, we are checking distance below and could leak a more distant object
 				if( !curr_nearest.gothit )
 				{
 					nearest[key] = hit;
@@ -146,20 +185,21 @@ void IntersectResults::local_send( msgpack::sbuffer *header, msgpack::sbuffer *p
 	unPackPart( payload, &obj );
 	obj.convert( i );
 
-	char pub[6] = "";
+	char pub[11] = "";
 
 	if( pixel.type == iShadow )
 	{
 		//std::cout << " shadow test ";
 		// Shadow rays get "Black" when they hit something, or "Lit" when they miss
-		strcpy(pub, (i.gothit && (i.distance[0] < pixel.distance)) ? "BLACK":"LIT");
+        // Note: Shadow tests mess with thhe pixel a lot, "pixel.distance" here is "distance from intersect point to light being tested"
+		strcpy(pub, (i.gothit && (i.distance[0] < pixel.distance)) ? "Black":"Lit");
 		pixel.gothit = true;
 	}
 	else
 	{
 		// All other ray types (Primary, Reflection, Refraction)
 		// get "Shade" when they hit something, or "Background" when they miss
-		strcpy( pub, i.gothit ? "SHADE":"BKG");
+		strcpy( pub, i.gothit ? "Shader":"Background");
 	}
 
 #ifdef DEBUG

@@ -32,6 +32,26 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	std::cout << "(" << pixel.x << "," << pixel.y << ")";
 #endif /* DEBUG */
 
+	const char* smoke = getenv("SMOKE_MODE");
+	bool smoke_mode = (smoke && smoke[0] != '\0' && smoke[0] != '0');
+
+	// Forward EOF to Writer so it can flush and save the image
+	if( pixel.type == iInvalid )
+	{
+		running = false;
+		if (smoke_mode)
+			std::cout << name << " received EOF, forwarding to PNG...";
+		header->clear();
+		payload->clear();
+		msgpack::pack( header, pixel );
+		Intersection i;
+		msgpack::pack( payload, i );
+		sendMessage(header, payload);
+		if (smoke_mode)
+			std::cout << "sent." << std::endl;
+		return false;
+	}
+
 	bool colorComplete = false;
 	colorComplete = storeColor( pixel );
 
@@ -54,11 +74,21 @@ bool DepthChart::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 #ifdef DEBUG
 		std::cout << key << " done. sending: " << pixel.color.r << "  ";
 #endif /* DEBUG */
-		// Prepare payload for sending to next stage...
+	// Prepare payload for sending to next stage...
 		payload->clear();
 		header->clear();
 
-		msgpack::pack( header, pixel );
+	msgpack::pack( header, pixel );
+	// Provide an Intersection payload for Writer's BRUTE_FORCE path
+	Intersection i;
+	msgpack::pack( payload, i );
+#if !defined(DEBUG)
+	if (smoke_mode)
+	{
+	    std::cout << name << " -> PNG (x=" << pixel.x << ", y=" << pixel.y << ", d=" << pixel.depth
+		      << ") layers=" << layer_count[key] << "/" << maxlayers[key] << std::endl;
+	}
+#endif /* !DEBUG */
 #ifdef DEBUG
 		printvec("c", pixel.color);
 #endif /* DEBUG */
@@ -99,12 +129,23 @@ bool DepthChart::storeColor( Pixel pixel )
 	// ...otherwise, first time in, expect to get hits on each layer
 	else if( layer_count.find(key) == layer_count.end() )
 	{
-		maxlayers[key] = world.maxdepth + 1;
+		// If SMOKE_MODE is enabled, complete on the primary layer to avoid waiting
+		// for reflections that aren't being produced in the smoke test.
+		const char* smoke = getenv("SMOKE_MODE");
+		if( smoke && smoke[0] != '\0' && smoke[0] != '0' )
+		{
+			maxlayers[key] = pixel.depth + 1;
+		}
+		else
+		{
+			maxlayers[key] = world.maxdepth + 1;
+		}
 #ifdef DEBUG
 		std::cout << " new one. set layers to " << maxlayers[key] << " ";
 #endif
 	}
 
+    // Note: Without Reflection turned on, DepthChart is not needed; just take the output of ColorResults and send to Writer
 	if( pixel.depth == 0 )
 	{
 		primary[key] =  pixel.color;
@@ -140,6 +181,11 @@ int main(int argc, char* argv[])
         return 1;
     }
 	DepthChart dc(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	// Allow binding the subscriber (DEPTH bus) in isolated runs so Feeder can connect
+	const char* bind_sub = std::getenv("DEPTHCHART_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		dc.forceBindSubscriber();
+	}
 	cout << "running" << endl;
 	dc.run();
 

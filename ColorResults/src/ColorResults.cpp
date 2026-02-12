@@ -11,6 +11,7 @@
 //============================================================================
 
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 #include "ColorResults.hpp"
 #include "Object.hpp"
@@ -20,17 +21,37 @@ void ColorResults::local_setup()
 {
 //#define DEBUG
 	std::cout << "ColorResults starting up... ";
+    pixel_count = 0;
 }
 
 bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
 	Pixel pixel;
+    Intersection i;
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
-#ifdef DEBUG
-	if( pixel.gothit ) std::cout << "(" << pixel.x << "," << pixel.y << ")";
-#endif /* DEBUG */
+
+    if( pixel.type == iInvalid )
+    {
+        running = false;
+        std::cout << "received EOF after " << pixel_count << " pixels, passing it along...";
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        PrintPixel(cout, pixel);
+
+        sendMessage(header, payload);
+        std::cout << "sent." << std::endl;
+        pixel_count = 0;
+        usleep(100*1000); // slow re-joiner problem?
+        return false;
+    }
+
+    pixel_count++;
+    std::cout << "(" << pixel.y << ")" << "\r";
 
 	bool colorComplete = false;
 	colorComplete = storeColor( pixel );
@@ -47,7 +68,17 @@ bool ColorResults::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payloa
 		payload->clear();
 		header->clear();
 
-		msgpack::pack( header, pixel );
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        // Optional forwarding log when SMOKE_MODE is enabled
+        const char* smoke = getenv("SMOKE_MODE");
+        bool smoke_mode = (smoke && smoke[0] != '\0' && smoke[0] != '0');
+#if !defined(DEBUG)
+        if (smoke_mode)
+        {
+            std::cout << "ColorResults -> DEPTH (x=" << pixel.x << ", y=" << pixel.y << ", d=" << pixel.depth << ")" << std::endl;
+        }
+#endif /* !DEBUG */
 #ifdef DEBUG
 		printvec("c", pixel.color);
 #endif /* DEBUG */
@@ -69,6 +100,8 @@ bool ColorResults::storeColor( Pixel pixel )
 	int16_t count;
 	Color curr_accumulator;
 	bool testComplete = false;
+	const char* smoke = getenv("SMOKE_MODE");
+	bool smoke_mode = (smoke && smoke[0] != '\0' && smoke[0] != '0');
 
 	// The states you could be in:
 	// Primary miss - you get only one response from "bkg" (gothit = F)
@@ -99,12 +132,12 @@ bool ColorResults::storeColor( Pixel pixel )
 		count = response_count[key];
 		count++;
 
-		// Shadow tests only need the first intersected object, not the nearest
+		// you need contrib from each light
 		curr_accumulator = accumulator[key];
 #ifdef DEBUG
 		printvec("a", curr_accumulator);
 #endif /* DEBUG */
-		// If the new hit is closer, keep it.
+		// mix the new color into the existing accumulator, without overflowing
 		Color outcolor;
 		outcolor = pixel.color + curr_accumulator;
 		if( outcolor.r > 1.0 ) outcolor.r = 1.0;
@@ -130,7 +163,9 @@ bool ColorResults::storeColor( Pixel pixel )
 	}
 
 	// want one more than the number of lights (one from the basic hit and one per light, or just one total if it's a miss)
-	if( count < world.light_count + 1 )
+	// In SMOKE_MODE, allow completion after the first contribution to keep the pipeline flowing
+	int16_t threshold = smoke_mode ? 1 : (world.light_count + 1);
+	if( count < threshold )
 	{
 #ifdef DEBUG
         std::cout << count << std::endl;
@@ -164,7 +199,12 @@ int main(int argc, char* argv[])
         cout << "please use start.sh to provide proper CLI args" << endl;
         return 1;
     }
-    ColorResults cr(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	ColorResults cr(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	// Allow binding the subscriber (COLOR bus) in stepwise/isolated runs
+	const char* bind_sub = std::getenv("COLORRESULTS_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		cr.forceBindSubscriber();
+	}
 
 	cout << "running" << endl;
 	cr.run();

@@ -49,6 +49,7 @@ void PixelFactory::local_setup()
 			pixel.depth = 0;
             pixel.NdotL = 0.0f;
             pixel.distance = 1e9;
+            pixel.oid = -1;
 #ifdef DEBUG
 			printvec( "o", pixel.r.origin);
 			printvec( "d", pixel.r.direction);

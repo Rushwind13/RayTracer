@@ -17,7 +17,7 @@ class Writer : public Widget
 {
 public:
 	Writer( char *_name, char *_subscription, char *_sub_endpoint, char *_publication, char *_pub_endpoint ) :
-		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint )
+		Widget( _name, _subscription, _sub_endpoint, _publication, _pub_endpoint, false, false )
 	{
 	};
 	~Writer(){};
@@ -33,9 +33,11 @@ private:
 	Camera camera;
 	Color *image;
 	int32_t pixel_count;
+    std::unordered_map<int, long long> object_hist;
+    std::unordered_map<uint32_t, long long> color_hist;
 
 	void SaveImage();
-	bool storePixel( Pixel pixel );
+	void AutosaveImage();
 };
 
 

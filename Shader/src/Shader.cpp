@@ -7,20 +7,21 @@
 //============================================================================
 
 #include <iostream>
+#include <unistd.h>
 using namespace std;
 #include "Shader.hpp"
 #include "Lighting.hpp"
 
 void Shader::local_setup()
 {
-//#define DEBUG
-    std::cout << "creating sockets for alternate pub paths...";
-    black_publisher = new zmq::socket_t( *context, ZMQ_PUB );
-    black_publisher->connect( "tcp://127.0.0.1:1312" ); // BLACK
+    
+	// publish base ambient/emissive contribution to COLOR for aggregation
+	// Create dedicated publisher for INTERSECT bus via XPUB/XSUB proxy (XSUB at 1314)
+	// Leave COLOR publisher managed by base Widget
+	intersect_publisher = new zmq::socket_t( *context, ZMQ_PUB );
+	intersect_publisher->connect( "tcp://127.0.0.1:1314" ); // INTERSECT bus inbound
 
-    intersect_publisher = new zmq::socket_t( *context, ZMQ_PUB );
-    intersect_publisher->connect( "tcp://127.0.0.1:1313" ); // INTERSECT
-    std::cout << "done." << std::endl;
+    pixel_count=0;
 }
 
 // You will get here after a successful intersection with some object
@@ -28,21 +29,64 @@ void Shader::local_setup()
 bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 {
 	Pixel pixel;
+	Intersection i;
 	msgpack::object obj;
 	unPackPart( header, &obj );
 	obj.convert( pixel );
-#ifdef DEBUG
-	std::cout << "(" << pixel.x << "," << pixel.y << ")" << pixel.type << " ";
-#endif /* DEBUG */
+
+    if( pixel.type == iInvalid )
+    {
+        running = false;
+        std::cout << "received EOF after " << pixel_count << " pixels, passing it along...";
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        PrintPixel(cout, pixel);
+
+        sendMessage(header, payload, "Black");
+
+		header->clear();
+		payload->clear();
+		msgpack::pack( header, pixel );
+		msgpack::pack( payload, i );
+		// Publish shadow test to INTERSECT bus (topic IntersectWith) via dedicated publisher
+		sendMessage(header, payload, (char*)"IntersectWith", intersect_publisher);
+
+        header->clear();
+        payload->clear();
+        msgpack::pack( header, pixel );
+        msgpack::pack( payload, i );
+        sendMessage(header, payload, "ColorResults");
+
+		// Also publish EOF on the COLOR topic so stepwise Stage 3 Logger can complete
+		header->clear();
+		payload->clear();
+		msgpack::pack( header, pixel );
+		msgpack::pack( payload, i );
+		// Use default publication (COLOR) via base publisher
+		sendMessage(header, payload);
+
+        std::cout << "sent." << std::endl;
+        pixel_count = 0;
+        usleep(100*1000); // slow re-joiner problem?
+        return false;
+    }
 
 	// We know we have at least one hit now, so...
 	pixel.gothit = true;
 
-	Intersection i;
 	msgpack::object obj2;
 	unPackPart( payload, &obj2 );
 	obj2.convert( i );
+
+    pixel_count++;
+    std::cout << "(" << i.oid << "-"<< pixel.y << ")" << "\r";
+
 	payload->clear();
+	Intersection i2;
+    msgpack::pack( payload, i2 );
 
 	// Move necessary info out of the payload and into the header.
 	// all the below tests can possibly spawn several new INTERSECT messages, which will drop the payload.
@@ -77,12 +121,12 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		//   N.L < 0 = send off background color message
 		if( NdotL < 0.0) //(ambient.r + emissive.r) ) // TODO: <-- this has to be a bug
 		{
-#ifdef DEBUG
+// #ifdef DEBUG
 			std::cout << "(" << pixel.x << "," << pixel.y << ")" << " N.L < 0 for lid: " << light->oid << std::endl;
-#endif /* DEBUG */
+// #endif /* DEBUG */
 			// light comes from below surface
 			// TODO: Send off a BKG message to set this to background color
-			sendMessage(header, payload, "BLACK", black_publisher);
+			sendMessage(header, payload, "Black");
 			//sendMessage(header, payload, "BKG");
 			continue;
 		}
@@ -112,7 +156,7 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 		prepareShadowTest( &pShadow, i );
 #endif /* 0 */
 		pixel.r = rShadow;
-		pixel.distance = light_dist;
+		pixel.distance = light_dist; // temporarily overwrite for shadow test
 		pixel.NdotL = NdotL;
 		pixel.lid = light->oid;
 		prepareShadowTest( &pixel, i );
@@ -121,7 +165,8 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 
 		msgpack::pack( header, pixel );
 
-		sendMessage( header, payload, "INTERSECT", intersect_publisher );
+	// Send shadow test via dedicated INTERSECT bus publisher
+	sendMessage( header, payload, (char*)"IntersectWith", intersect_publisher);
 #ifdef DEBUG
 		Pixel px2;
 
@@ -140,17 +185,19 @@ bool Shader::local_work(msgpack::sbuffer *header, msgpack::sbuffer *payload)
 	// Finally, calculate ambient and emissive colors and send off pixel color message
 	// TODO: figure out ambient (from world) and emissive (from object) colors and prepare header and payload to send off a COLOR message
 	pixel.type = iPrimary;
-	pixel.color = ambient + emissive;
+	pixel.color = ambient + emissive; // <-- TODO: this object just got rocked 4 ways from Sunday, per light, I don't think it has good data anymore
 
 	msgpack::pack( header, pixel );
 	payload->clear();
+	msgpack::pack( payload, i2 );
 #ifdef DEBUG
 	std::cout << "(" << pixel.x << "," << pixel.y << ") ";
 	printvec("ambient", pixel.color);
 	std::cout << std::endl;
 #endif /* DEBUG */
 
-	return true; // send an outbound message as a result of local_work()
+	// Publish the primary color contribution on the COLOR channel for downstream stages
+	return true; // base class will publish header/payload using publication (COLOR)
 }
 
 // Copy the info out of the Intersection to pass along to further tests
@@ -166,12 +213,6 @@ void Shader::prepareShadowTest( Pixel *pixel, const Intersection i )
 void Shader::local_shutdown()
 {
 	std::cout << "shutting down... ";
-
-    if( black_publisher != NULL )
-	{
-		black_publisher->close();
-		black_publisher = NULL;
-	}
 	if( intersect_publisher != NULL )
 	{
 		intersect_publisher->close();
@@ -188,6 +229,11 @@ int main(int argc, char* argv[])
         return 1;
     }
     Shader sh(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	// In stepwise Stage 3, allow binding the subscriber so Feeder can connect as publisher
+	const char* bind_sub = std::getenv("SHADER_BIND_SUB");
+	if (bind_sub && *bind_sub && *bind_sub != '0') {
+		sh.forceBindSubscriber();
+	}
 	cout << "running" << endl;
 	sh.run();
 
